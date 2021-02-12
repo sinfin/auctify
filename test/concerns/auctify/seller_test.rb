@@ -4,14 +4,18 @@ require "test_helper"
 
 module Auctify
   class SellerTest < ActiveSupport::TestCase
-    test " adds `sales` association" do
-      assert_not User.new(name: "Krutibrko").respond_to?(:sales)
+    setup do
+      class SellerTestUser < User; end # so it not propagate class_eval to User class
+    end
 
-      User.class_eval do
+    test " adds `sales` association" do
+      assert_not SellerTestUser.new(name: "Krutibrko").respond_to?(:sales)
+
+      SellerTestUser.class_eval do
         auctify_as :seller
       end
 
-      assert User.new(name: "Krutibrko").respond_to?(:sales)
+      assert SellerTestUser.new(name: "Krutibrko").respond_to?(:sales)
     end
   end
 end
