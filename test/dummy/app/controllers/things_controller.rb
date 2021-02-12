@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ThingsController < ApplicationController
   before_action :set_thing, only: [:show, :edit, :update, :destroy]
 
@@ -24,7 +26,7 @@ class ThingsController < ApplicationController
     @thing = Thing.new(thing_params)
 
     if @thing.save
-      redirect_to @thing, notice: 'Thing was successfully created.'
+      redirect_to @thing, notice: "Thing was successfully created."
     else
       render :new
     end
@@ -33,7 +35,7 @@ class ThingsController < ApplicationController
   # PATCH/PUT /things/1
   def update
     if @thing.update(thing_params)
-      redirect_to @thing, notice: 'Thing was successfully updated.'
+      redirect_to @thing, notice: "Thing was successfully updated."
     else
       render :edit
     end
@@ -42,7 +44,7 @@ class ThingsController < ApplicationController
   # DELETE /things/1
   def destroy
     @thing.destroy
-    redirect_to things_url, notice: 'Thing was successfully destroyed.'
+    redirect_to things_url, notice: "Thing was successfully destroyed."
   end
 
   private

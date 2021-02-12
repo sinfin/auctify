@@ -1,8 +1,10 @@
-require 'test_helper'
+# frozen_string_literal: true
+
+require "test_helper"
 
 class ThingsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @thing = things(:one)
+    @thing = things(:apple)
   end
 
   test "should get index" do
@@ -16,7 +18,7 @@ class ThingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create thing" do
-    assert_difference('Thing.count') do
+    assert_difference("Thing.count") do
       post things_url, params: { thing: { name: @thing.name, owner_id: @thing.owner_id } }
     end
 
@@ -39,7 +41,7 @@ class ThingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should destroy thing" do
-    assert_difference('Thing.count', -1) do
+    assert_difference("Thing.count", -1) do
       delete thing_url(@thing)
     end
 
