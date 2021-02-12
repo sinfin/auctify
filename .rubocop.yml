@@ -1,0 +1,34 @@
+inherit_gem:
+  rubocop-rails_config: config/rails.yml
+
+require:
+  - rubocop-minitest
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rake
+
+AllCops:
+  TargetRubyVersion: 2.6.6
+  NewCops: enable
+  Exclude:
+  #  - 'app/assets/**/*'
+    - 'bin/*'
+    - 'db/schema.rb'
+    - 'node_modules/**/*'
+    - 'public/**/*'
+    - 'react/**/*'
+    - 'test/dummy/db/schema.rb'
+    - 'test/dummy/public/**/*'
+    - 'tmp/**/*'
+    - 'vendor/**/*'
+Rails:
+  Enabled: true
+
+Layout/LineLength:
+  Max: 120
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Rails/FilePath:
+  EnforcedStyle: arguments
