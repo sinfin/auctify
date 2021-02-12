@@ -43,7 +43,16 @@ Concerns
 
 
 ## Usage
---How to use my plugin.--
+In `ActiveRecord` model use class method `auctify_as` with params `:buyer`,`:seller`, `:item`.
+```ruby
+class User < ApplicationRecord
+  auctify_as :buyer, :seller # this will add method like `sales`, `puchases` ....
+end
+
+class Painting < ApplicationRecord
+  auctify_as :item # this will add method like `sales` ....
+end
+```
 
 ## Installation
 Add this line to your application's Gemfile:
