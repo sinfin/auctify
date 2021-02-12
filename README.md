@@ -2,7 +2,8 @@
 Rails engine for auctions of items
 
 ## Objects
-- `:item` - object/model, which should be auctioned
+- `:item` - object/model, which should be auctioned (from `main_app`)
+- `:user` - source for `seller` and `bidder` (from `main_app`)
 - `auction` for one `:item` (it is [Forward auction](https://en.wikipedia.org/wiki/Forward_auction))
 - `seller` - person/company which owns `:item`
 - `bidder` - registered person/user allowed to bid in specific `auction`
@@ -63,3 +64,5 @@ Contribution directions go here.
 
 ## License
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+
