@@ -20,4 +20,46 @@ Rails engine for auctions of items
 
 
 
+## TODO
+- generator to copy auction's views to main app (so they can be modified) (engine checks main_app views first)
 
+
+
+## Notices
+`auction belongs_to item`  polymorphic
+`auction belongs_to seller`  polymorphic
+`auction has_many bidder_links` (?bidders?)
+`bidder_link belongs bidder` polymorphic
+
+If `item.owner` exists, it is used as `auction.seller` (or Select from all aucitfied sellers)
+
+Concerns
+- `auctified_as: :seller, :bidder` (User, Folio::User)
+- `auctified_as: :item` (Thing, Art, Car)
+
+
+## Usage
+How to use my plugin.
+
+## Installation
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'auctify'
+```
+
+And then execute:
+```bash
+$ bundle
+```
+
+Or install it yourself as:
+```bash
+$ gem install auctify
+```
+
+## Contributing
+Contribution directions go here.
+
+## License
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

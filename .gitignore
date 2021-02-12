@@ -65,3 +65,16 @@ yarn-debug.log*
 # Ignore uploaded files in development
 /storage/*
 !/storage/.keep
+
+
+
+# from `rails plugin new auctify --mountable`
+.bundle/
+log/*.log
+pkg/
+test/dummy/db/*.sqlite3
+test/dummy/db/*.sqlite3-journal
+test/dummy/db/*.sqlite3-*
+test/dummy/log/*.log
+test/dummy/storage/
+test/dummy/tmp/
