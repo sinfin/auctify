@@ -5,7 +5,7 @@ require "test_helper"
 module Auctify
   class BehaviorsTest < ActiveSupport::TestCase
     setup do
-      class TestUser < User; end # so it not propagate class_eval to User class
+      class TestUser < CleanUser; end # so it will not propagate class_eval to User class
     end
 
     test "`.auctify_as` adds methods from listed concerns" do

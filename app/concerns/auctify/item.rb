@@ -5,9 +5,7 @@ module Auctify
     extend ActiveSupport::Concern
 
     included do
-      def sales
-        []
-      end
+      has_many :sales, as: :item, class_name: "Auctify::Sale"
     end
   end
 end

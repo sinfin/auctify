@@ -5,7 +5,7 @@ require "test_helper"
 module Auctify
   class ItemTest < ActiveSupport::TestCase
     setup do
-      class ItemTestThing < Thing; end # so it not propagate class_eval to Thing class
+      class ItemTestThing < CleanThing; end # so it will not propagate class_eval to Thing class
     end
 
     test " adds `sales` association" do

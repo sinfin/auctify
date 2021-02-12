@@ -2,4 +2,6 @@
 
 class User < ApplicationRecord
   has_many :things, foreign_key: :owner_id, dependent: :destroy, inverse_of: :owner
+
+  auctify_as :seller, :buyer
 end

@@ -1,0 +1,12 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+eve_apple:
+  seller: eve (User)
+  buyer: adam (User)
+  item: apple (Thing)
+
+adam_innocence:
+  seller: adam (User)
+  buyer:
+  item: innocence (Thing)
+
