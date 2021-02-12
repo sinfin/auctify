@@ -1,5 +1,5 @@
 # Auctify
-Rails engine for auctions of items
+Rails engine for auctions of items. Can be used on any ActiveRecord models.
 
 ## Objects
 - `:item` - object/model, which should be auctioned (from `main_app`)

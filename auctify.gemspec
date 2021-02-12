@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "pry-rails"
+  spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "rubocop"
   spec.add_development_dependency "rubocop-rails_config"
   spec.add_development_dependency "rubocop-minitest"

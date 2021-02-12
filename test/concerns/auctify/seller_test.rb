@@ -7,9 +7,9 @@ module Auctify
     test " adds `sales` association" do
       assert_not TestUser.new(name: "Krutibrko").respond_to?(:sales)
 
-      # TestUser.class_eval do
-      #   auctify_as :seller
-      # end
+      TestUser.class_eval do
+        include Auctify::Seller
+      end
 
       assert TestUser.new(name: "Krutibrko").respond_to?(:sales)
     end
