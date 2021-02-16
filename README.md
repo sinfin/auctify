@@ -14,14 +14,19 @@ Rails engine for auctions of items. Can be used on any ActiveRecord models.
 - `auctioneer` - (needed?) company organizing `auction`
 
 ## Relations
-- `:item` N : 0-1 `sale`, (sale time periods cannot overlap)
+- `:item` 1 : 0-N `sale`, (sale time periods cannot overlap)
 - `:item` N : 1 `owner` (can change in time)
 - `sale` N : 1 `seller`
 - `sale` N : 1 `buyer`
-- `sale::auction` M : N `bidders` 1 : N `bids`
+- `sale::auction` 1 : N `bidders` (trough `auction_registration`) 1 : N `bids`
 - `auction_event` 0-1 : N `auctions`  (`auction_event` is optional for `auction`)
 - `auction` N : 1 `auctioneer` (?)
 
+
+## Classes
+###  Sales
+ - `Sale::Auction` - full body auction of one item for many registered  buyer (as bidders)
+ - `Sale::Retail` - direct sale of item to one buyer
 
 ## TODO
 - generator to copy auction's views to main app (so they can be modified) (engine checks main_app views first)
