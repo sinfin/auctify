@@ -8,7 +8,7 @@ module Auctify
 
     # GET /sales
     def index
-      @sales = Sale.all
+      @sales = Sale::Base.all
     end
 
     # GET /sales/1
@@ -17,7 +17,7 @@ module Auctify
 
     # GET /sales/new
     def new
-      @sale = Sale.new
+      @sale = Sale::Base.new
     end
 
     # GET /sales/1/edit
@@ -26,10 +26,10 @@ module Auctify
 
     # POST /sales
     def create
-      @sale = Sale.new(sale_params)
+      @sale = Sale::Base.new(sale_params)
 
       if @sale.save
-        redirect_to @sale, notice: "Sale was successfully created."
+        redirect_to sale_path(@sale), notice: "Sale was successfully created."
       else
         render :new
       end
@@ -38,7 +38,7 @@ module Auctify
     # PATCH/PUT /sales/1
     def update
       if @sale.update(sale_params)
-        redirect_to @sale, notice: "Sale was successfully updated."
+        redirect_to sale_path(@sale), notice: "Sale was successfully updated."
       else
         render :edit
       end
@@ -53,7 +53,7 @@ module Auctify
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_sale
-        @sale = Sale.find(params[:id])
+        @sale = Sale::Base.find(params[:id])
       end
 
       # Only allow a trusted parameter "white list" through.

@@ -21,13 +21,13 @@ module Auctify
     end
 
     test "should create sale" do
-      assert_difference("Sale.count") do
+      assert_difference("Sale::Base.count") do
         post sales_url,
 params: { sale: { buyer_id: @sale.buyer_id, buyer_type: @sale.buyer_type, item_id: @sale.item_id,
 item_type: @sale.item_type, seller_id: @sale.seller_id, seller_type: @sale.seller_type } }
       end
 
-      assert_redirected_to sale_url(Sale.last)
+      assert_redirected_to sale_url(Sale::Base.last)
     end
 
     test "should show sale" do
@@ -48,7 +48,7 @@ item_type: @sale.item_type, seller_id: @sale.seller_id, seller_type: @sale.selle
     end
 
     test "should destroy sale" do
-      assert_difference("Sale.count", -1) do
+      assert_difference("Sale::Base.count", -1) do
         delete sale_url(@sale)
       end
 

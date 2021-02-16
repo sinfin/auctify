@@ -4,9 +4,10 @@ eve_apple:
   seller: eve (User)
   buyer: adam (User)
   item: apple (Thing)
+  type: Auctify::Sale::Base
 
 adam_innocence:
   seller: adam (User)
   buyer:
   item: innocence (Thing)
-
+  type: Auctify::Sale::Base
