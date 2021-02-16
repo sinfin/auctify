@@ -55,16 +55,11 @@ if Rails.env.development?
 
   Annotate.load_tasks
 
-  task annotate: :environment do
-    puts "Annotating models..."
-    system "bundle exec annotate"
-  end
-
   Rake::Task["db:migrate"].enhance do
-    Rake::Task["annotate"].invoke
+    Rake::Task["app:annotate_models"].invoke
   end
 
   Rake::Task["db:rollback"].enhance do
-    Rake::Task["annotate"].invoke
+    Rake::Task["app:annotate_models"].invoke
   end
 end
