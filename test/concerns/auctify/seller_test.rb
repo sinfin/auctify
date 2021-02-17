@@ -16,6 +16,7 @@ module Auctify
       end
 
       assert SellerTestUser.new(name: "Krutibrko").respond_to?(:sales)
+      assert SellerTestUser.new(name: "Krutibrko").respond_to?(:auctions)
       assert SellerTestUser.new(name: "Krutibrko").respond_to?(:offer_to_sale!)
     end
 
@@ -34,19 +35,34 @@ module Auctify
       skip "is this required"
     end
 
-    test "#offer_to_sale creates correct sale" do
+    test "#offer_to_sale with `in: auction` option creates Auction" do
       seller = users(:adam)
       thing = things(:innocence)
 
       sale = seller.offer_to_sale!(thing, in: :auction, price: 1000)
 
-      assert sale.is_a?(Auctify::Sale::Base)
+      assert_equal Auctify::Sale::Auction, sale.class
       assert seller.sales.reload.include?(sale)
       assert thing.sales.reload.include?(sale)
 
       assert_equal thing, sale.item
       assert_equal seller, sale.seller
-      assert_equal 1000, sale.offered_price
+      assert_equal 1_000, sale.offered_price
+    end
+
+    test "#offer_to_sale without `in: auction` option creates Sale::Retail" do
+      seller = users(:adam)
+      thing = things(:innocence)
+
+      sale = seller.offer_to_sale!(thing, price: 1000)
+
+      assert_equal Auctify::Sale::Retail, sale.class
+      assert seller.sales.reload.include?(sale)
+      assert thing.sales.reload.include?(sale)
+
+      assert_equal thing, sale.item
+      assert_equal seller, sale.seller
+      assert_equal 1_000, sale.offered_price
     end
   end
 end

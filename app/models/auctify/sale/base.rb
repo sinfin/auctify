@@ -5,8 +5,6 @@ module Auctify
     class Base < ApplicationRecord
       self.table_name = "auctify_sales"
 
-      include AASM
-
       belongs_to :seller, polymorphic: true
       belongs_to :buyer, polymorphic: true, optional: true
       belongs_to :item, polymorphic: true
@@ -14,46 +12,6 @@ module Auctify
       validate :valid_seller
       validate :valid_item
       validate :valid_buyer
-
-      aasm do
-        state :offered, initial: true, color: "red"
-        state :accepted, color: "red"
-        state :refused, color: "dark"
-        state :in_sale, color: "yellow"
-        state :sold, color: "green"
-        state :not_sold, color: "dark"
-        state :cancelled, color: "red"
-
-        event :accept_offer do
-          transitions from: :offered, to: :accepted
-        end
-
-        event :refuse_offer do
-          transitions from: :offered, to: :refused
-        end
-
-        event :start_sale do
-          transitions from: :accepted, to: :in_sale
-        end
-
-        event :sell do
-          transitions from: :in_sale, to: :sold
-          after do |*args| # TODO: sold_at
-            params = args.first # expecting keys :buyer, :price
-            self.buyer = params[:buyer]
-            self.sold_price = params[:price]
-          end
-        end
-
-        event :end_sale do
-          transitions from: :in_sale, to: :not_sold
-        end
-
-        event :cancel do
-          transitions from: [:offered, :accepted], to: :cancelled
-        end
-      end
-
 
       private
         def valid_seller
