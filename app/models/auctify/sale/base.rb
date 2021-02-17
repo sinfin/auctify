@@ -6,8 +6,49 @@ module Auctify
       self.table_name = "auctify_sales"
 
       belongs_to :seller, polymorphic: true
-      belongs_to :buyer, polymorphic: true
+      belongs_to :buyer, polymorphic: true, optional: true
       belongs_to :item, polymorphic: true
+
+      validate :valid_seller
+      validate :valid_item
+      validate :valid_buyer
+
+      private
+        def valid_seller
+          db_seller = db_presence_of(seller)
+
+          if db_seller.present?
+            errors.add(:seller, :not_auctified) unless db_seller.class.included_modules.include?(Auctify::Seller)
+          else
+            errors.add(:seller, :required)
+          end
+        end
+
+        def valid_item
+          db_item = db_presence_of(item)
+          if db_item.present?
+            errors.add(:item, :not_auctified) unless db_item.class.included_modules.include?(Auctify::Item)
+          else
+            errors.add(:item, :required)
+          end
+        end
+
+        def valid_buyer
+          db_buyer = db_presence_of(buyer)
+          if db_buyer.present?
+            errors.add(:buyer, :not_auctified) unless db_buyer.class.included_modules.include?(Auctify::Buyer)
+          elsif buyer.present?
+            errors.add(:buyer, :required)
+          end
+        end
+
+        def db_presence_of(record)
+          return nil if record.blank?
+
+          record.reload
+        rescue ActiveRecord::RecordNotFound
+          nil
+        end
     end
   end
 end

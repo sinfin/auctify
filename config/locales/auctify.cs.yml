@@ -1,0 +1,12 @@
+cs:
+ activerecord:
+  errors:
+   models:
+    auctify/sale/base:
+      attributes:
+       seller:
+        not_auctified: "objekt Prodejce nebyl Auctifikován pomocí `auctify_as: :seller`"
+       buyer:
+        not_auctified: "objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"
+       item:
+        not_auctified: "objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`"

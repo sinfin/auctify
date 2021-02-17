@@ -1,9 +1,0 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-apple:
-  name: Appple
-  owner: eve
-
-innocence:
-  name: Innocence
-  owner: adam

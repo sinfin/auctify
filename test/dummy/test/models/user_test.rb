@@ -8,7 +8,7 @@ class UserTest < ActiveSupport::TestCase
     thing = seller.things.first
     assert thing.present?
 
-    sale = seller.sell(thing, in: :auction, price: 1000)
+    sale = seller.offer_to_sale!(thing, in: :auction, price: 1000)
 
     assert seller.sales.reload.include?(sale)
     assert thing.sales.reload.include?(sale)
@@ -17,6 +17,6 @@ class UserTest < ActiveSupport::TestCase
     assert_equal seller, sale.seller
     skip
     # assert_equal 1000, sale.auction_price
-    # assert sale.is_a?(Auctify::Sale::Auction)
+    # TODO: assert sale.is_a?(Auctify::Sale::Auction)
   end
 end
