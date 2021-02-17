@@ -8,7 +8,7 @@ module Auctify
       attr_reader :valid_sale
 
       setup do
-        @valid_sale = Auctify::Sale::Base.new(seller: users(:eve), buyer: users(:adam), item: things(:apple))
+        @valid_sale = Auctify::Sale::Base.new(seller: users(:eve), item: things(:apple))
         assert @valid_sale.valid?, "Valid_sale is not valid! : #{@valid_sale.errors.full_messages}"
       end
 
@@ -69,6 +69,90 @@ module Auctify
         sale.buyer = non_auctified_user
         assert sale.invalid?
         assert_equal ["objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"], sale.errors[:buyer]
+      end
+
+      test "have initial state 'offered'" do
+        assert valid_sale.offered?
+      end
+
+      test "can be refused" do
+        valid_sale.refuse_offer
+        assert valid_sale.refused?
+      end
+
+      test "can be canceled before acception" do
+        valid_sale.cancel
+        assert valid_sale.cancelled?
+      end
+
+      test "can be canceled before start selling" do
+        valid_sale.accept_offer
+        assert valid_sale.accepted?
+
+        valid_sale.cancel
+        assert valid_sale.cancelled?
+      end
+
+      test "cannot be canceled after start selling" do
+        valid_sale.accept_offer
+        assert valid_sale.accepted?
+
+        valid_sale.start_sale
+        assert valid_sale.in_sale?
+
+        assert_raises(AASM::InvalidTransition) do
+          valid_sale.cancel
+        end
+        assert valid_sale.in_sale?
+
+        valid_sale.sell do
+          valid_sale.buyer = users(:adam)
+        end
+        assert valid_sale.sold?
+        assert_equal users(:adam), valid_sale.buyer
+
+        assert_raises(AASM::InvalidTransition) do
+          valid_sale.cancel
+        end
+        assert valid_sale.sold?
+      end
+
+      test "can be sold" do
+        valid_sale.accept_offer
+        assert valid_sale.accepted?
+
+        valid_sale.start_sale
+        assert valid_sale.in_sale?
+
+        valid_sale.sell do
+          valid_sale.buyer = users(:adam)
+        end
+        assert valid_sale.sold?
+        assert_equal users(:adam), valid_sale.buyer
+      end
+
+      test "can be not_sold" do
+        valid_sale.accept_offer
+        assert valid_sale.accepted?
+
+        valid_sale.start_sale
+        assert valid_sale.in_sale?
+
+        valid_sale.end_sale # nobody buy it
+        assert valid_sale.not_sold?
+      end
+
+      test "cannot be sold if not in sale" do
+        valid_sale.accept_offer
+        assert valid_sale.accepted?
+
+        assert_raises(AASM::InvalidTransition) do
+          valid_sale.sell do
+            valid_sale.buyer = users(:adam)
+          end
+        end
+        assert valid_sale.accepted?
+        assert valid_sale.buyer.blank?
       end
     end
   end

@@ -2,11 +2,14 @@ PATH
   remote: .
   specs:
     auctify (0.1.0)
+      aasm (~> 5.1.1)
       rails (~> 6.0.2, >= 6.0.2.2)
 
 GEM
   remote: https://rubygems.org/
   specs:
+    aasm (5.1.1)
+      concurrent-ruby (~> 1.0)
     actioncable (6.0.3.4)
       actionpack (= 6.0.3.4)
       nio4r (~> 2.0)

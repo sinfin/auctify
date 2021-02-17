@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "aasm"
+
 module Auctify
   class Engine < ::Rails::Engine
     isolate_namespace Auctify
