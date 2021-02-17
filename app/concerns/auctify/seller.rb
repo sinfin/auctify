@@ -8,7 +8,10 @@ module Auctify
       has_many :sales, as: :seller, class_name: "Auctify::Sale::Base"
 
       def offer_to_sale!(item, options)
-        sales.create!(item: item, seller: self, buyer: nil) # TODO : fix buyer, should be blank!
+        sales.create!(item: item,
+                      seller: self,
+                      buyer: nil,
+                      offered_price: options[:price])
       end
     end
   end

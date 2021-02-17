@@ -15,8 +15,8 @@ class UserTest < ActiveSupport::TestCase
 
     assert_equal thing, sale.item
     assert_equal seller, sale.seller
+    assert_equal 1000, sale.offered_price
     skip
-    # assert_equal 1000, sale.auction_price
     # TODO: assert sale.is_a?(Auctify::Sale::Auction)
   end
 end

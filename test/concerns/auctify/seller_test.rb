@@ -19,7 +19,7 @@ module Auctify
       assert SellerTestUser.new(name: "Krutibrko").respond_to?(:offer_to_sale!)
     end
 
-    test "#sell allow to sell only auctified items" do
+    test "#offer_to_sale allow to sell only auctified items" do
       sale = users(:adam).offer_to_sale!(things(:apple), in: :auction, price: 1_000)
       assert sale.is_a?(Auctify::Sale::Base)
 
@@ -28,6 +28,25 @@ module Auctify
       end
       assert_equal("Validace je neúspešná: Item objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`",
                    exc.message)
+    end
+
+    test "#offer_to_sale checks tahat seller is owner" do
+      skip "is this required"
+    end
+
+    test "#offer_to_sale creates correct sale" do
+      seller = users(:adam)
+      thing = things(:innocence)
+
+      sale = seller.offer_to_sale!(thing, in: :auction, price: 1000)
+
+      assert sale.is_a?(Auctify::Sale::Base)
+      assert seller.sales.reload.include?(sale)
+      assert thing.sales.reload.include?(sale)
+
+      assert_equal thing, sale.item
+      assert_equal seller, sale.seller
+      assert_equal 1000, sale.offered_price
     end
   end
 end

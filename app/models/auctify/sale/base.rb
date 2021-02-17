@@ -41,7 +41,7 @@ module Auctify
           after do |*args| # TODO: sold_at
             params = args.first # expecting keys :buyer, :price
             self.buyer = params[:buyer]
-            # self.sold_price = params[:price]
+            self.sold_price = params[:price]
           end
         end
 
@@ -99,17 +99,20 @@ end
 #
 # Table name: auctify_sales
 #
-#  id          :integer          not null, primary key
-#  aasm_state  :string           default("offered"), not null
-#  buyer_type  :string
-#  item_type   :string           not null
-#  seller_type :string           not null
-#  type        :string           default("Auctify::Sale::Base")
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  buyer_id    :integer
-#  item_id     :integer          not null
-#  seller_id   :integer          not null
+#  id            :integer          not null, primary key
+#  aasm_state    :string           default("offered"), not null
+#  buyer_type    :string
+#  item_type     :string           not null
+#  offered_price :decimal(, )
+#  seller_type   :string           not null
+#  selling_price :decimal(, )
+#  sold_price    :decimal(, )
+#  type          :string           default("Auctify::Sale::Base")
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  buyer_id      :integer
+#  item_id       :integer          not null
+#  seller_id     :integer          not null
 #
 # Indexes
 #

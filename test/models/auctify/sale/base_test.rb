@@ -108,6 +108,7 @@ module Auctify
         valid_sale.sell(buyer: users(:adam), price: 1_234)
         assert valid_sale.sold?
         assert_equal users(:adam), valid_sale.buyer
+        assert_equal 1_234.00, valid_sale.sold_price
 
         assert_raises(AASM::InvalidTransition) do
           valid_sale.cancel
@@ -125,6 +126,7 @@ module Auctify
         valid_sale.sell(buyer: users(:adam), price: 1_234)
         assert valid_sale.sold?
         assert_equal users(:adam), valid_sale.buyer
+        assert_equal 1_234.00, valid_sale.sold_price
       end
 
       test "can be not_sold" do
@@ -147,6 +149,7 @@ module Auctify
         end
         assert valid_sale.accepted?
         assert valid_sale.buyer.blank?
+        assert_nil valid_sale.sold_price
       end
     end
   end
