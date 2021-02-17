@@ -38,6 +38,11 @@ module Auctify
 
         event :sell do
           transitions from: :in_sale, to: :sold
+          after do |*args| # TODO: sold_at
+            params = args.first # expecting keys :buyer, :price
+            self.buyer = params[:buyer]
+            # self.sold_price = params[:price]
+          end
         end
 
         event :end_sale do

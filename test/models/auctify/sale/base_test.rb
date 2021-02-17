@@ -105,9 +105,7 @@ module Auctify
         end
         assert valid_sale.in_sale?
 
-        valid_sale.sell do
-          valid_sale.buyer = users(:adam)
-        end
+        valid_sale.sell(buyer: users(:adam), price: 1_234)
         assert valid_sale.sold?
         assert_equal users(:adam), valid_sale.buyer
 
@@ -124,9 +122,7 @@ module Auctify
         valid_sale.start_sale
         assert valid_sale.in_sale?
 
-        valid_sale.sell do
-          valid_sale.buyer = users(:adam)
-        end
+        valid_sale.sell(buyer: users(:adam), price: 1_234)
         assert valid_sale.sold?
         assert_equal users(:adam), valid_sale.buyer
       end
@@ -147,9 +143,7 @@ module Auctify
         assert valid_sale.accepted?
 
         assert_raises(AASM::InvalidTransition) do
-          valid_sale.sell do
-            valid_sale.buyer = users(:adam)
-          end
+          valid_sale.sell(buyer: users(:adam), price: 1_234)
         end
         assert valid_sale.accepted?
         assert valid_sale.buyer.blank?
