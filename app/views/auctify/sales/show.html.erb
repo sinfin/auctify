@@ -2,17 +2,17 @@
 
 <p>
   <strong>Seller:</strong>
-  <%= @sale.seller_id %>
+  <%= @sale.seller.name %>
 </p>
 
 <p>
   <strong>Buyer:</strong>
-  <%= @sale.buyer_id %>
+  <%= @sale.buyer&.name %>
 </p>
 
 <p>
   <strong>Item:</strong>
-  <%= @sale.item_id %>
+  <%= @sale.item.name %>
 </p>
 
 <%= link_to 'Edit', edit_sale_path(@sale) %> |

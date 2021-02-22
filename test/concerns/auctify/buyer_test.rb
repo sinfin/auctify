@@ -17,5 +17,10 @@ module Auctify
 
       assert BuyerCleanUser.new(name: "Krutibrko").respond_to?(:purchases)
     end
+
+    test "knows its #auctify_id" do
+      buyer = users(:eve)
+      assert_equal "#{buyer.class.name}@#{buyer.id}", buyer.auctify_id
+    end
   end
 end

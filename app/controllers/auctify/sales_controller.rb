@@ -8,7 +8,7 @@ module Auctify
 
     # GET /sales
     def index
-      @sales = Sale::Base.all
+      @sales = scoped_sales.all
     end
 
     # GET /sales/1
@@ -17,7 +17,7 @@ module Auctify
 
     # GET /sales/new
     def new
-      @sale = Sale::Base.new
+      @sale = sale_class.new
     end
 
     # GET /sales/1/edit
@@ -26,7 +26,7 @@ module Auctify
 
     # POST /sales
     def create
-      @sale = Sale::Base.new(sale_params)
+      @sale = sale_class.new(sale_params)
 
       if @sale.save
         redirect_to sale_path(@sale), notice: "Sale was successfully created."
@@ -51,14 +51,25 @@ module Auctify
     end
 
     private
+      def sale_class
+        Sale::Base
+      end
+
       # Use callbacks to share common setup or constraints between actions.
       def set_sale
-        @sale = Sale::Base.find(params[:id])
+        @sale = scoped_sales.find(params[:id])
       end
 
       # Only allow a trusted parameter "white list" through.
       def sale_params
-        params.require(:sale).permit(:seller_id, :seller_type, :buyer_id, :buyer_type, :item_id, :item_type)
+        params.require(:sale).permit(:seller_auctify_id, :buyer_auctify_id, :item_auctify_id, :published)
+      end
+
+      def scoped_sales
+        scope = sale_class
+        return scope if params[:list_all].to_s == "1"
+
+        scope.published
       end
   end
 end

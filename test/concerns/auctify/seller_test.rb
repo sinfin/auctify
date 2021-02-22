@@ -64,5 +64,10 @@ module Auctify
       assert_equal seller, sale.seller
       assert_equal 1_000, sale.offered_price
     end
+
+    test "knows its #auctify_id" do
+      seller = users(:adam)
+      assert_equal "#{seller.class.name}@#{seller.id}", seller.auctify_id
+    end
   end
 end

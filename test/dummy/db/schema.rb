@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_17_110819) do
+ActiveRecord::Schema.define(version: 2021_02_22_103031) do
 
   create_table "auctify_sales", force: :cascade do |t|
     t.string "seller_type", null: false
@@ -26,6 +26,7 @@ ActiveRecord::Schema.define(version: 2021_02_17_110819) do
     t.decimal "offered_price"
     t.decimal "selling_price"
     t.decimal "sold_price"
+    t.datetime "published_at"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["item_type", "item_id"], name: "index_auctify_sales_on_item_type_and_item_id"
     t.index ["seller_type", "seller_id"], name: "index_auctify_sales_on_seller_type_and_seller_id"

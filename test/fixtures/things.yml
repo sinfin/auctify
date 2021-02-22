@@ -7,3 +7,15 @@ apple:
 innocence:
   name: Innocence
   owner: adam
+
+leaf:
+  name: Fig leave
+  owner: adam
+
+snake:
+  name: Snake (without apple)
+  owner: eve
+
+flaming_sword:
+  name: Flaming sword
+  owner: eve

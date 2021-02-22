@@ -79,6 +79,44 @@ module Auctify
         assert sale.invalid?
         assert_equal ["objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"], sale.errors[:buyer]
       end
+
+
+      test "can be published immediatelly" do
+        assert_not sale.published?
+
+        sale.publish!
+
+        assert sale.reload.published?
+        assert sale.published_at <= Time.current
+      end
+
+      test "can be published from selected time" do
+        assert_not sale.published?
+
+        publish_at = Time.current + 2.seconds
+        sale.publish_from(publish_at)
+
+
+        assert_not sale.published?
+        assert sale.published_at = publish_at
+
+        sleep 2
+        assert sale.published?
+      end
+
+      test "can be build from form params with auctify_ids" do
+        seller = users(:eve)
+        buyer = users(:adam)
+        item = things(:apple)
+
+        sale = Auctify::Sale::Base.new(seller_auctify_id: seller.auctify_id,
+                                       buyer_auctify_id: buyer.auctify_id,
+                                       item_auctify_id: item.auctify_id)
+
+        assert_equal seller, sale.seller
+        assert_equal buyer, sale.buyer
+        assert_equal item, sale.item
+      end
     end
   end
 end

@@ -4,10 +4,32 @@ eve_apple:
   seller: eve (User)
   buyer: adam (User)
   item: apple (Thing)
-  type: Auctify::Sale::Base
+  type: Auctify::Sale::Retail
+  published_at: <%= Date.new(1,1,1) %>
 
 adam_innocence:
   seller: adam (User)
   buyer:
   item: innocence (Thing)
-  type: Auctify::Sale::Base
+  type: Auctify::Sale::Retail
+  published_at: <%= Time.new(1,1,1,2,2,2) %>
+
+unpublished_sale:
+  seller: adam (User)
+  buyer:
+  item: leaf (Thing)
+  type: Auctify::Sale::Retail
+
+auction:
+  seller: eve (User)
+  buyer:
+  item: snake (Thing)
+  type: Auctify::Sale::Auction
+  published_at: <%= Time.current - 1.minute %>
+
+future_auction:
+  seller: eve (User)
+  buyer:
+  item: flaming_sword (Thing)
+  type: Auctify::Sale::Auction
+  published_at: <%= Time.current + 1.day %>

@@ -5,6 +5,8 @@ module Auctify
     class Base < ApplicationRecord
       self.table_name = "auctify_sales"
 
+      include Auctify::Behavior::Base
+
       belongs_to :seller, polymorphic: true
       belongs_to :buyer, polymorphic: true, optional: true
       belongs_to :item, polymorphic: true
@@ -13,12 +15,37 @@ module Auctify
       validate :valid_item
       validate :valid_buyer
 
+      scope :published, -> { where("published_at <= ?", Time.current) }
+
+      [:seller, :buyer, :item].each do |behavior|
+        define_method("#{behavior}_auctify_id=") do |auctify_id|
+          self.send("#{behavior}=", object_from_auctify_id(auctify_id))
+        end
+
+        define_method("#{behavior}_auctify_id") do
+          self.send("#{behavior}")&.auctify_id
+        end
+      end
+
+      def publish!
+        publish_from(Time.current)
+        save
+      end
+
+      def publish_from(time)
+        self.published_at = time
+      end
+
+      def published?
+        published_at && (published_at <= Time.current)
+      end
+
       private
         def valid_seller
           db_seller = db_presence_of(seller)
 
           if db_seller.present?
-            errors.add(:seller, :not_auctified) unless db_seller.class.included_modules.include?(Auctify::Seller)
+            errors.add(:seller, :not_auctified) unless db_seller.class.included_modules.include?(Auctify::Behavior::Seller) # rubocop:disable Layout/LineLength
           else
             errors.add(:seller, :required)
           end
@@ -27,7 +54,7 @@ module Auctify
         def valid_item
           db_item = db_presence_of(item)
           if db_item.present?
-            errors.add(:item, :not_auctified) unless db_item.class.included_modules.include?(Auctify::Item)
+            errors.add(:item, :not_auctified) unless db_item.class.included_modules.include?(Auctify::Behavior::Item)
           else
             errors.add(:item, :required)
           end
@@ -36,7 +63,7 @@ module Auctify
         def valid_buyer
           db_buyer = db_presence_of(buyer)
           if db_buyer.present?
-            errors.add(:buyer, :not_auctified) unless db_buyer.class.included_modules.include?(Auctify::Buyer)
+            errors.add(:buyer, :not_auctified) unless db_buyer.class.included_modules.include?(Auctify::Behavior::Buyer)
           elsif buyer.present?
             errors.add(:buyer, :required)
           end

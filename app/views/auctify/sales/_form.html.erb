@@ -1,4 +1,4 @@
-<%= form_with(model: sale, url: sales_path, local: true) do |form| %>
+<%= form_with(model: sale, scope: :sale, url: sales_path, local: true) do |form| %>
   <% if sale.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(sale.errors.count, "error") %> prohibited this sale from being saved:</h2>
@@ -12,18 +12,18 @@
   <% end %>
 
   <div class="field">
-    <%= form.label :seller_id %>
-    <%= form.text_field :seller_id %>
+    <%= form.label :seller_auctify_id %>
+    <%= form.select(:seller_auctify_id, auctify_id_options_for_select(:seller))  %>
   </div>
 
   <div class="field">
-    <%= form.label :buyer_id %>
-    <%= form.text_field :buyer_id %>
+    <%= form.label :buyer_auctify_id %>
+    <%= form.select(:buyer_auctify_id, auctify_id_options_for_select(:buyer)) %>
   </div>
 
   <div class="field">
-    <%= form.label :item_id %>
-    <%= form.text_field :item_id %>
+    <%= form.label :item_auctify_id %>
+    <%= form.select(:item_auctify_id, auctify_id_options_for_select(:item)) %>
   </div>
 
   <div class="actions">

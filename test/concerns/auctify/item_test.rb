@@ -17,5 +17,10 @@ module Auctify
 
       assert ItemTestThing.new(name: "Krutibrko").respond_to?(:sales)
     end
+
+    test "knows its #auctify_id" do
+      item = things(:apple)
+      assert_equal "#{item.class.name}@#{item.id}", item.auctify_id
+    end
   end
 end
