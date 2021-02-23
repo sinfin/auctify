@@ -56,6 +56,7 @@ end
 #  buyer_type    :string
 #  item_type     :string           not null
 #  offered_price :decimal(, )
+#  published_at  :datetime         default(NULL)
 #  seller_type   :string           not null
 #  selling_price :decimal(, )
 #  sold_price    :decimal(, )

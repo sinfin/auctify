@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Bidder:</strong>
+  <%= @bidder_registration.bidder_id %>
+</p>
+
+<p>
+  <strong>Auction:</strong>
+  <%= @bidder_registration.auction_id %>
+</p>
+
+<p>
+  <strong>Aasm state:</strong>
+  <%= @bidder_registration.aasm_state %>
+</p>
+
+<p>
+  <strong>Handled at:</strong>
+  <%= @bidder_registration.handled_at %>
+</p>
+
+<%= link_to 'Edit', edit_bidder_registration_path(@bidder_registration) %> |
+<%= link_to 'Back', bidder_registrations_path %>

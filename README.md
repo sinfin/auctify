@@ -69,6 +69,9 @@ If `item.owner` exists, it is used as `auction.seller` (or Select from all aucit
 - auction have `start_time` and `end_time`
 - auction can be `highlighted` for cover pages
 - auction stores all bids history even those cancelled by admin
+- there should be two types of bid
+   - one with maximal price (amount =>  maximal bid price; placed in small bids as needed), system will increase bid automagicaly unless it reaches maximum
+   - second direct bid (amount => bid price; immediattely placed)
 
 
 

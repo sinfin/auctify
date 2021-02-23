@@ -4,7 +4,7 @@ eve_apple:
   seller: eve (User)
   buyer: adam (User)
   item: apple (Thing)
-  type: Auctify::Sale::Retail
+  type: Auctify::Sale::Auction
   published_at: <%= Date.new(1,1,1) %>
 
 adam_innocence:
@@ -20,11 +20,12 @@ unpublished_sale:
   item: leaf (Thing)
   type: Auctify::Sale::Retail
 
-auction:
+auction_in_progress:
   seller: eve (User)
   buyer:
   item: snake (Thing)
   type: Auctify::Sale::Auction
+  aasm_state: in_sale
   published_at: <%= Time.current - 1.minute %>
 
 future_auction:

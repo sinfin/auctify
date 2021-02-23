@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Bidder Registrations</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Bidder</th>
+      <th>Auction</th>
+      <th>Aasm state</th>
+      <th>Handled at</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @bidder_registrations.each do |bidder_registration| %>
+      <tr>
+        <td><%= bidder_registration.bidder_id %></td>
+        <td><%= bidder_registration.auction_id %></td>
+        <td><%= bidder_registration.aasm_state %></td>
+        <td><%= bidder_registration.handled_at %></td>
+        <td><%= link_to 'Show', bidder_registration %></td>
+        <td><%= link_to 'Edit', edit_bidder_registration_path(bidder_registration) %></td>
+        <td><%= link_to 'Destroy', bidder_registration, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Bidder Registration', new_bidder_registration_path %>

@@ -10,7 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_22_103031) do
+ActiveRecord::Schema.define(version: 2021_02_23_090240) do
+
+  create_table "auctify_bidder_registrations", force: :cascade do |t|
+    t.string "bidder_type", null: false
+    t.integer "bidder_id", null: false
+    t.integer "auction_id", null: false
+    t.string "aasm_state", default: "pending", null: false
+    t.datetime "handled_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["aasm_state"], name: "index_auctify_bidder_registrations_on_aasm_state"
+    t.index ["auction_id"], name: "index_auctify_bidder_registrations_on_auction_id"
+    t.index ["bidder_type", "bidder_id"], name: "index_auctify_bidder_registrations_on_bidder"
+  end
 
   create_table "auctify_sales", force: :cascade do |t|
     t.string "seller_type", null: false
@@ -58,5 +71,6 @@ ActiveRecord::Schema.define(version: 2021_02_22_103031) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "auctify_bidder_registrations", "auctify_sales", column: "auction_id"
   add_foreign_key "things", "users", column: "owner_id"
 end

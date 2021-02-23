@@ -4,7 +4,7 @@ require "test_helper"
 
 module Auctify
   module Sale
-    class AuctionTest < ActiveSupport::TestCase
+    class AuctionStatesTest < ActiveSupport::TestCase
       attr_reader :auction
 
       setup do

@@ -15,7 +15,7 @@ module Auctify
 
       assert_response :success
 
-      displayed_sales = auctify_sales(:eve_apple, :adam_innocence, :auction)
+      displayed_sales = auctify_sales(:eve_apple, :adam_innocence, :auction_in_progress)
       displayed_sales.each do |sale|
         assert response.body.include?(sale.item.name), "Page should include sale '#{sale.item.name}'"
       end

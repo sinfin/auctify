@@ -5,6 +5,8 @@ module Auctify
     class Auction < Auctify::Sale::Base
       include AASM
 
+      has_many :bidder_registrations, dependent: :destroy
+
       aasm do
         state :offered, initial: true, color: "red"
         state :accepted, color: "red"
@@ -53,6 +55,10 @@ module Auctify
           transitions from: [:offered, :accepted], to: :cancelled
         end
       end
+
+      def bidders
+        @bidders ||= bidder_registrations.collect { |br| br.bidder }.sort_by(&:name)
+      end
     end
   end
 end
@@ -66,6 +72,7 @@ end
 #  buyer_type    :string
 #  item_type     :string           not null
 #  offered_price :decimal(, )
+#  published_at  :datetime         default(NULL)
 #  seller_type   :string           not null
 #  selling_price :decimal(, )
 #  sold_price    :decimal(, )
