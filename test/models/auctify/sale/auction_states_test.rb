@@ -8,7 +8,7 @@ module Auctify
       attr_reader :auction
 
       setup do
-        @auction = Auctify::Sale::Auction.new(seller: users(:eve), item: things(:apple))
+        @auction = Auctify::Sale::Auction.new(seller: users(:eve), item: things(:apple), offered_price: 123.4)
 
         assert @auction.valid?, "auction is not valid! : #{@auction.errors.full_messages}"
       end
@@ -54,6 +54,10 @@ module Auctify
 
         assert auction.in_sale?
 
+        auction.close_bidding
+
+        assert auction.bidding_ended?
+
         auction.sold_in_auction(buyer: users(:adam), price: 1_234)
 
         assert_raises(AASM::InvalidTransition) do
@@ -68,9 +72,18 @@ module Auctify
 
         assert auction.accepted?
 
+        offered_price = auction.offered_price
+        assert_nil auction.current_price
+
         auction.start_sale
 
         assert auction.in_sale?
+        assert_equal offered_price, auction.offered_price
+        assert_equal offered_price, auction.current_price
+
+        auction.close_bidding
+
+        assert auction.bidding_ended?
 
         auction.sold_in_auction(buyer: users(:adam), price: 1_234)
 
@@ -91,6 +104,10 @@ module Auctify
         auction.start_sale
 
         assert auction.in_sale?
+
+        auction.close_bidding
+
+        assert auction.bidding_ended?
 
         auction.not_sold_in_auction
 

@@ -5,6 +5,8 @@ module Auctify
     class Auction < Auctify::Sale::Base
       include AASM
 
+      attr_accessor :winning_bid
+
       has_many :bidder_registrations, dependent: :destroy
 
       aasm do
@@ -12,6 +14,7 @@ module Auctify
         state :accepted, color: "red"
         state :refused, color: "dark"
         state :in_sale, color: "yellow"
+        state :bidding_ended, color: "yellow"
         state :auctioned_successfully, color: "green"
         state :auctioned_unsuccessfully, color: "red"
         state :sold, color: "green"
@@ -27,11 +30,20 @@ module Auctify
         end
 
         event :start_sale do
+          before do
+            self.current_price = self.offered_price
+          end
+
           transitions from: :accepted, to: :in_sale
         end
 
+        event :close_bidding do
+          transitions from: :in_sale, to: :bidding_ended
+        end
+
         event :sold_in_auction do
-          transitions from: :in_sale, to: :auctioned_successfully
+          transitions from: :bidding_ended, to: :auctioned_successfully
+
           after do |*args| # TODO: sold_at
             params = args.first # expecting keys :buyer, :price
             self.buyer = params[:buyer]
@@ -40,7 +52,7 @@ module Auctify
         end
 
         event :not_sold_in_auction do
-          transitions from: :in_sale, to: :auctioned_unsuccessfully
+          transitions from: :bidding_ended, to: :auctioned_unsuccessfully
         end
 
         event :sell do
@@ -59,6 +71,37 @@ module Auctify
       def bidders
         @bidders ||= bidder_registrations.collect { |br| br.bidder }.sort_by(&:name)
       end
+
+      def current_minimal_bid
+        current_price + (current_price == offered_price ? 0 : 1)
+      end
+
+      def bid!(bidder:, price:, maximal_price: nil)
+        ActiveRecord::Base.transaction do
+          if approved_bid?(bidder: bidder, price: price)
+            add_bid(bidder: bidder, price: price)
+          else
+            OpenStruct.new(errors: ["too late"])
+          end
+        end
+      end
+
+      private
+        def approved_bid?(bidder:, price:)
+          return false if price <= current_price
+          return false if winning_bid.present? && (winning_bid.bidder == bidder)
+          return false unless in_sale?
+
+
+          true
+        end
+
+        def add_bid(bidder: bidder, price: price)
+          self.current_price = price if price > current_price
+          save!
+
+          self.winning_bid = OpenStruct.new(bidder: bidder, price: price, at: Time.current)
+        end
     end
   end
 end

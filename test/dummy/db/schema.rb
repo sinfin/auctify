@@ -36,10 +36,11 @@ ActiveRecord::Schema.define(version: 2021_02_23_090240) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "type", default: "Auctify::Sale::Base"
     t.string "aasm_state", default: "offered", null: false
-    t.decimal "offered_price"
     t.decimal "selling_price"
-    t.decimal "sold_price"
     t.datetime "published_at"
+    t.decimal "offered_price"
+    t.decimal "current_price"
+    t.decimal "sold_price"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["item_type", "item_id"], name: "index_auctify_sales_on_item_type_and_item_id"
     t.index ["seller_type", "seller_id"], name: "index_auctify_sales_on_seller_type_and_seller_id"

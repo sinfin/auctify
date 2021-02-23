@@ -5,6 +5,7 @@ eve_apple:
   buyer: adam (User)
   item: apple (Thing)
   type: Auctify::Sale::Auction
+  offered_price: 100.0
   published_at: <%= Date.new(1,1,1) %>
 
 adam_innocence:

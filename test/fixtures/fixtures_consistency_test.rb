@@ -6,7 +6,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
   test "counts" do
     assert_equal %w[Lucifer Eve Adam].sort, User.pluck("name").sort
     assert_equal ["Apple", "Innocence", "Fig leave", "Snake (without apple)", "Flaming sword"].sort,
-Thing.pluck("name").sort
+                 Thing.pluck("name").sort
     assert_equal 5, Auctify::Sale::Base.count # details bellow
     assert_equal 2, Auctify::BidderRegistration.count
   end
