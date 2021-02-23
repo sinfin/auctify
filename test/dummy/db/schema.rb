@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_23_090240) do
+ActiveRecord::Schema.define(version: 2021_02_23_152139) do
 
   create_table "auctify_bidder_registrations", force: :cascade do |t|
     t.string "bidder_type", null: false
@@ -23,6 +23,15 @@ ActiveRecord::Schema.define(version: 2021_02_23_090240) do
     t.index ["aasm_state"], name: "index_auctify_bidder_registrations_on_aasm_state"
     t.index ["auction_id"], name: "index_auctify_bidder_registrations_on_auction_id"
     t.index ["bidder_type", "bidder_id"], name: "index_auctify_bidder_registrations_on_bidder"
+  end
+
+  create_table "auctify_bids", force: :cascade do |t|
+    t.integer "registration_id", null: false
+    t.decimal "price", precision: 12, scale: 2, null: false
+    t.decimal "max_price", precision: 12, scale: 2
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["registration_id"], name: "index_auctify_bids_on_registration_id"
   end
 
   create_table "auctify_sales", force: :cascade do |t|
@@ -73,5 +82,6 @@ ActiveRecord::Schema.define(version: 2021_02_23_090240) do
   end
 
   add_foreign_key "auctify_bidder_registrations", "auctify_sales", column: "auction_id"
+  add_foreign_key "auctify_bids", "auctify_bidder_registrations", column: "registration_id"
   add_foreign_key "things", "users", column: "owner_id"
 end

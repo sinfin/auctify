@@ -87,9 +87,10 @@ end
 #  id            :integer          not null, primary key
 #  aasm_state    :string           default("offered"), not null
 #  buyer_type    :string
+#  current_price :decimal(, )
 #  item_type     :string           not null
 #  offered_price :decimal(, )
-#  published_at  :datetime         default(NULL)
+#  published_at  :datetime
 #  seller_type   :string           not null
 #  selling_price :decimal(, )
 #  sold_price    :decimal(, )

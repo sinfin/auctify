@@ -8,7 +8,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal ["Apple", "Innocence", "Fig leave", "Snake (without apple)", "Flaming sword"].sort,
                  Thing.pluck("name").sort
     assert_equal 5, Auctify::Sale::Base.count # details bellow
-    assert_equal 2, Auctify::BidderRegistration.count
+    assert_equal 4, Auctify::BidderRegistration.count
   end
 
   test "Eve's apple" do
@@ -39,14 +39,15 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
   end
 
   test "auction in progress" do
-    sale = auctify_sales(:auction_in_progress)
-    assert_equal users(:eve), sale.seller
-    assert_nil sale.buyer
-    assert_equal things(:snake), sale.item
-    assert sale.is_a?(Auctify::Sale::Auction)
-    assert sale.in_sale?
+    auction = auctify_sales(:auction_in_progress)
+    assert_equal users(:eve), auction.seller
+    assert_nil auction.buyer
+    assert_equal things(:snake), auction.item
+    assert auction.is_a?(Auctify::Sale::Auction)
+    assert auction.in_sale?
 
-    # assert %w[Adam Lucifer], sale.bidders.pluck(:name)
+    assert %w[Adam Lucifer], auction.bidders.pluck(:name)
+    assert 2, auction.bids.size
   end
 
   test "future auction" do

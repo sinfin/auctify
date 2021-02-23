@@ -11,3 +11,15 @@ lucifer_on_apple:
   auction: eve_apple
   aasm_state: handled
   handled_at: 2021-02-23 10:02:40
+
+adam_in_progress:
+  bidder: adam (User)
+  auction: auction_in_progress
+  aasm_state: handled
+  handled_at: 2021-02-23 10:02:40
+
+lucifer_in_progress:
+  bidder: lucifer (User)
+  auction: auction_in_progress
+  aasm_state: handled
+  handled_at: 2021-02-23 10:02:40

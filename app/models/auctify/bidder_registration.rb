@@ -5,7 +5,11 @@ module Auctify
     include AASM
 
     belongs_to :bidder, polymorphic: true
-    belongs_to :auction, class_name: "Auctify::Sale::Auction"
+    belongs_to :auction, class_name: "Auctify::Sale::Auction", inverse_of: :bidder_registrations
+    has_many :bids, class_name: "Auctify::Bid",
+                    foreign_key: "registration_id",
+                    inverse_of: :registration,
+                    dependent: :destroy
 
     aasm do
       state :pending, initial: true, color: "gray"
@@ -29,15 +33,14 @@ end
 #
 # Table name: auctify_bidder_registrations
 #
-#  id           :integer          not null, primary key
-#  aasm_state   :string           default("offered"), not null
-#  bidder_type  :string           not null
-#  handled_at   :datetime
-#  submitted_at :datetime
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  auction_id   :integer          not null
-#  bidder_id    :integer          not null
+#  id          :integer          not null, primary key
+#  aasm_state  :string           default("pending"), not null
+#  bidder_type :string           not null
+#  handled_at  :datetime
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  auction_id  :integer          not null
+#  bidder_id   :integer          not null
 #
 # Indexes
 #
@@ -47,5 +50,5 @@ end
 #
 # Foreign Keys
 #
-#  auction_id  (auction_id => auctions.id)
+#  auction_id  (auction_id => auctify_sales.id)
 #

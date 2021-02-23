@@ -8,6 +8,7 @@ module Auctify
       attr_accessor :winning_bid
 
       has_many :bidder_registrations, dependent: :destroy
+      has_many :bids, through: :bidder_registrations, dependent: :destroy
 
       aasm do
         state :offered, initial: true, color: "red"
@@ -76,31 +77,34 @@ module Auctify
         current_price + (current_price == offered_price ? 0 : 1)
       end
 
-      def bid!(bidder:, price:, maximal_price: nil)
+      def bid!(bid)
         ActiveRecord::Base.transaction do
-          if approved_bid?(bidder: bidder, price: price)
-            add_bid(bidder: bidder, price: price)
+          if approved_bid?(bid)
+            add_bid(bid)
           else
-            OpenStruct.new(errors: ["too late"])
+            bid.errors.add(:bade_at, "too late")
           end
+
+          bid
         end
       end
 
       private
-        def approved_bid?(bidder:, price:)
-          return false if price <= current_price
-          return false if winning_bid.present? && (winning_bid.bidder == bidder)
+        def approved_bid?(bid)
+          return false if bid.price <= current_price
+          return false if winning_bid.present? && (winning_bid.bidder == bid.bidder)
           return false unless in_sale?
 
 
           true
         end
 
-        def add_bid(bidder: bidder, price: price)
-          self.current_price = price if price > current_price
+        def add_bid(bid)
+          self.current_price = bid.price if bid.price > current_price
           save!
+          bid.save
 
-          self.winning_bid = OpenStruct.new(bidder: bidder, price: price, at: Time.current)
+          self.winning_bid = bid
         end
     end
   end
@@ -113,9 +117,10 @@ end
 #  id            :integer          not null, primary key
 #  aasm_state    :string           default("offered"), not null
 #  buyer_type    :string
+#  current_price :decimal(, )
 #  item_type     :string           not null
 #  offered_price :decimal(, )
-#  published_at  :datetime         default(NULL)
+#  published_at  :datetime
 #  seller_type   :string           not null
 #  selling_price :decimal(, )
 #  sold_price    :decimal(, )
