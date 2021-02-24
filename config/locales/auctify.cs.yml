@@ -10,3 +10,14 @@ cs:
         not_auctified: "objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"
        item:
         not_auctified: "objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`"
+    auctify/bid:
+      attributes:
+       bidder:
+        you_cannot_overbid_yourself: "Není možné přehazovat své příhozy"
+       auction:
+        auction_is_not_accepting_bids_now: "je momentálně uzavřena pro přihazování"
+        bidder_is_not_registered_for_this_auction: "dražitel není registrován k této aukci"
+       price:
+        price_is_bellow_current: "je nižší než aktuální cena"
+        price_is_bellow_opening_price: "je nižší než vyvolávací cena"
+        must_be_lower_or_equal_max_price: "musí být nižší nebo rovna maximálnímu limitu"

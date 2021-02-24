@@ -6,8 +6,20 @@ module Auctify
 
     delegate :bidder, :auction, to: :registration
 
+    scope :ordered, -> { order(price: :desc, created_at: :asc, id: :asc) }
+
+    validate :price_is_not_bigger_then_max_price
+
+    def with_limit?
+      max_price.present?
+    end
+
     def bade_at
       created_at
+    end
+
+    def price_is_not_bigger_then_max_price
+      errors.add(:price, :must_be_lower_or_equal_max_price) if max_price && max_price < price
     end
   end
 end

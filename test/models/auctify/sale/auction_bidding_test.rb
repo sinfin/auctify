@@ -31,16 +31,15 @@ module Auctify
 
         assert_equal 1_000, auction.reload.current_price
 
-        # TODO: assert BidAppender is called
-        auction.bid!(bid_for(lucifer, 1_001))
+        assert_equal true, auction.bid!(bid_for(lucifer, 1_001))
 
         assert_equal 1_001, auction.current_price
 
-        auction.bid!(bid_for(lucifer, 1_002))
+        assert_equal false, auction.bid!(bid_for(lucifer, 1_002)) # You cannot overbid Yourself
 
-        assert_equal 1_001, auction.current_price # You cannot overbid Yourself
+        assert_equal 1_001, auction.current_price
 
-        auction.bid!(bid_for(adam, 1_002))
+        assert_equal true, auction.bid!(bid_for(adam, 1_002))
 
         assert_equal 1_002, auction.reload.current_price
 
@@ -50,8 +49,11 @@ module Auctify
         assert_equal 1_002, auction.current_price
         assert_nil auction.sold_price
 
-        # bid = auction.bid!(bid_for(lucifer, 10_000))
-        # TODO assert_equal ["too late"], bid.errors[:bade_at]
+        bid = bid_for(lucifer, 10_000)
+        assert_difference("Auctify::Bid.count", 0) do
+          assert_equal false, auction.bid!(bid)
+        end
+        assert ["dad"], bid.errors
 
         auction.sold_in_auction(buyer: auction.winning_bid.bidder, price: auction.winning_bid.price)
         auction.save!

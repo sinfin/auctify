@@ -75,12 +75,19 @@ module Auctify
 
       def bid!(bid)
         ActiveRecord::Base.transaction do
-          Auctify::BidsAppender.call(auction: self, bid: bid)
+          bap = Auctify::BidsAppender.call(auction: self, bid: bid)
+          return true if bap.success?
+          # errors can be in `bid.errors` or as `bap.errors`
+          return false
         end
       end
 
       def winning_bid
         Auctify::BidsAppender.call(auction: self, bid: nil).result.winning_bid
+      end
+
+      def opening_price
+        offered_price
       end
     end
   end
