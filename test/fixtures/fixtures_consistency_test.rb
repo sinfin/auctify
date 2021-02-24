@@ -46,8 +46,9 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert auction.is_a?(Auctify::Sale::Auction)
     assert auction.in_sale?
 
-    assert %w[Adam Lucifer], auction.bidders.pluck(:name)
-    assert 2, auction.bids.size
+    assert_equal %w[Adam Lucifer], auction.bidders.pluck(:name)
+    assert_equal 2, auction.bids.size
+    assert_equal [users(:lucifer), users(:adam)], auction.bids.collect { |b| b.bidder }
   end
 
   test "future auction" do

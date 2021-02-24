@@ -73,39 +73,15 @@ module Auctify
         @bidders ||= bidder_registrations.collect { |br| br.bidder }.sort_by(&:name)
       end
 
-      def current_minimal_bid
-        current_price + (current_price == offered_price ? 0 : 1)
-      end
-
       def bid!(bid)
         ActiveRecord::Base.transaction do
-          if approved_bid?(bid)
-            add_bid(bid)
-          else
-            bid.errors.add(:bade_at, "too late")
-          end
-
-          bid
+          Auctify::BidsAppender.call(auction: self, bid: bid)
         end
       end
 
-      private
-        def approved_bid?(bid)
-          return false if bid.price <= current_price
-          return false if winning_bid.present? && (winning_bid.bidder == bid.bidder)
-          return false unless in_sale?
-
-
-          true
-        end
-
-        def add_bid(bid)
-          self.current_price = bid.price if bid.price > current_price
-          save!
-          bid.save
-
-          self.winning_bid = bid
-        end
+      def winning_bid
+        Auctify::BidsAppender.call(auction: self, bid: nil).result.winning_bid
+      end
     end
   end
 end

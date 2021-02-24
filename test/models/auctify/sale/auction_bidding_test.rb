@@ -30,22 +30,19 @@ module Auctify
         auction.save! # just for sure
 
         assert_equal 1_000, auction.reload.current_price
-        assert_equal auction.current_price, auction.current_minimal_bid
 
+        # TODO: assert BidAppender is called
         auction.bid!(bid_for(lucifer, 1_001))
 
         assert_equal 1_001, auction.current_price
-        assert_equal 1_002, auction.current_minimal_bid
 
         auction.bid!(bid_for(lucifer, 1_002))
 
         assert_equal 1_001, auction.current_price # You cannot overbid Yourself
-        assert_equal 1_002, auction.current_minimal_bid
 
         auction.bid!(bid_for(adam, 1_002))
 
         assert_equal 1_002, auction.reload.current_price
-        assert_equal 1_003, auction.current_minimal_bid
 
         auction.close_bidding
 
@@ -53,8 +50,8 @@ module Auctify
         assert_equal 1_002, auction.current_price
         assert_nil auction.sold_price
 
-        bid = auction.bid!(bid_for(lucifer, 10_000))
-        assert_equal ["too late"], bid.errors[:bade_at]
+        # bid = auction.bid!(bid_for(lucifer, 10_000))
+        # TODO assert_equal ["too late"], bid.errors[:bade_at]
 
         auction.sold_in_auction(buyer: auction.winning_bid.bidder, price: auction.winning_bid.price)
         auction.save!
@@ -64,9 +61,9 @@ module Auctify
         assert_equal 2, auction.bids.size # only successfull bids are stored
       end
 
-      def bid_for(bidder, price)
+      def bid_for(bidder, price, max_price = nil)
         b_reg = registrations[bidder]
-        Auctify::Bid.new(registration: b_reg, price: price)
+        Auctify::Bid.new(registration: b_reg, price: price, max_price: max_price)
       end
     end
   end
