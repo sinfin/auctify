@@ -85,7 +85,7 @@ module Auctify
       def new_current_minimal_bid
         return current_price if first_bid?
 
-        current_price + 1
+        increase_price(current_price)
       end
 
       def winning_bid
@@ -103,6 +103,7 @@ module Auctify
       def check_price_minimum
         bid.errors.add(:price, :price_is_bellow_current) if bid.price < current_price
         bid.errors.add(:price, :price_is_bellow_current) if bid.price == current_price && !first_bid?
+        bid.errors.add(:price, :price_is_bellow_minimal_bid) if bid.price < new_current_minimal_bid
       end
 
       def check_same_bidder
@@ -127,23 +128,23 @@ module Auctify
         return if winning_bid.blank?
 
         solve_limits_fight(winning_bid, new_bid)          if  bid.with_limit? &&  winning_bid.with_limit?
-        increase_price(winning_bid, new_bid)              if  bid.with_limit? && !winning_bid.with_limit?
+        increase_bid_price(winning_bid, new_bid)          if  bid.with_limit? && !winning_bid.with_limit?
         duplicate_increased_win_bid(winning_bid, new_bid) if !bid.with_limit? &&  winning_bid.with_limit?
         # do nothing, all is solved already               if !bid.with_limit? && !winning_bid.with_limit?
       end
 
       def solve_limits_fight(winning_bid, new_bid)
         if winning_bid.max_price < new_bid.max_price
-          new_bid.price = winning_bid.max_price + 1
+          new_bid.price = increase_price_to(overcome: winning_bid.max_price, ceil: new_bid.max_price)
         else
           new_bid.price = new_bid.max_price
-          update_winning_bid_to(new_bid.price + 1)
+          update_winning_bid_to(increase_price_to(overcome: new_bid.max_price, ceil: winning_bid.max_price))
         end
       end
 
-      def increase_price(winning_bid, new_bid)
+      def increase_bid_price(winning_bid, new_bid)
         if winning_bid.price < new_bid.max_price
-          new_bid.price = winning_bid.price + 1
+          new_bid.price = increase_price_to(overcome: winning_bid.price, ceil: new_bid.max_price)
         else
           new_bid.price = new_bid.max_price
         end
@@ -153,13 +154,38 @@ module Auctify
         if winning_bid.max_price < new_bid.price
           update_winning_bid_to(winning_bid.max_price)
         else
-          update_winning_bid_to(new_bid.price + 1)
+          update_winning_bid_to(increase_price_to(overcome: new_bid.price, ceil: winning_bid.max_price))
         end
       end
 
       def update_winning_bid_to(price)
         @updated_win_bid = winning_bid.dup
         @updated_win_bid.price = [price, winning_bid.max_price].min
+      end
+
+      def increase_price(price)
+        return price + 1 if bid_steps_ladder.blank?
+
+        _range, increase_step = bid_steps_ladder.detect { |range, step| range.cover?(price) }
+        price + increase_step
+      end
+
+      def increase_price_to(overcome:, ceil:)
+        return ceil if overcome == ceil
+        raise ":ceil is lower than :ovecome" if ceil < overcome
+
+        running_price = current_price
+        while running_price <= overcome
+          running_price = increase_price(running_price)
+        end
+
+        return running_price if running_price <= ceil
+
+        raise "Runing price overcome the ceil price!"
+      end
+
+      def bid_steps_ladder
+        @bid_steps_ladder ||= auction.bid_steps_ladder
       end
   end
 end

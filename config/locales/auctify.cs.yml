@@ -20,4 +20,6 @@ cs:
        price:
         price_is_bellow_current: "je nižší než aktuální cena"
         price_is_bellow_opening_price: "je nižší než vyvolávací cena"
+        price_is_bellow_minimal_bid: "je nižší než aktuální minimální příhoz"
         must_be_lower_or_equal_max_price: "musí být nižší nebo rovna maximálnímu limitu"
+

@@ -162,12 +162,7 @@ module Auctify
       # You CAN bid out of steps (eg  3666,-)
       # next minimal bid is calculated from current price and current step; even if new value is in next step
 
-      minimal_bids_as_ranges = {
-        (0...3_000) => 100,
-        (3_000...5_000) => 500,
-        (5_000..) => 1_000
-      }
-      auction.bid_steps_ladder = minimal_bids_as_ranges
+      auction.update!(bid_steps_ladder: { (0...3_000) => 100, (3_000...5_000) => 500, (5_000..) => 1_000 })
       assert_equal 1_000, auction.reload.current_price
 
       appender = Auctify::BidsAppender.call(auction: auction, bid: nil)
@@ -176,22 +171,24 @@ module Auctify
       assert_equal auction.current_price, appender.result.current_price
       assert_nil appender.result.winning_bid
 
-      bid = bid_for(lucifer, 1_000)
-      appender = Auctify::BidsAppender.call(auction: auction, bid: bid)
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(lucifer, 1_000))
 
+      assert appender.success?
       assert_equal 1_000, appender.result.current_price
       assert_equal 1_100, appender.result.current_minimal_bid
 
       # too low bid
-      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(adam, 1_099))
+      bid = bid_for(adam, 1_099)
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid)
 
       assert appender.failed?
-      assert_equal ["je momentálně uzavřena pro přihazování"], appender.errors[:price]
-      assert_equal ["je momentálně uzavřena pro přihazování"], bid.errors[:price]
+      assert_equal ["je nižší než aktuální minimální příhoz"], appender.errors[:price]
+      assert_equal ["je nižší než aktuální minimální příhoz"], bid.errors[:price]
 
       # exact bid
       appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(adam, 1_100))
 
+      assert appender.success?
       assert_equal 1_100, appender.result.current_price
       assert_equal 1_200, appender.result.current_minimal_bid
       assert_equal adam, appender.result.winning_bid.bidder
@@ -199,6 +196,7 @@ module Auctify
       # higher than need bid
       appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(lucifer, 1_999))
 
+      assert appender.success?
       assert_equal 1_999, appender.result.current_price
       assert_equal 2_099, appender.result.current_minimal_bid
       assert_equal lucifer, appender.result.winning_bid.bidder
@@ -206,13 +204,16 @@ module Auctify
       # bid with limit
       appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(adam, nil, 2_500))
 
+      assert appender.success?
       assert_equal 2_099, appender.result.current_price
       assert_equal 2_199, appender.result.current_minimal_bid
       assert_equal adam, appender.result.winning_bid.bidder
 
-      # second bid with limt
+      # second bid with limit
+      # 2099 -> 2199 -> 2299 -> 2399 -> 2499 -> 2599
       appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(lucifer, nil, 4_666))
 
+      assert appender.success?
       assert_equal 2_599, appender.result.current_price
       assert_equal 2_699, appender.result.current_minimal_bid
       assert_equal lucifer, appender.result.winning_bid.bidder
@@ -221,6 +222,7 @@ module Auctify
       # 2699 -> 2799 -> 2899 -> 2999 -> 3099 -> 3599 -> 4099
       appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(adam, nil, 3_990))
 
+      assert appender.success?
       assert_equal 4_099, appender.result.current_price
       assert_equal 4_599, appender.result.current_minimal_bid
       assert_equal lucifer, appender.result.winning_bid.bidder
