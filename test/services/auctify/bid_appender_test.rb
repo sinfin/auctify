@@ -26,7 +26,7 @@ module Auctify
     end
 
 
-    test "adds bid and modify auctiion" do
+    test "adds bid and modify auction" do
       assert_equal 1_000, auction.reload.current_price
 
       appender = Auctify::BidsAppender.call(auction: auction, bid: nil)
@@ -68,8 +68,7 @@ module Auctify
       assert_equal auction.current_price, appender.result.current_price
       assert_nil appender.result.winning_bid
 
-      bid = bid_for(lucifer, 1_001)
-      appender = Auctify::BidsAppender.call(auction: auction, bid: bid)
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(lucifer, 1_001))
 
       assert_equal 1_001, appender.result.current_price
       assert_equal 1_002, appender.result.current_minimal_bid
@@ -123,7 +122,7 @@ module Auctify
       assert_equal lucifer, appender.result.winning_bid.bidder
 
       assert_equal 9, auction.bids.count # 8 + Lucifer's winnig bid
-      # (no updated Adam's autobid, it is already at maximum price)
+      # (no updated Adam's autobid, because it is already at maximum price)
     end
 
     test "do not allow bids when auction is not running" do
@@ -144,7 +143,94 @@ module Auctify
       skip # bids are accepted, but unles reserve price is overcome no deal is made
     end
 
-    test "increase minimal bids in ranged steps" do
+    test "if no auction.bid_steps_ladder is blank, minimal bid increase is 1" do
+      auction.bid_steps_ladder = nil
+      assert_equal 1_000, auction.reload.current_price
+
+      appender = Auctify::BidsAppender.call(auction: auction, bid: nil)
+
+      assert_equal auction.current_price, appender.result.current_minimal_bid
+      assert_equal auction.current_price, appender.result.current_price
+
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(lucifer, 1_000))
+
+      assert_equal 1_000, appender.result.current_price
+      assert_equal 1_001, appender.result.current_minimal_bid
+    end
+
+    test "if no auction.bid_steps_ladder is present, minimal bid is increased according to it" do
+      # You CAN bid out of steps (eg  3666,-)
+      # next minimal bid is calculated from current price and current step; even if new value is in next step
+
+      minimal_bids_as_ranges = {
+        (0...3_000) => 100,
+        (3_000...5_000) => 500,
+        (5_000..) => 1_000
+      }
+      auction.bid_steps_ladder = minimal_bids_as_ranges
+      assert_equal 1_000, auction.reload.current_price
+
+      appender = Auctify::BidsAppender.call(auction: auction, bid: nil)
+
+      assert_equal auction.current_price, appender.result.current_minimal_bid
+      assert_equal auction.current_price, appender.result.current_price
+      assert_nil appender.result.winning_bid
+
+      bid = bid_for(lucifer, 1_000)
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid)
+
+      assert_equal 1_000, appender.result.current_price
+      assert_equal 1_100, appender.result.current_minimal_bid
+
+      # too low bid
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(adam, 1_099))
+
+      assert appender.failed?
+      assert_equal ["je momentálně uzavřena pro přihazování"], appender.errors[:price]
+      assert_equal ["je momentálně uzavřena pro přihazování"], bid.errors[:price]
+
+      # exact bid
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(adam, 1_100))
+
+      assert_equal 1_100, appender.result.current_price
+      assert_equal 1_200, appender.result.current_minimal_bid
+      assert_equal adam, appender.result.winning_bid.bidder
+
+      # higher than need bid
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(lucifer, 1_999))
+
+      assert_equal 1_999, appender.result.current_price
+      assert_equal 2_099, appender.result.current_minimal_bid
+      assert_equal lucifer, appender.result.winning_bid.bidder
+
+      # bid with limit
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(adam, nil, 2_500))
+
+      assert_equal 2_099, appender.result.current_price
+      assert_equal 2_199, appender.result.current_minimal_bid
+      assert_equal adam, appender.result.winning_bid.bidder
+
+      # second bid with limt
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(lucifer, nil, 4_666))
+
+      assert_equal 2_599, appender.result.current_price
+      assert_equal 2_699, appender.result.current_minimal_bid
+      assert_equal lucifer, appender.result.winning_bid.bidder
+
+      # adam increases his limit (biddin will progress to next min bid step)
+      # 2699 -> 2799 -> 2899 -> 2999 -> 3099 -> 3599 -> 4099
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_for(adam, nil, 3_990))
+
+      assert_equal 4_099, appender.result.current_price
+      assert_equal 4_599, appender.result.current_minimal_bid
+      assert_equal lucifer, appender.result.winning_bid.bidder
+    end
+
+    test " You cannot overbid yourself by price only bid" do
+      skip
+    end
+
+    test " You can increase you own max_price" do
       skip
     end
 

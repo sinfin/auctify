@@ -16,9 +16,10 @@ module Auctify
 
       if bid
         set_price_for_bid if bid.price.blank? && bid.with_limit?
+
         if approved_bid?
           solve_winner(winning_bid, bid)
-          append_bid!
+          append_bids!
         else
           fail!
         end
@@ -61,7 +62,7 @@ module Auctify
         errors.empty?
       end
 
-      def append_bid!
+      def append_bids!
         # saving first, so it will still be winning even if both have same price
         if @updated_win_bid.present?
           fail! unless @updated_win_bid.save
@@ -100,9 +101,8 @@ module Auctify
       end
 
       def check_price_minimum
-        if bid.price <= current_price
-          bid.errors.add(:price, :price_is_bellow_current)
-        end
+        bid.errors.add(:price, :price_is_bellow_current) if bid.price < current_price
+        bid.errors.add(:price, :price_is_bellow_current) if bid.price == current_price && !first_bid?
       end
 
       def check_same_bidder
