@@ -20,6 +20,7 @@ module Auctify
         if approved_bid?
           solve_winner(winning_bid, bid)
           append_bids!
+          update_auction! unless failed?
         else
           fail!
         end
@@ -69,7 +70,9 @@ module Auctify
         end
 
         fail! unless bid.save
+      end
 
+      def update_auction!
         @winning_bid = nil
         @bids = auction.bids.reload
 
@@ -135,6 +138,7 @@ module Auctify
 
       def solve_limits_fight(winning_bid, new_bid)
         if winning_bid.max_price < new_bid.max_price
+          update_winning_bid_to(winning_bid.max_price)
           new_bid.price = increase_price_to(overcome: winning_bid.max_price, ceil: new_bid.max_price)
         else
           new_bid.price = new_bid.max_price
