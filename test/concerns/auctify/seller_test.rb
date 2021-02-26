@@ -27,12 +27,12 @@ module Auctify
       exc = assert_raises(ActiveRecord::RecordInvalid) do
         users(:adam).offer_to_sale!(CleanThing.first, in: :auction, price: 1_000)
       end
-      assert_equal("Validace je neúspešná: Item objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`",
+      assert_equal("Validace je neúspešná: Zboží objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`",
                    exc.message)
     end
 
-    test "#offer_to_sale checks tahat seller is owner" do
-      skip "is this required"
+    test "#offer_to_sale checks that seller is owner" do
+      skip "is this required?"
     end
 
     test "#offer_to_sale with `in: auction` option creates Auction" do

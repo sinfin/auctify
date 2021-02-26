@@ -1,5 +1,43 @@
 cs:
  activerecord:
+  models:
+    auctify/sale/base:
+    auctify/sale/retail:
+    auctify/sale/auction:
+      one: Aukce (položky)
+      few: Aukcí
+      other: Aukcí
+    auctify/bid:
+      one: Přihoz
+      few: Příhozy
+      other: Příhozů
+    auctify/sale/auction_pack:
+      one: Aukční celek
+      few: Aukční celky
+      other: Aukčních celků
+
+  attributes:
+    auctify/sale/base:
+      buyer: Kupec
+      seller: Prodejce
+      item: Zboží
+    auctify/sale/retail:
+    auctify/sale/auction:
+      aasm_state: Stav
+      bid_steps_ladder: Žebříček příhozů
+      offered_price: Vyvolávací cena
+      current_price: Aktuální cena
+      sold_price: Vydražená cena
+      created_at: Vytvořena
+      updated_at: Změněna
+    auctify/bid:
+      price: Výše příhozu
+      max_price: Maximální výše příhozu
+      created_at: Přihozeno
+      updated_at:
+      registration: Registrace do aukce položky
+    auctify/sale/auction_pack:
+
   errors:
    models:
     auctify/sale/base:

@@ -41,7 +41,9 @@ module Auctify
       end
 
       def set_price_for_bid
-        if bid.max_price <= new_current_minimal_bid
+        if increasing_own_max_price?
+          bid.price = winning_bid.price
+        elsif bid.max_price <= new_current_minimal_bid
           bid.price = bid.max_price
         else
           bid.price = new_current_minimal_bid
@@ -53,7 +55,7 @@ module Auctify
       end
 
       def approve_bid
-        check_price_minimum
+        check_price_minimum unless increasing_own_max_price?
         check_same_bidder
         check_auction_state
         check_bid_registration_to_auction
@@ -110,6 +112,7 @@ module Auctify
       end
 
       def check_same_bidder
+        return if increasing_own_max_price?
         if winning_bid.present? && (winning_bid.bidder == bid.bidder)
           bid.errors.add(:bidder, :you_cannot_overbid_yourself)
         end
@@ -128,7 +131,7 @@ module Auctify
       end
 
       def solve_winner(winning_bid, new_bid)
-        return if winning_bid.blank?
+        return if winning_bid.blank? || increasing_own_max_price?
 
         solve_limits_fight(winning_bid, new_bid)          if  bid.with_limit? &&  winning_bid.with_limit?
         increase_bid_price(winning_bid, new_bid)          if  bid.with_limit? && !winning_bid.with_limit?
@@ -190,6 +193,12 @@ module Auctify
 
       def bid_steps_ladder
         @bid_steps_ladder ||= auction.bid_steps_ladder
+      end
+
+      def increasing_own_max_price?
+        return false unless winning_bid.present? && (winning_bid.bidder == bid.bidder)
+
+        bid.max_price && winning_bid.max_price < bid.max_price
       end
   end
 end

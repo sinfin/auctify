@@ -155,7 +155,7 @@ module Auctify
     end
 
     test "if no auction.bid_steps_ladder is present, minimal bid is increased according to it" do
-      # You CAN bid out of steps (eg  3666,-)
+      # You CAN bid out of defined steps (eg  3666,-)
       # next minimal bid is calculated from current price and current step; even if new value is in next step
 
       auction.update!(bid_steps_ladder: { (0...3_000) => 100, (3_000...5_000) => 500, (5_000..) => 1_000 })
@@ -225,12 +225,34 @@ module Auctify
       # lucifer: "price":"4099.0","max_price":"4666.0"
     end
 
-    test " You cannot overbid yourself by price only bid" do
-      skip
+    test "bidder cannot overbid itself by price-only bid" do
+      bids_and_expectations = [
+        { bid: { price: 1_000, max_price: nil, bidder: lucifer },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_000, current_minimal_bid: 1_001, winner: lucifer, bids_count: 1 } },
+
+        # overbidding
+        { bid: { price: 1_001, max_price: nil, bidder: lucifer },
+          appender: { success: false, errors: { bidder: ["Není možné přehazovat své příhozy"] } },
+          auction_after: { current_price: 1_000, current_minimal_bid: 1_001, winner: lucifer, bids_count: 1 } }
+      ]
+
+      bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
     end
 
-    test " You can increase you own max_price" do
-      skip
+    test "bidder can increase you own max_price" do
+      bids_and_expectations = [
+        { bid: { price: 1_000, max_price: 1_500, bidder: lucifer },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_000, current_minimal_bid: 1_001, winner: lucifer, bids_count: 1 } },
+
+        # increasing max_price
+        { bid: { price: 1_000, max_price: 2_000, bidder: lucifer },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_000, current_minimal_bid: 1_001, winner: lucifer, bids_count: 2 } },
+      ]
+
+      bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
     end
 
     def bid_for(bidder, price, max_price = nil)
@@ -244,7 +266,7 @@ module Auctify
 
       assert_equal hash[:appender][:success],
                    appender.success?,
-                   "result was not #{hash[:success] ? "successfull" : "failure"} for #{hash}"
+                   "result was not #{hash[:success] ? "successfull" : "failure"} for #{hash} \nERR:#{appender.errors}"
       assert_equal hash[:auction_after][:current_price],
                    appender.result.current_price,
                    "current price #{appender.result.current_price} do not match #{hash}"
