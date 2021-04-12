@@ -6,6 +6,8 @@ eve_apple:
   item: apple (Thing)
   type: Auctify::Sale::Auction
   offered_price: 100.0
+  sold_price: 100.0
+  aasm_state: auctioned_successfully
   published_at: <%= Date.new(1,1,1) %>
 
 adam_innocence:
@@ -35,3 +37,11 @@ future_auction:
   item: flaming_sword (Thing)
   type: Auctify::Sale::Auction
   published_at: <%= Time.current + 1.day %>
+
+accepted_auction:
+  seller: eve (User)
+  buyer:
+  item: fun (Thing)
+  type: Auctify::Sale::Auction
+  aasm_state: accepted
+  published_at: <%= Time.current - 1.day %>

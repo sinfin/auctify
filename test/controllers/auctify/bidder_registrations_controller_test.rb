@@ -21,11 +21,12 @@ module Auctify
     end
 
     test "should create bidder_registration" do
+      auction = auctify_sales(:auction_in_progress)
       assert_difference("Auctify::BidderRegistration.count") do
         post bidder_registrations_url,
-             params: { bidder_registration: { auction_id: @bidder_registration.auction_id,
-                                              bidder_id: @bidder_registration.bidder_id,
-                                              bidder_type: @bidder_registration.bidder_type } }
+             params: { bidder_registration: { auction_id: auction.id,
+                                              bidder_id: users(:lucifer).id,
+                                              bidder_type: "User" } }
       end
 
       assert_redirected_to bidder_registration_url(BidderRegistration.last)

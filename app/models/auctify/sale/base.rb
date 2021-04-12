@@ -18,6 +18,7 @@ module Auctify
       validate :valid_buyer
 
       scope :published, -> { where("published_at <= ?", Time.current) }
+      scope :not_sold, -> { where(sold_price: nil) }
 
       [:seller, :buyer, :item].each do |behavior|
         define_method("#{behavior}_auctify_id=") do |auctify_id|

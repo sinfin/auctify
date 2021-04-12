@@ -9,8 +9,7 @@ module Auctify
     include Auctify::AuctionHelpers
 
     setup do
-      @auction = auctify_sales(:eve_apple)
-      @auction.accept_offer
+      @auction = auctify_sales(:accepted_auction)
       @auction.offered_price = 1_000
       @auction.start_sale
       assert_nil @auction.buyer

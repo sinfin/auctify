@@ -5,10 +5,10 @@ require "test_helper"
 class FixturesConsistencyTest < ActiveSupport::TestCase
   test "counts" do
     assert_equal %w[Lucifer Eve Adam].sort, User.pluck("name").sort
-    assert_equal ["Apple", "Innocence", "Fig leave", "Snake (without apple)", "Flaming sword"].sort,
+    assert_equal ["Apple", "Innocence", "Fig leave", "Naughty fun", "Snake (without apple)", "Flaming sword"].sort,
                  Thing.pluck("name").sort
-    assert_equal 5, Auctify::Sale::Base.count # details bellow
-    assert_equal 4, Auctify::BidderRegistration.count
+    assert_equal 6, Auctify::Sale::Base.count # details bellow
+    assert_equal 6, Auctify::BidderRegistration.count
   end
 
   test "Eve's apple" do
@@ -17,6 +17,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal users(:adam), sale.buyer
     assert_equal things(:apple), sale.item
     assert sale.is_a?(Auctify::Sale::Auction)
+    assert sale.auctioned_successfully?
 
     assert_equal %w[Adam Lucifer], sale.bidders.pluck(:name)
   end
@@ -61,5 +62,16 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_not sale.published?
 
     # assert %w[Adam Lucifer], sale.bidders.pluck(:name)
+  end
+
+  test "accepted auction" do
+    sale = auctify_sales(:accepted_auction)
+    assert_equal users(:eve), sale.seller
+    assert_nil sale.buyer
+    assert_equal things(:fun), sale.item
+    assert sale.is_a?(Auctify::Sale::Auction)
+    assert sale.accepted?
+
+    assert_equal %w[Adam Lucifer], sale.bidders.pluck(:name)
   end
 end

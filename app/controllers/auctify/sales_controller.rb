@@ -69,7 +69,7 @@ module Auctify
         scope = sale_class
         return scope if params[:list_all].to_s == "1"
 
-        scope.published
+        scope.published.not_sold
       end
   end
 end

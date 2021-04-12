@@ -3,23 +3,35 @@
 adam_on_apple:
   bidder: adam (User)
   auction: eve_apple
-  aasm_state: handled
+  aasm_state: approved
   handled_at: 2021-02-23 10:02:40
 
 lucifer_on_apple:
   bidder: lucifer (User)
   auction: eve_apple
-  aasm_state: handled
+  aasm_state: approved
   handled_at: 2021-02-23 10:02:40
 
 adam_in_progress:
   bidder: adam (User)
   auction: auction_in_progress
-  aasm_state: handled
+  aasm_state: approved
   handled_at: 2021-02-23 10:02:40
 
 lucifer_in_progress:
   bidder: lucifer (User)
   auction: auction_in_progress
-  aasm_state: handled
+  aasm_state: approved
+  handled_at: 2021-02-23 10:02:40
+
+adam_in_accepted:
+  bidder: adam (User)
+  auction: accepted_auction
+  aasm_state: approved
+  handled_at: 2021-02-23 10:02:40
+
+lucifer_in_accepted:
+  bidder: lucifer (User)
+  auction: accepted_auction
+  aasm_state: approved
   handled_at: 2021-02-23 10:02:40

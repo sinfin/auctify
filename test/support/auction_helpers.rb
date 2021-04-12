@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Auctify
   module AuctionHelpers
     def bid_for(bidder, price, max_price = nil)

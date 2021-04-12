@@ -10,9 +10,7 @@ module Auctify
       include Auctify::AuctionHelpers
 
       setup do
-        @auction = auctify_sales(:eve_apple)
-        @auction.buyer = nil
-        @auction.accept_offer
+        @auction = auctify_sales(:accepted_auction)
 
         assert @auction.valid?, "auction is not valid! : #{@auction.errors.full_messages}"
 
@@ -57,6 +55,7 @@ module Auctify
         assert_no_difference("Auctify::Bid.count") do
           assert_equal false, auction.bid!(bid)
         end
+
         assert_includes bid.errors[:auction], "je momentálně uzavřena pro přihazování"
 
         auction.sold_in_auction(buyer: auction.winning_bid.bidder, price: auction.winning_bid.price)

@@ -85,9 +85,7 @@ module Auctify
         end
       end
 
-      def winning_bid
-        bidding_final_result.winning_bid
-      end
+      delegate :winning_bid, to: :bidding_final_result
 
       def bidding_final_result
         Auctify::BidsAppender.call(auction: self, bid: nil).result
@@ -95,6 +93,10 @@ module Auctify
 
       def opening_price
         offered_price
+      end
+
+      def allows_new_bidder_registrations?
+        in_sale? || accepted?
       end
 
       private

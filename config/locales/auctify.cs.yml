@@ -1,70 +1,77 @@
 cs:
- activerecord:
-  models:
-    auctify/sale/base:
-    auctify/sale/retail:
-    auctify/sale/auction:
-      one: Aukce (položky)
-      few: Aukcí
-      other: Aukcí
-    auctify/bid:
-      one: Přihoz
-      few: Příhozy
-      other: Příhozů
-    auctify/sale/auction_pack:
-      one: Aukční celek
-      few: Aukční celky
-      other: Aukčních celků
+  activerecord:
+    models:
+      auctify/sale/base:
+      auctify/sale/retail:
+      auctify/sale/auction:
+        one: Aukce (položky)
+        few: Aukcí
+        other: Aukcí
+      auctify/bid:
+        one: Přihoz
+        few: Příhozy
+        other: Příhozů
+      auctify/sale/auction_pack:
+        one: Aukční celek
+        few: Aukční celky
+        other: Aukčních celků
+      auctify/bidder_registration:
+        one: Registrace dražebníka
+        other: Registrace dražebníků
 
-  attributes:
-    auctify/sale/base:
-      buyer: Kupec
-      seller: Prodejce
-      item: Zboží
-    auctify/sale/retail:
-    auctify/sale/auction:
-      aasm_state: Stav
-      bid_steps_ladder: Žebříček příhozů
-      offered_price: Vyvolávací cena
-      current_price: Aktuální cena
-      sold_price: Vydražená cena
-      created_at: Vytvořena
-      updated_at: Změněna
-    auctify/bid:
-      price: Výše příhozu
-      max_price: Maximální výše příhozu
-      created_at: Přihozeno
-      updated_at:
-      registration: Registrace do aukce položky
-    auctify/sale/auction_pack:
+    attributes:
+      auctify/sale/base:
+        buyer: Kupec
+        seller: Prodejce
+        item: Zboží
+      auctify/sale/retail:
+      auctify/sale/auction:
+        aasm_state: Stav
+        bid_steps_ladder: Žebříček příhozů
+        offered_price: Vyvolávací cena
+        current_price: Aktuální cena
+        sold_price: Vydražená cena
+        created_at: Vytvořena
+        updated_at: Změněna
+      auctify/bid:
+        price: Výše příhozu
+        max_price: Maximální výše příhozu
+        created_at: Přihozeno
+        updated_at:
+        registration: Registrace do aukce položky
+      auctify/sale/auction_pack:
 
-  errors:
-   models:
-    auctify/sale/base:
-      attributes:
-        seller:
-          not_auctified: "objekt Prodejce nebyl Auctifikován pomocí `auctify_as: :seller`"
-        buyer:
-          not_auctified: "objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"
-        item:
-          not_auctified: "objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`"
-    auctify/sale/auction:
-      attributes:
-        buyer:
-          buyer_is_not_the_winner: "Kupec %{buyer} není výhercem aukce, tím je %{winner}"
-          there_is_a_buyer_for_not_sold_auction: "Aukci nelze označit za neprodanou, neboť má kupce (%{winner})"
-        sold_price:
-          sold_price_is_not_from_bidding: "Prodejní cena %{sold_price} neodpovídá výherní ceně z aukce %{won_price}"
-    auctify/bid:
-      attributes:
-       bidder:
-        you_cannot_overbid_yourself: "Není možné přehazovat své příhozy"
-       auction:
-        auction_is_not_accepting_bids_now: "je momentálně uzavřena pro přihazování"
-        bidder_is_not_registered_for_this_auction: "dražitel není registrován k této aukci"
-       price:
-        price_is_bellow_current: "je nižší než aktuální cena"
-        price_is_bellow_opening_price: "je nižší než vyvolávací cena"
-        price_is_bellow_minimal_bid: "je nižší než aktuální minimální příhoz"
-        must_be_lower_or_equal_max_price: "musí být nižší nebo rovna maximálnímu limitu"
+    errors:
+      models:
+        auctify/sale/base:
+          attributes:
+            seller:
+              not_auctified: "objekt Prodejce nebyl Auctifikován pomocí `auctify_as: :seller`"
+            buyer:
+              not_auctified: "objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"
+            item:
+              not_auctified: "objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`"
+        auctify/sale/auction:
+          attributes:
+            buyer:
+              buyer_is_not_the_winner: "Kupec %{buyer} není výhercem aukce, tím je %{winner}"
+              there_is_a_buyer_for_not_sold_auction: "Aukci nelze označit za neprodanou, neboť má kupce (%{winner})"
+            sold_price:
+              sold_price_is_not_from_bidding: "Prodejní cena %{sold_price} neodpovídá výherní ceně z aukce %{won_price}"
+        auctify/bid:
+          attributes:
+            bidder:
+              you_cannot_overbid_yourself: "Není možné přehazovat své příhozy"
+            auction:
+              auction_is_not_accepting_bids_now: "je momentálně uzavřena pro přihazování"
+              bidder_is_not_registered_for_this_auction: "dražitel není registrován k této aukci"
+            price:
+              price_is_bellow_current: "je nižší než aktuální cena"
+              price_is_bellow_opening_price: "je nižší než vyvolávací cena"
+              price_is_bellow_minimal_bid: "je nižší než aktuální minimální příhoz"
+              must_be_lower_or_equal_max_price: "musí být nižší nebo rovna maximálnímu limitu"
+        auctify/bidder_registration:
+          attributes:
+            auction:
+              auction_do_not_allow_new_registrations: "Aukce aktuálně neupovoluje nové registrace"
 

@@ -13,19 +13,42 @@ module Auctify
 
     aasm do
       state :pending, initial: true, color: "gray"
-      state :handled, color: "green"
+      state :approved, color: "green"
+      state :rejected, color: "black"
 
-      event :handle do
+      event :approve do
+        transitions from: :pending, to: :approved
+
         before do
           self.handled_at = Time.current
         end
-        transitions from: :pending, to: :handled
       end
 
-      event :unhandle do
-        transitions from: :handled, to: :pending
+      event :unapprove do
+        transitions from: :approved, to: :pending
+
+        before do
+          self.handled_at = nil
+        end
+      end
+
+      event :reject do
+        transitions from: :pending, to: :rejected
+
+        before do
+          self.handled_at = Time.current
+        end
       end
     end
+
+    validate :auction_is_in_allowed_state, on: :create
+
+    private
+      def auction_is_in_allowed_state
+        unless auction && auction.allows_new_bidder_registrations?
+          errors.add(:auction, :auction_do_not_allow_new_registrations)
+        end
+      end
   end
 end
 

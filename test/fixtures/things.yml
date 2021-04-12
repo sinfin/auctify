@@ -19,3 +19,7 @@ snake:
 flaming_sword:
   name: Flaming sword
   owner: eve
+
+fun:
+  name: Naughty fun
+  owner: eve

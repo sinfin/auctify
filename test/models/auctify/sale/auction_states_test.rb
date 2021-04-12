@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require 'minitest/mock'
+require "minitest/mock"
 
 module Auctify
   module Sale
@@ -152,10 +152,8 @@ module Auctify
       end
 
       test "nullify buyer on start_sale" do
-        auction = auctify_sales(:eve_apple)
-        auction.accept_offer
-
-        assert_equal users(:adam), auction.buyer
+        auction = auctify_sales(:accepted_auction)
+        auction.buyer = users(:adam)
 
         auction.start_sale
 
@@ -198,7 +196,8 @@ module Auctify
         auction.close_bidding
         assert auction.bidding_ended?
 
-        Auctify::BidsAppender.stub(:call, OpenStruct.new(result: OpenStruct.new(won_price: 1_000, winner: users(:adam)))) do
+        Auctify::BidsAppender.stub(:call,
+OpenStruct.new(result: OpenStruct.new(won_price: 1_000, winner: users(:adam)))) do
           assert_raises(AASM::InvalidTransition) do
             auction.not_sold_in_auction
           end
