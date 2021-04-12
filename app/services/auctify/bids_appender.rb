@@ -36,7 +36,9 @@ module Auctify
         OpenStruct.new(
           current_price: current_price,
           current_minimal_bid: new_current_minimal_bid,
-          winning_bid: winning_bid
+          winning_bid: winning_bid,
+          winner: (overcame_reserve_price? ? winning_bid.bidder : nil),
+          won_price: (overcame_reserve_price? ? current_price : nil)
         )
       end
 
@@ -95,6 +97,13 @@ module Auctify
 
       def winning_bid
         @winning_bid ||= auction.bids.ordered.first # or should I go by the price?
+      end
+
+      def overcame_reserve_price?
+        return false if winning_bid.blank?
+        return false if auction.reserve_price.present? && auction.current_price < auction.reserve_price
+
+        true
       end
 
       def first_bid?

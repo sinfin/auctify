@@ -7,9 +7,13 @@ module Auctify
     class AuctionBiddingTest < ActiveSupport::TestCase
       attr_reader :auction, :adam, :lucifer, :registrations
 
+      include Auctify::AuctionHelpers
+
       setup do
         @auction = auctify_sales(:eve_apple)
+        @auction.buyer = nil
         @auction.accept_offer
+
         assert @auction.valid?, "auction is not valid! : #{@auction.errors.full_messages}"
 
         @lucifer = users(:lucifer)
@@ -50,10 +54,10 @@ module Auctify
         assert_nil auction.sold_price
 
         bid = bid_for(lucifer, 10_000)
-        assert_difference("Auctify::Bid.count", 0) do
+        assert_no_difference("Auctify::Bid.count") do
           assert_equal false, auction.bid!(bid)
         end
-        assert ["dad"], bid.errors
+        assert_includes bid.errors[:auction], "je momentálně uzavřena pro přihazování"
 
         auction.sold_in_auction(buyer: auction.winning_bid.bidder, price: auction.winning_bid.price)
         auction.save!
@@ -61,11 +65,6 @@ module Auctify
         assert_equal 1_002, auction.reload.sold_price
         assert_equal adam, auction.buyer
         assert_equal 2, auction.bids.size # only successfull bids are stored
-      end
-
-      def bid_for(bidder, price, max_price = nil)
-        b_reg = registrations[bidder]
-        Auctify::Bid.new(registration: b_reg, price: price, max_price: max_price)
       end
     end
   end

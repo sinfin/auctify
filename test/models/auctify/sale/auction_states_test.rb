@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require 'minitest/mock'
 
 module Auctify
   module Sale
     class AuctionStatesTest < ActiveSupport::TestCase
-      attr_reader :auction
+      attr_reader :auction, :registrations
+
+      include Auctify::AuctionHelpers
 
       setup do
         @auction = Auctify::Sale::Auction.new(seller: users(:eve), item: things(:apple), offered_price: 123.4)
 
         assert @auction.valid?, "auction is not valid! : #{@auction.errors.full_messages}"
+        assert_nil auction.buyer
       end
 
       test "have initial state 'offered'" do
@@ -47,6 +51,7 @@ module Auctify
         auction.start_sale
 
         assert auction.in_sale?
+        assert_nil auction.buyer
 
         assert_raises(AASM::InvalidTransition) do
           auction.cancel
@@ -57,8 +62,14 @@ module Auctify
         auction.close_bidding
 
         assert auction.bidding_ended?
+        assert_nil auction.buyer
 
-        auction.sold_in_auction(buyer: users(:adam), price: 1_234)
+        appender_result = OpenStruct.new(won_price: 1_000, winner: users(:adam))
+        Auctify::BidsAppender.stub(:call, OpenStruct.new(result: appender_result)) do
+          auction.sold_in_auction(buyer: users(:adam), price: 1_000)
+        end
+
+        assert_equal users(:adam), auction.buyer
 
         assert_raises(AASM::InvalidTransition) do
           auction.cancel
@@ -85,11 +96,14 @@ module Auctify
 
         assert auction.bidding_ended?
 
-        auction.sold_in_auction(buyer: users(:adam), price: 1_234)
+        appender_result = OpenStruct.new(won_price: 1_000, winner: users(:adam))
+        Auctify::BidsAppender.stub(:call, OpenStruct.new(result: appender_result)) do
+          auction.sold_in_auction(buyer: users(:adam), price: 1_000)
+        end
 
         assert auction.auctioned_successfully?
         assert_equal users(:adam), auction.buyer
-        assert_equal 1_234.00, auction.sold_price
+        assert_equal 1_000.00, auction.sold_price
 
         auction.sell
 
@@ -116,6 +130,7 @@ module Auctify
         auction.end_sale # nobody buy it
 
         assert auction.not_sold?
+        assert_nil auction.buyer
       end
 
       test "cannot be auctioned if not in sale" do
@@ -128,16 +143,73 @@ module Auctify
         end
 
         assert auction.accepted?
-        assert auction.buyer.blank?
-        assert_nil auction.sold_price
 
         assert_raises(AASM::InvalidTransition) do
           auction.not_sold_in_auction
         end
 
         assert auction.accepted?
-        assert auction.buyer.blank?
-        assert_nil auction.sold_price
+      end
+
+      test "nullify buyer on start_sale" do
+        auction = auctify_sales(:eve_apple)
+        auction.accept_offer
+
+        assert_equal users(:adam), auction.buyer
+
+        auction.start_sale
+
+        assert_nil auction.buyer
+      end
+
+      test "validate winner and price on sold_in_auction event" do
+        @registrations = { users(:adam) => auction.bidder_registrations.detect { |r| r.bidder == users(:adam) } }
+
+        auction.accept_offer
+        auction.start_sale
+        auction.close_bidding
+        assert auction.bidding_ended?
+
+        appender_result = OpenStruct.new(won_price: 1_000, winner: users(:adam))
+
+        Auctify::BidsAppender.stub(:call, OpenStruct.new(result: appender_result)) do
+          assert_raises(AASM::InvalidTransition) do
+            auction.sold_in_auction(buyer: users(:lucifer), price: 1_000)
+          end
+          assert auction.bidding_ended?
+          assert_includes auction.errors[:buyer], "Kupec Lucifer není výhercem aukce, tím je Adam"
+
+          assert_raises(AASM::InvalidTransition) do
+            auction.sold_in_auction(buyer: users(:adam), price: 1_001)
+          end
+          assert auction.bidding_ended?
+          assert_includes auction.errors[:sold_price], "Prodejní cena 1001.0 neodpovídá výherní ceně z aukce 1000"
+
+          auction.sold_in_auction(buyer: users(:adam), price: 1_000)
+          assert auction.auctioned_successfully?
+        end
+      end
+
+      test "validate no-winner on not_sold_in_auction event" do
+        @registrations = { users(:adam) => auction.bidder_registrations.detect { |r| r.bidder == users(:adam) } }
+
+        auction.accept_offer
+        auction.start_sale
+        auction.close_bidding
+        assert auction.bidding_ended?
+
+        Auctify::BidsAppender.stub(:call, OpenStruct.new(result: OpenStruct.new(won_price: 1_000, winner: users(:adam)))) do
+          assert_raises(AASM::InvalidTransition) do
+            auction.not_sold_in_auction
+          end
+          assert auction.bidding_ended?
+          assert_includes auction.errors[:buyer], "Aukci nelze označit za neprodanou, neboť má kupce (Adam)"
+        end
+
+        Auctify::BidsAppender.stub(:call, OpenStruct.new(result: OpenStruct.new(won_price: nil, winner: nil))) do
+          auction.not_sold_in_auction
+          assert auction.auctioned_unsuccessfully?
+        end
       end
     end
   end

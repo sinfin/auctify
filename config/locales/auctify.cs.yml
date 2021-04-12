@@ -42,12 +42,19 @@ cs:
    models:
     auctify/sale/base:
       attributes:
-       seller:
-        not_auctified: "objekt Prodejce nebyl Auctifikován pomocí `auctify_as: :seller`"
-       buyer:
-        not_auctified: "objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"
-       item:
-        not_auctified: "objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`"
+        seller:
+          not_auctified: "objekt Prodejce nebyl Auctifikován pomocí `auctify_as: :seller`"
+        buyer:
+          not_auctified: "objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"
+        item:
+          not_auctified: "objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`"
+    auctify/sale/auction:
+      attributes:
+        buyer:
+          buyer_is_not_the_winner: "Kupec %{buyer} není výhercem aukce, tím je %{winner}"
+          there_is_a_buyer_for_not_sold_auction: "Aukci nelze označit za neprodanou, neboť má kupce (%{winner})"
+        sold_price:
+          sold_price_is_not_from_bidding: "Prodejní cena %{sold_price} neodpovídá výherní ceně z aukce %{won_price}"
     auctify/bid:
       attributes:
        bidder:

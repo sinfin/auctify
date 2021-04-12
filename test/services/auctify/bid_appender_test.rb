@@ -6,11 +6,14 @@ module Auctify
   class BidAppenderTest < ActiveSupport::TestCase
     attr_reader :auction, :adam, :lucifer, :registrations
 
+    include Auctify::AuctionHelpers
+
     setup do
       @auction = auctify_sales(:eve_apple)
       @auction.accept_offer
       @auction.offered_price = 1_000
       @auction.start_sale
+      assert_nil @auction.buyer
       @auction.save! # just for sure
 
       assert @auction.valid?, "auction is not valid! : #{@auction.errors.full_messages}"
@@ -57,6 +60,8 @@ module Auctify
       assert_equal 2, auction.bids.count
 
       assert_equal adam, appender.result.winning_bid.bidder
+
+      assert_nil auction.buyer
     end
 
     test "can handle autobidding with max_price" do
@@ -119,6 +124,8 @@ module Auctify
       # --------------------
       # adam:     "price":"3000.0","max_price":"3000.0"
       # lucifer:  "price":"3001.0","max_price":"6666.0"
+
+      assert_nil auction.buyer
     end
 
     test "do not allow bids when auction is not running" do
@@ -136,7 +143,29 @@ module Auctify
     end
 
     test "can handle reserve_price" do
-      skip # bids are accepted, but unles reserve price is overcome no deal is made
+      auction.update(reserve_price: 2000)
+      assert_equal 1_000, auction.reload.current_price
+
+      bids_and_expectations = [
+        { bid: { price: 1_001, max_price: nil, bidder: lucifer },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_001, current_minimal_bid: 1_002, winner: nil, bids_count: 1 } },
+
+        { bid: { price: 1_002, max_price: nil, bidder: adam },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_002, current_minimal_bid: 1_003, winner: nil, bids_count: 2 } },
+
+        { bid: { price: 1_999, max_price: nil, bidder: lucifer },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_999, current_minimal_bid: 2_000, winner: nil, bids_count: 3 } },
+
+        { bid: { price: 2000, bidder: adam },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 2_000, current_minimal_bid: 2_001, winner: adam, bids_count: 4 } },
+
+      ]
+
+      bids_and_expectations[0..-1].each { |hash| place_bid_and_verfify_results(hash) }
     end
 
     test "if no auction.bid_steps_ladder is blank, minimal bid increase is 1" do
@@ -223,6 +252,16 @@ module Auctify
       # ---------------------
       # adam:    "price":"3990.0","max_price":"3990.0"
       # lucifer: "price":"4099.0","max_price":"4666.0"
+
+      assert_nil auction.buyer
+
+      auction.close_bidding!
+
+      assert auction.bidding_ended?
+
+      auction.sold_in_auction(buyer: auction.winning_bid.bidder, price: auction.winning_bid.price)
+
+      assert_equal lucifer, auction.buyer
     end
 
     test "bidder cannot overbid itself by price-only bid" do
@@ -255,11 +294,6 @@ module Auctify
       bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
     end
 
-    def bid_for(bidder, price, max_price = nil)
-      b_reg = registrations[bidder]
-      Auctify::Bid.new(registration: b_reg, price: price, max_price: max_price)
-    end
-
     def place_bid_and_verfify_results(hash)
       bid = bid_for(hash[:bid][:bidder], hash[:bid][:price], hash[:bid][:max_price])
       appender = Auctify::BidsAppender.call(auction: auction, bid: bid)
@@ -273,9 +307,14 @@ module Auctify
       assert_equal hash[:auction_after][:current_minimal_bid],
                    appender.result.current_minimal_bid,
                    "min bid #{appender.result.current_minimal_bid} do not match #{hash}"
-      assert_equal hash[:auction_after][:winner],
-                   appender.result.winning_bid.bidder,
-                   "winner #{appender.result.winning_bid.bidder} do not match #{hash}"
+      if hash[:auction_after][:winner].nil?
+        assert_nil appender.result.winner,
+                   "winner #{appender.result.winner} should be nil"
+      else
+        assert_equal hash[:auction_after][:winner],
+                     appender.result.winner,
+                     "winner #{appender.result.winner} do not match #{hash}"
+      end
 
       assert_equal hash[:auction_after][:current_price],
                    auction.reload.current_price,

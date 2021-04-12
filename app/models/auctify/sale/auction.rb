@@ -33,6 +33,7 @@ module Auctify
         event :start_sale do
           before do
             self.current_price = self.offered_price
+            self.buyer = nil
           end
 
           transitions from: :accepted, to: :in_sale
@@ -43,9 +44,9 @@ module Auctify
         end
 
         event :sold_in_auction do
-          transitions from: :bidding_ended, to: :auctioned_successfully
+          transitions from: :bidding_ended, to: :auctioned_successfully, if: :valid?
 
-          after do |*args| # TODO: sold_at
+          before do |*args| # TODO: sold_at
             params = args.first # expecting keys :buyer, :price
             self.buyer = params[:buyer]
             self.sold_price = params[:price]
@@ -53,7 +54,7 @@ module Auctify
         end
 
         event :not_sold_in_auction do
-          transitions from: :bidding_ended, to: :auctioned_unsuccessfully
+          transitions from: :bidding_ended, to: :auctioned_unsuccessfully, if: :no_winner?
         end
 
         event :sell do
@@ -69,6 +70,8 @@ module Auctify
         end
       end
 
+      validate :buyer_vs_bidding_consistence
+
       def bidders
         @bidders ||= bidder_registrations.collect { |br| br.bidder }.sort_by(&:name)
       end
@@ -83,12 +86,43 @@ module Auctify
       end
 
       def winning_bid
-        Auctify::BidsAppender.call(auction: self, bid: nil).result.winning_bid
+        bidding_final_result.winning_bid
+      end
+
+      def bidding_final_result
+        Auctify::BidsAppender.call(auction: self, bid: nil).result
       end
 
       def opening_price
         offered_price
       end
+
+      private
+        def buyer_vs_bidding_consistence
+          return true if buyer.blank? && sold_price.blank?
+
+          unless buyer == bidding_final_result.winner
+            errors.add(:buyer,
+                       :buyer_is_not_the_winner,
+                       buyer: buyer.to_label,
+                       winner: bidding_final_result.winner.to_label)
+          end
+
+          unless sold_price == bidding_final_result.won_price
+            errors.add(:sold_price,
+                       :sold_price_is_not_from_bidding,
+                       sold_price: sold_price,
+                       won_price: bidding_final_result.won_price)
+          end
+        end
+
+        def no_winner?
+          return true if bidding_final_result.winner.blank?
+          errors.add(:buyer,
+            :there_is_a_buyer_for_not_sold_auction,
+             winner: bidding_final_result.winner.to_label)
+          false
+        end
     end
   end
 end
@@ -105,6 +139,7 @@ end
 #  item_type        :string           not null
 #  offered_price    :decimal(, )
 #  published_at     :datetime
+#  reserve_price    :decimal(, )
 #  seller_type      :string           not null
 #  selling_price    :decimal(, )
 #  sold_price       :decimal(, )

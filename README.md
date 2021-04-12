@@ -87,6 +87,7 @@ class Painting < ApplicationRecord
   auctify_as :item # this will add method like `sales` ....
 end
 ```
+`Auctify` expects that auctifyied model instances responds to `to_label` !!
 
 ## Installation
 Add this line to your application's Gemfile:
