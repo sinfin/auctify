@@ -12,6 +12,9 @@
 
 ActiveRecord::Schema.define(version: 2021_04_12_114319) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "auctify_bidder_registrations", force: :cascade do |t|
     t.string "bidder_type", null: false
     t.integer "bidder_id", null: false

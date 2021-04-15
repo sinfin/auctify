@@ -56,7 +56,7 @@ end
 #
 # Table name: auctify_bidder_registrations
 #
-#  id          :integer          not null, primary key
+#  id          :bigint(8)        not null, primary key
 #  aasm_state  :string           default("pending"), not null
 #  bidder_type :string           not null
 #  handled_at  :datetime
@@ -73,5 +73,5 @@ end
 #
 # Foreign Keys
 #
-#  auction_id  (auction_id => auctify_sales.id)
+#  fk_rails_...  (auction_id => auctify_sales.id)
 #

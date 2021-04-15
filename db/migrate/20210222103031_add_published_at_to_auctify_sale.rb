@@ -2,6 +2,6 @@
 
 class AddPublishedAtToAuctifySale < ActiveRecord::Migration[6.0]
   def change
-    add_column :auctify_sales, :published_at, :datetime, default: :null
+    add_column :auctify_sales, :published_at, :datetime
   end
 end

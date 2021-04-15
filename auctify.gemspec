@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", "~> 6.0.2", ">= 6.0.2.2"
   spec.add_dependency "aasm", "~> 5.1.1"
 
-  spec.add_development_dependency "sqlite3"
+  spec.add_development_dependency "pg"
   spec.add_development_dependency "pry-rails"
   spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "rubocop"

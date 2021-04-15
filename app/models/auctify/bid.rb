@@ -28,7 +28,7 @@ end
 #
 # Table name: auctify_bids
 #
-#  id              :integer          not null, primary key
+#  id              :bigint(8)        not null, primary key
 #  max_price       :decimal(12, 2)
 #  price           :decimal(12, 2)   not null
 #  created_at      :datetime         not null
@@ -41,5 +41,5 @@ end
 #
 # Foreign Keys
 #
-#  registration_id  (registration_id => auctify_bidder_registrations.id)
+#  fk_rails_...  (registration_id => auctify_bidder_registrations.id)
 #

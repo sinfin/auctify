@@ -133,7 +133,7 @@ end
 #
 # Table name: auctify_sales
 #
-#  id               :integer          not null, primary key
+#  id               :bigint(8)        not null, primary key
 #  aasm_state       :string           default("offered"), not null
 #  bid_steps_ladder :json
 #  buyer_type       :string
