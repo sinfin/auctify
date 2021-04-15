@@ -55,11 +55,11 @@ if Rails.env.development?
 
   Annotate.load_tasks
 
-  Rake::Task["db:migrate"].enhance do
-    Rake::Task["app:annotate_models"].invoke
-  end
+  # Rake::Task["db:migrate"].enhance do
+  #   Rake::Task["app:annotate_models"].invoke
+  # end
 
-  Rake::Task["db:rollback"].enhance do
-    Rake::Task["app:annotate_models"].invoke
-  end
+  # Rake::Task["db:rollback"].enhance do
+  #   Rake::Task["app:annotate_models"].invoke
+  # end
 end
