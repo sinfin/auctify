@@ -10,10 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_12_114319) do
+ActiveRecord::Schema.define(version: 2021_04_16_141111) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "auctify_auction_packs", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.integer "position", default: 0
+    t.string "slug"
+    t.string "time_frame"
+    t.boolean "published", default: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "auctify_bidder_registrations", force: :cascade do |t|
     t.string "bidder_type", null: false
@@ -55,9 +66,23 @@ ActiveRecord::Schema.define(version: 2021_04_12_114319) do
     t.decimal "sold_price"
     t.json "bid_steps_ladder"
     t.decimal "reserve_price"
+    t.bigint "pack_id"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["item_type", "item_id"], name: "index_auctify_sales_on_item_type_and_item_id"
+    t.index ["pack_id"], name: "index_auctify_sales_on_pack_id"
     t.index ["seller_type", "seller_id"], name: "index_auctify_sales_on_seller_type_and_seller_id"
+  end
+
+  create_table "auctify_sales_packs", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.integer "position", default: 0
+    t.string "slug"
+    t.string "time_frame"
+    t.string "place"
+    t.boolean "published", default: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "clean_things", force: :cascade do |t|

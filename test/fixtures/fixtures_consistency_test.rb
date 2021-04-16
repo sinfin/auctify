@@ -9,6 +9,8 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
                  Thing.pluck("name").sort
     assert_equal 6, Auctify::Sale::Base.count # details bellow
     assert_equal 6, Auctify::BidderRegistration.count
+    assert_equal 3, Auctify::SalesPack.count
+    assert_equal 4, auctify_sales_packs(:things_from_eden).sales.count
   end
 
   test "Eve's apple" do
@@ -18,6 +20,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal things(:apple), sale.item
     assert sale.is_a?(Auctify::Sale::Auction)
     assert sale.auctioned_successfully?
+    assert_equal auctify_sales_packs(:things_from_eden), sale.pack
 
     assert_equal %w[Adam Lucifer], sale.bidders.pluck(:name)
   end
@@ -28,6 +31,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_nil sale.buyer
     assert_equal things(:innocence), sale.item
     assert sale.is_a?(Auctify::Sale::Retail)
+    assert_equal auctify_sales_packs(:things_from_eden), sale.pack
   end
 
   test "unpublished sale" do
@@ -37,6 +41,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal things(:leaf), sale.item
     assert sale.is_a?(Auctify::Sale::Retail)
     assert_not sale.published?
+    assert_nil sale.pack
   end
 
   test "auction in progress" do
@@ -46,10 +51,11 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal things(:snake), auction.item
     assert auction.is_a?(Auctify::Sale::Auction)
     assert auction.in_sale?
+    assert_equal auctify_sales_packs(:things_from_eden), auction.pack
 
     assert_equal %w[Adam Lucifer], auction.bidders.pluck(:name)
     assert_equal 2, auction.bids.size
-    assert_equal [users(:lucifer), users(:adam)], auction.bids.collect { |b| b.bidder }
+    assert_equal [users(:lucifer), users(:adam)].sort, auction.bids.collect { |b| b.bidder }.sort
   end
 
   test "future auction" do
@@ -60,6 +66,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert sale.is_a?(Auctify::Sale::Auction)
     assert_not sale.in_sale?
     assert_not sale.published?
+    assert_equal auctify_sales_packs(:things_from_eden), sale.pack
 
     # assert %w[Adam Lucifer], sale.bidders.pluck(:name)
   end
@@ -71,6 +78,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal things(:fun), sale.item
     assert sale.is_a?(Auctify::Sale::Auction)
     assert sale.accepted?
+    assert_nil sale.pack
 
     assert_equal %w[Adam Lucifer], sale.bidders.pluck(:name)
   end

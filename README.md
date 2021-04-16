@@ -10,7 +10,7 @@ Rails engine for auctions of items. Can be used on any ActiveRecord models.
 - `bidder` - registered person/user allowed to bid in specific `auction`
 - `buyer` - person/company which buys `:item` in specific `sale` ( eg. winner of auction)
 - `bid` - one bid of one `bidder` in `auction`
-- `auction_pack` - pack of auctions, mostly time framed, Can have physical location or be online. (v češtině "Aukce")
+- `sales_pack` - pack of sales/auctions, mostly time framed, Can have physical location or be online. (v češtině "Aukce")
 - `auctioneer` - (needed?) company organizing `auction`
 
 ## Relations
@@ -19,7 +19,7 @@ Rails engine for auctions of items. Can be used on any ActiveRecord models.
 - `sale` N : 1 `seller`
 - `sale` N : 1 `buyer`
 - `sale::auction` 1 : N `bidders` (trough `bidder_registrations`) 1 : N `bids`
-- `auction_pack` 0-1 : N `auctions`  (`auction_pack` is optional for `auction`)
+- `sales_pack` 0-1 : N `auctions`  (`sales_pack` is optional for `auction`)
 - `auction` N : 1 `auctioneer` (?)
 
 
@@ -60,7 +60,7 @@ If `item.owner` exists, it is used as `auction.seller` (or Select from all aucit
   ```
 - first bid do not increase `auctioned_price` it stays on `base_price`
 - bidder cannot "overbid" themselves (no following bids from same bidder)
-- auctioneer can define format of auction numbers (eg. "YY#####") and auction_pack numbers
+- auctioneer can define format of auction numbers (eg. "YY#####") and sales_pack numbers
 - there should be ability to follow `auction` (notification before end) or `item.author` (new item in auction)
 - item can have category and user can select auction by categories.
 - AuctionPack can be `(un)published /public`

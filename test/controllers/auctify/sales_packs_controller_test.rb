@@ -7,7 +7,7 @@ module Auctify
     include Engine.routes.url_helpers
 
     setup do
-      @sales_pack = auctify_sales_packs(:one)
+      @sales_pack = auctify_sales_packs(:published_pack)
     end
 
     test "should get index" do
@@ -21,7 +21,7 @@ module Auctify
     end
 
     test "should create sales_pack" do
-      assert_difference("SalesPack.count") do
+      assert_difference("Auctify::SalesPack.count") do
         post sales_packs_url, params: { sales_pack: { description: @sales_pack.description,
                                                       place: @sales_pack.place,
                                                       position: @sales_pack.position,
@@ -56,7 +56,7 @@ module Auctify
     end
 
     test "should destroy sales_pack" do
-      assert_difference("SalesPack.count", -1) do
+      assert_difference("Auctify::SalesPack.count", -1) do
         delete sales_pack_url(@sales_pack)
       end
 

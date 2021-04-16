@@ -1,19 +1,28 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  title: MyString
-  description: MyText
-  position: 1
-  slug: MyString
-  time_frame: MyString
-  place: MyString
-  published: false
+things_from_eden:
+  title: Things from Eden
+  description: Some heaven stuff, very rare
+  position: 0
+  slug: thongs-from-eden
+  time_frame: '100000 BC - 999999 AC'
+  place: online
+  published: true
 
-two:
-  title: MyString
-  description: MyText
+published_pack:
+  title: Interesting stuff from garage
+  description: You never know what is lurking there
   position: 1
-  slug: MyString
-  time_frame: MyString
-  place: MyString
+  slug: garbage
+  time_frame: '1.1.2020 - 1.2.2020'
+  place: garage at Downing Street 10, London, UK
+  published: true
+
+unpublished_pack:
+  title: Amazing collectibles
+  description: You even do not tknow these items exists
+  position: 2
+  slug: amazing-collectibles
+  time_frame: '1.1.2022 - 1.2.2022'
+  place: online
   published: false
