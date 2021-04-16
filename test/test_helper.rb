@@ -26,3 +26,7 @@ if ActiveSupport::TestCase.respond_to?(:fixture_path=)
 end
 
 I18n.locale = "cs"
+
+require "webdrivers"
+
+ENV["RAILS_ROOT"] ||= File.expand_path(File.join(File.dirname(__FILE__), "test", "dummy"))

@@ -5,7 +5,7 @@ require "application_system_test_case"
 module Auctify
   class BidderRegistrationsTest < ApplicationSystemTestCase
     setup do
-      @bidder_registration = auctify_bidder_registrations(:one)
+      @bidder_registration = auctify_bidder_registrations(:adam_on_apple)
     end
 
     test "visiting the index" do

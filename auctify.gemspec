@@ -40,4 +40,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop-rails"
   spec.add_development_dependency "rubocop-rake"
   spec.add_development_dependency "annotate"
+  spec.add_development_dependency "capybara"
+  # system tests
+  spec.add_development_dependency "puma"
+  spec.add_development_dependency "selenium"
+  spec.add_development_dependency "selenium-webdriver"
+  spec.add_development_dependency "webdrivers"
 end
