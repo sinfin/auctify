@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Title:</strong>
+  <%= @sales_pack.title %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @sales_pack.description %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @sales_pack.position %>
+</p>
+
+<p>
+  <strong>Slug:</strong>
+  <%= @sales_pack.slug %>
+</p>
+
+<p>
+  <strong>Time frame:</strong>
+  <%= @sales_pack.time_frame %>
+</p>
+
+<p>
+  <strong>Place:</strong>
+  <%= @sales_pack.place %>
+</p>
+
+<p>
+  <strong>Published:</strong>
+  <%= @sales_pack.published %>
+</p>
+
+<%= link_to 'Edit', edit_sales_pack_path(@sales_pack) %> |
+<%= link_to 'Back', sales_packs_path %>

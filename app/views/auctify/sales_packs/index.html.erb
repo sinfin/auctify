@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Sales Packs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Position</th>
+      <th>Slug</th>
+      <th>Time frame</th>
+      <th>Place</th>
+      <th>Published</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @sales_packs.each do |sales_pack| %>
+      <tr>
+        <td><%= sales_pack.title %></td>
+        <td><%= sales_pack.description %></td>
+        <td><%= sales_pack.position %></td>
+        <td><%= sales_pack.slug %></td>
+        <td><%= sales_pack.time_frame %></td>
+        <td><%= sales_pack.place %></td>
+        <td><%= sales_pack.published %></td>
+        <td><%= link_to 'Show', sales_pack %></td>
+        <td><%= link_to 'Edit', edit_sales_pack_path(sales_pack) %></td>
+        <td><%= link_to 'Destroy', sales_pack, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Sales Pack', new_sales_pack_path %>

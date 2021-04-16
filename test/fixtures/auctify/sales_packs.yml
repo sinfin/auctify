@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  description: MyText
+  position: 1
+  slug: MyString
+  time_frame: MyString
+  place: MyString
+  published: false
+
+two:
+  title: MyString
+  description: MyText
+  position: 1
+  slug: MyString
+  time_frame: MyString
+  place: MyString
+  published: false
