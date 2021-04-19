@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_19_075003) do
+ActiveRecord::Schema.define(version: 2021_04_19_083321) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,9 +68,12 @@ ActiveRecord::Schema.define(version: 2021_04_19_075003) do
     t.decimal "reserve_price"
     t.bigint "pack_id"
     t.datetime "ends_at"
+    t.integer "position"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["item_type", "item_id"], name: "index_auctify_sales_on_item_type_and_item_id"
     t.index ["pack_id"], name: "index_auctify_sales_on_pack_id"
+    t.index ["position"], name: "index_auctify_sales_on_position"
+    t.index ["published_at"], name: "index_auctify_sales_on_published_at"
     t.index ["seller_type", "seller_id"], name: "index_auctify_sales_on_seller_type_and_seller_id"
   end
 
@@ -84,6 +87,10 @@ ActiveRecord::Schema.define(version: 2021_04_19_075003) do
     t.boolean "published", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "sales_count", default: 0
+    t.index ["position"], name: "index_auctify_sales_packs_on_position"
+    t.index ["published"], name: "index_auctify_sales_packs_on_published"
+    t.index ["slug"], name: "index_auctify_sales_packs_on_slug"
   end
 
   create_table "clean_things", force: :cascade do |t|
