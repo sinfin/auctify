@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_16_141111) do
+ActiveRecord::Schema.define(version: 2021_04_19_075003) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -67,6 +67,7 @@ ActiveRecord::Schema.define(version: 2021_04_16_141111) do
     t.json "bid_steps_ladder"
     t.decimal "reserve_price"
     t.bigint "pack_id"
+    t.datetime "ends_at"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["item_type", "item_id"], name: "index_auctify_sales_on_item_type_and_item_id"
     t.index ["pack_id"], name: "index_auctify_sales_on_pack_id"
