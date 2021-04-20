@@ -41,7 +41,7 @@ module Auctify
     end
 
     test "should get new" do
-      get new_sale_url
+      get new_auctify_sale_url
       assert_response :success
 
       assert_select_with(User.all, :seller)
@@ -57,11 +57,11 @@ module Auctify
                                item_auctify_id: @sale.item_auctify_id } }
       end
 
-      assert_redirected_to sale_url(Sale::Base.last)
+      assert_redirected_to auctify_sale_url(Sale::Base.last)
     end
 
     test "should show sale" do
-      get sale_url(@sale)
+      get auctify_sale_url(@sale)
 
       assert_response :success
       assert response.body.include?(@sale.item.name)
@@ -70,19 +70,19 @@ module Auctify
     end
 
     test "should get edit" do
-      get edit_sale_url(@sale)
+      get edit_auctify_sale_url(@sale)
       assert_response :success
 
       assert_select_with(User.all, :seller, @sale.seller)
     end
 
     test "should update sale" do
-      patch sale_url(@sale),
+      patch auctify_sale_url(@sale),
             params: { sale: { seller_auctify_id: users(:adam).auctify_id,
                               buyer_auctify_id: nil,
                               item_auctify_id: things(:leaf).auctify_id } }
 
-      assert_redirected_to sale_url(@sale)
+      assert_redirected_to auctify_sale_url(@sale)
 
       assert_equal users(:adam), @sale.reload.seller
       assert_nil @sale.buyer
@@ -91,7 +91,7 @@ module Auctify
 
     test "should destroy sale" do
       assert_difference("Sale::Base.count", -1) do
-        delete sale_url(@sale)
+        delete auctify_sale_url(@sale)
       end
 
       assert_redirected_to sales_url

@@ -29,7 +29,7 @@ module Auctify
       @sale = sale_class.new(sale_params)
 
       if @sale.save
-        redirect_to sale_path(@sale), notice: "Sale was successfully created."
+        redirect_to auctify_sale_path(@sale), notice: "Sale was successfully created."
       else
         render :new
       end
@@ -38,7 +38,8 @@ module Auctify
     # PATCH/PUT /sales/1
     def update
       if @sale.update(sale_params)
-        redirect_to sale_path(@sale), notice: "Sale was successfully updated."
+        binding.pry
+        redirect_to auctify_sale_path(@sale), notice: "Sale was successfully updated."
       else
         render :edit
       end

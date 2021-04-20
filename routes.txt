@@ -1,0 +1,73 @@
+                               Prefix Verb   URI Pattern                                                                              Controller#Action
+                               things GET    /things(.:format)                                                                        things#index
+                                      POST   /things(.:format)                                                                        things#create
+                            new_thing GET    /things/new(.:format)                                                                    things#new
+                           edit_thing GET    /things/:id/edit(.:format)                                                               things#edit
+                                thing GET    /things/:id(.:format)                                                                    things#show
+                                      PATCH  /things/:id(.:format)                                                                    things#update
+                                      PUT    /things/:id(.:format)                                                                    things#update
+                                      DELETE /things/:id(.:format)                                                                    things#destroy
+                                users GET    /users(.:format)                                                                         users#index
+                                      POST   /users(.:format)                                                                         users#create
+                             new_user GET    /users/new(.:format)                                                                     users#new
+                            edit_user GET    /users/:id/edit(.:format)                                                                users#edit
+                                 user GET    /users/:id(.:format)                                                                     users#show
+                                      PATCH  /users/:id(.:format)                                                                     users#update
+                                      PUT    /users/:id(.:format)                                                                     users#update
+                                      DELETE /users/:id(.:format)                                                                     users#destroy
+                       auctify_engine        /auctify                                                                                 Auctify::Engine
+                                 root GET    /                                                                                        users#index
+        rails_postmark_inbound_emails POST   /rails/action_mailbox/postmark/inbound_emails(.:format)                                  action_mailbox/ingresses/postmark/inbound_emails#create
+           rails_relay_inbound_emails POST   /rails/action_mailbox/relay/inbound_emails(.:format)                                     action_mailbox/ingresses/relay/inbound_emails#create
+        rails_sendgrid_inbound_emails POST   /rails/action_mailbox/sendgrid/inbound_emails(.:format)                                  action_mailbox/ingresses/sendgrid/inbound_emails#create
+  rails_mandrill_inbound_health_check GET    /rails/action_mailbox/mandrill/inbound_emails(.:format)                                  action_mailbox/ingresses/mandrill/inbound_emails#health_check
+        rails_mandrill_inbound_emails POST   /rails/action_mailbox/mandrill/inbound_emails(.:format)                                  action_mailbox/ingresses/mandrill/inbound_emails#create
+         rails_mailgun_inbound_emails POST   /rails/action_mailbox/mailgun/inbound_emails/mime(.:format)                              action_mailbox/ingresses/mailgun/inbound_emails#create
+       rails_conductor_inbound_emails GET    /rails/conductor/action_mailbox/inbound_emails(.:format)                                 rails/conductor/action_mailbox/inbound_emails#index
+                                      POST   /rails/conductor/action_mailbox/inbound_emails(.:format)                                 rails/conductor/action_mailbox/inbound_emails#create
+    new_rails_conductor_inbound_email GET    /rails/conductor/action_mailbox/inbound_emails/new(.:format)                             rails/conductor/action_mailbox/inbound_emails#new
+   edit_rails_conductor_inbound_email GET    /rails/conductor/action_mailbox/inbound_emails/:id/edit(.:format)                        rails/conductor/action_mailbox/inbound_emails#edit
+        rails_conductor_inbound_email GET    /rails/conductor/action_mailbox/inbound_emails/:id(.:format)                             rails/conductor/action_mailbox/inbound_emails#show
+                                      PATCH  /rails/conductor/action_mailbox/inbound_emails/:id(.:format)                             rails/conductor/action_mailbox/inbound_emails#update
+                                      PUT    /rails/conductor/action_mailbox/inbound_emails/:id(.:format)                             rails/conductor/action_mailbox/inbound_emails#update
+                                      DELETE /rails/conductor/action_mailbox/inbound_emails/:id(.:format)                             rails/conductor/action_mailbox/inbound_emails#destroy
+rails_conductor_inbound_email_reroute POST   /rails/conductor/action_mailbox/:inbound_email_id/reroute(.:format)                      rails/conductor/action_mailbox/reroutes#create
+                   rails_service_blob GET    /rails/active_storage/blobs/:signed_id/*filename(.:format)                               active_storage/blobs#show
+            rails_blob_representation GET    /rails/active_storage/representations/:signed_blob_id/:variation_key/*filename(.:format) active_storage/representations#show
+                   rails_disk_service GET    /rails/active_storage/disk/:encoded_key/*filename(.:format)                              active_storage/disk#show
+            update_rails_disk_service PUT    /rails/active_storage/disk/:encoded_token(.:format)                                      active_storage/disk#update
+                 rails_direct_uploads POST   /rails/active_storage/direct_uploads(.:format)                                           active_storage/direct_uploads#create
+
+Routes for Auctify::Engine:
+             auctify_sales_packs GET    /auctify/sales_packs(.:format)                   auctify/sales_packs#index
+                                 POST   /auctify/sales_packs(.:format)                   auctify/sales_packs#create
+          new_auctify_sales_pack GET    /auctify/sales_packs/new(.:format)               auctify/sales_packs#new
+         edit_auctify_sales_pack GET    /auctify/sales_packs/:id/edit(.:format)          auctify/sales_packs#edit
+              auctify_sales_pack GET    /auctify/sales_packs/:id(.:format)               auctify/sales_packs#show
+                                 PATCH  /auctify/sales_packs/:id(.:format)               auctify/sales_packs#update
+                                 PUT    /auctify/sales_packs/:id(.:format)               auctify/sales_packs#update
+                                 DELETE /auctify/sales_packs/:id(.:format)               auctify/sales_packs#destroy
+                    auctify_bids GET    /auctify/bids(.:format)                          auctify/bids#index
+                                 POST   /auctify/bids(.:format)                          auctify/bids#create
+                 new_auctify_bid GET    /auctify/bids/new(.:format)                      auctify/bids#new
+                edit_auctify_bid GET    /auctify/bids/:id/edit(.:format)                 auctify/bids#edit
+                     auctify_bid GET    /auctify/bids/:id(.:format)                      auctify/bids#show
+                                 PATCH  /auctify/bids/:id(.:format)                      auctify/bids#update
+                                 PUT    /auctify/bids/:id(.:format)                      auctify/bids#update
+                                 DELETE /auctify/bids/:id(.:format)                      auctify/bids#destroy
+    auctify_bidder_registrations GET    /auctify/bidder_registrations(.:format)          auctify/bidder_registrations#index
+                                 POST   /auctify/bidder_registrations(.:format)          auctify/bidder_registrations#create
+ new_auctify_bidder_registration GET    /auctify/bidder_registrations/new(.:format)      auctify/bidder_registrations#new
+edit_auctify_bidder_registration GET    /auctify/bidder_registrations/:id/edit(.:format) auctify/bidder_registrations#edit
+     auctify_bidder_registration GET    /auctify/bidder_registrations/:id(.:format)      auctify/bidder_registrations#show
+                                 PATCH  /auctify/bidder_registrations/:id(.:format)      auctify/bidder_registrations#update
+                                 PUT    /auctify/bidder_registrations/:id(.:format)      auctify/bidder_registrations#update
+                                 DELETE /auctify/bidder_registrations/:id(.:format)      auctify/bidder_registrations#destroy
+                   auctify_sales GET    /auctify/sales(.:format)                         auctify/sales#index
+                                 POST   /auctify/sales(.:format)                         auctify/sales#create
+                new_auctify_sale GET    /auctify/sales/new(.:format)                     auctify/sales#new
+               edit_auctify_sale GET    /auctify/sales/:id/edit(.:format)                auctify/sales#edit
+                    auctify_sale GET    /auctify/sales/:id(.:format)                     auctify/sales#show
+                                 PATCH  /auctify/sales/:id(.:format)                     auctify/sales#update
+                                 PUT    /auctify/sales/:id(.:format)                     auctify/sales#update
+                                 DELETE /auctify/sales/:id(.:format)                     auctify/sales#destroy
