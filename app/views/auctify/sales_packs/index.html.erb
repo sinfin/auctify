@@ -27,7 +27,7 @@
         <td><%= sales_pack.place %></td>
         <td><%= sales_pack.published %></td>
         <td><%= link_to 'Show', sales_pack %></td>
-        <td><%= link_to 'Edit', edit_sales_pack_path(sales_pack) %></td>
+        <td><%= link_to 'Edit', edit_auctify_sales_pack_path(sales_pack) %></td>
         <td><%= link_to 'Destroy', sales_pack, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
@@ -36,4 +36,4 @@
 
 <br>
 
-<%= link_to 'New Sales Pack', new_sales_pack_path %>
+<%= link_to 'New Sales Pack', new_auctify_sales_pack_path %>

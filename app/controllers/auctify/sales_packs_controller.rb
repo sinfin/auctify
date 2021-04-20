@@ -47,7 +47,7 @@ module Auctify
     # DELETE /sales_packs/1
     def destroy
       @sales_pack.destroy
-      redirect_to sales_packs_url, notice: "Sales pack was successfully destroyed."
+      redirect_to auctify_sales_packs_url, notice: "Sales pack was successfully destroyed."
     end
 
     private

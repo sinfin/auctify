@@ -15,7 +15,7 @@
                                       PATCH  /users/:id(.:format)                                                                     users#update
                                       PUT    /users/:id(.:format)                                                                     users#update
                                       DELETE /users/:id(.:format)                                                                     users#destroy
-                       auctify_engine        /auctify                                                                                 Auctify::Engine
+                              auctify        /                                                                                        Auctify::Engine
                                  root GET    /                                                                                        users#index
         rails_postmark_inbound_emails POST   /rails/action_mailbox/postmark/inbound_emails(.:format)                                  action_mailbox/ingresses/postmark/inbound_emails#create
            rails_relay_inbound_emails POST   /rails/action_mailbox/relay/inbound_emails(.:format)                                     action_mailbox/ingresses/relay/inbound_emails#create

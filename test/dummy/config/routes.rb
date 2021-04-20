@@ -3,7 +3,7 @@
 Rails.application.routes.draw do
   resources :things
   resources :users
-  mount Auctify::Engine => "/auctify"
+  mount Auctify::Engine => "/", as: "auctify"
 
   root to: "users#index"
 end

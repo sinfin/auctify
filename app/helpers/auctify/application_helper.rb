@@ -2,5 +2,6 @@
 
 module Auctify
   module ApplicationHelper
+    include Auctify::Engine.routes.url_helpers
   end
 end
