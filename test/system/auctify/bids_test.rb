@@ -9,12 +9,12 @@ module Auctify
     end
 
     test "visiting the index" do
-      visit bids_url
+      visit auctify_bids_url
       assert_selector "h1", text: "Bids"
     end
 
     test "creating a Bid" do
-      visit bids_url
+      visit auctify_bids_url
       click_on "New Bid"
 
       fill_in "Max price", with: @bid.max_price
@@ -27,7 +27,7 @@ module Auctify
     end
 
     test "updating a Bid" do
-      visit bids_url
+      visit auctify_bids_url
       click_on "Edit", match: :first
 
       fill_in "Max price", with: @bid.max_price
@@ -40,7 +40,7 @@ module Auctify
     end
 
     test "destroying a Bid" do
-      visit bids_url
+      visit auctify_bids_url
       page.accept_confirm do
         click_on "Destroy", match: :first
       end

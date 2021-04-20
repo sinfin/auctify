@@ -47,7 +47,7 @@ module Auctify
     # DELETE /bidder_registrations/1
     def destroy
       @bidder_registration.destroy
-      redirect_to bidder_registrations_url, notice: "Bidder registration was successfully destroyed."
+      redirect_to auctify_bidder_registrations_url, notice: "Bidder registration was successfully destroyed."
     end
 
     private

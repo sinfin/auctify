@@ -11,7 +11,7 @@ module Auctify
     end
 
     test "should get index with published and not ended sales" do
-      get sales_url
+      get auctify_sales_url
 
       assert_response :success
 
@@ -28,7 +28,7 @@ module Auctify
     end
 
     test "should get index with any sales if param list_all=1 is present" do
-      get sales_url, params: { list_all: "1" }
+      get auctify_sales_url, params: { list_all: "1" }
 
       assert_response :success
 
@@ -51,7 +51,7 @@ module Auctify
 
     test "should create sale" do
       assert_difference("Sale::Base.count") do
-        post sales_url,
+        post auctify_sales_url,
              params: { sale: { seller_auctify_id: @sale.seller_auctify_id,
                                buyer_auctify_id: @sale.buyer_auctify_id,
                                item_auctify_id: @sale.item_auctify_id } }
@@ -94,7 +94,7 @@ module Auctify
         delete auctify_sale_url(@sale)
       end
 
-      assert_redirected_to sales_url
+      assert_redirected_to auctify_sales_url
     end
 
     def assert_select_with(records, type, selected = nil)

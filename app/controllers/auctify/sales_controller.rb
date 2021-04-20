@@ -38,7 +38,6 @@ module Auctify
     # PATCH/PUT /sales/1
     def update
       if @sale.update(sale_params)
-        binding.pry
         redirect_to auctify_sale_path(@sale), notice: "Sale was successfully updated."
       else
         render :edit
@@ -48,7 +47,7 @@ module Auctify
     # DELETE /sales/1
     def destroy
       @sale.destroy
-      redirect_to sales_url, notice: "Sale was successfully destroyed."
+      redirect_to auctify_sales_url, notice: "Sale was successfully destroyed."
     end
 
     private

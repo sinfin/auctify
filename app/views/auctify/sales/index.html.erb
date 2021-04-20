@@ -2,7 +2,7 @@
 
 <h1>Sales</h1>
 <% unless params[:list_all].to_s == "1" %>
-  Listed only published sales. Do you want <%= link_to 'all', sales_path(params: { list_all: 1}) %>?
+  Listed only published sales. Do you want <%= link_to 'all',auctify_sales_path(params: { list_all: 1}) %>?
 <% end %>
 
 <table>
@@ -23,9 +23,9 @@
         <td><%= sale.buyer&.name %></td>
         <td><%= sale.item.name %></td>
         <td><%= sale.published? ? "YES" : sale.published_at  %></td>
-        <td><%= link_to 'Show', sale_path(sale) %></td>
-        <td><%= link_to 'Edit', edit_sale_path(sale) %></td>
-        <td><%= link_to 'Destroy', sale_path(sale), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Show',auctify_sale_path(sale) %></td>
+        <td><%= link_to 'Edit', edit_auctify_sale_path(sale) %></td>
+        <td><%= link_to 'Destroy',auctify_sale_path(sale), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>
@@ -33,4 +33,4 @@
 
 <br>
 
-<%= link_to 'New Sale', new_sale_path %>
+<%= link_to 'New Sale', new_auctify_sale_path %>

@@ -9,12 +9,12 @@ module Auctify
     end
 
     test "visiting the index" do
-      visit bidder_registrations_url
+      visit auctify_bidder_registrations_url
       assert_selector "h1", text: "Bidder Registrations"
     end
 
     test "creating a Bidder registration" do
-      visit bidder_registrations_url
+      visit auctify_bidder_registrations_url
       click_on "New Bidder Registration"
 
       fill_in "Aasm state", with: @bidder_registration.aasm_state
@@ -30,7 +30,7 @@ module Auctify
     end
 
     test "updating a Bidder registration" do
-      visit bidder_registrations_url
+      visit auctify_bidder_registrations_url
       click_on "Edit", match: :first
 
       fill_in "Aasm state", with: @bidder_registration.aasm_state
@@ -46,7 +46,7 @@ module Auctify
     end
 
     test "destroying a Bidder registration" do
-      visit bidder_registrations_url
+      visit auctify_bidder_registrations_url
       page.accept_confirm do
         click_on "Destroy", match: :first
       end

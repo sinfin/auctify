@@ -9,12 +9,12 @@ module Auctify
     end
 
     test "visiting the index" do
-      visit sales_url
+      visitauctify_sales_url
       assert_selector "h1", text: "Sales"
     end
 
     test "creating a Sale" do
-      visit sales_url
+      visitauctify_sales_url
       click_on "New Sale"
 
       fill_in "Buyer", with: @sale.buyer_id
@@ -30,7 +30,7 @@ module Auctify
     end
 
     test "updating a Sale" do
-      visit sales_url
+      visitauctify_sales_url
       click_on "Edit", match: :first
 
       fill_in "Buyer", with: @sale.buyer_id
@@ -46,7 +46,7 @@ module Auctify
     end
 
     test "destroying a Sale" do
-      visit sales_url
+      visitauctify_sales_url
       page.accept_confirm do
         click_on "Destroy", match: :first
       end
