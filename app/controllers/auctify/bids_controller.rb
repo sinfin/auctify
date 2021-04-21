@@ -47,7 +47,7 @@ module Auctify
     # DELETE /bids/1
     def destroy
       @bid.destroy
-      redirect_to bids_url, notice: "Bid was successfully destroyed."
+      redirect_to auctify_bids_url, notice: "Bid was successfully destroyed."
     end
 
     private

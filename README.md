@@ -4,13 +4,13 @@ Rails engine for auctions of items. Can be used on any ActiveRecord models.
 ## Objects
 - `:item` - object/model, which should be auctioned (from `main_app`)
 - `:user` - source for `seller`, `owner`, `buyer` and `bidder` (from `main_app`)
-- `sale` - sale of `:item`; can be direct `retail`, by `auction` or some other way
+- `sale` - sale of `:item`; can be direct `retail`, by `auction` or some other type
 - `auction` for one `:item` (it is [Forward auction](https://en.wikipedia.org/wiki/Forward_auction)) (v češtině "Položka aukce")
 - `seller` - person/company which sells `:item` in specific `sale`
 - `bidder` - registered person/user allowed to bid in specific `auction`
 - `buyer` - person/company which buys `:item` in specific `sale` ( eg. winner of auction)
 - `bid` - one bid of one `bidder` in `auction`
-- `sales_pack` - pack of sales/auctions, mostly time framed, Can have physical location or be online. (v češtině "Aukce")
+- `sales_pack` - pack of sales(auctions), mostly time framed, Can have physical location or be online. (v češtině "Aukce")
 - `auctioneer` - (needed?) company organizing `auction`
 
 ## Relations
@@ -19,7 +19,7 @@ Rails engine for auctions of items. Can be used on any ActiveRecord models.
 - `sale` N : 1 `seller`
 - `sale` N : 1 `buyer`
 - `sale::auction` 1 : N `bidders` (trough `bidder_registrations`) 1 : N `bids`
-- `sales_pack` 0-1 : N `auctions`  (`sales_pack` is optional for `auction`)
+- `sales_pack` 0-1 : N `sales`  (`sales_pack` is optional for `sale`)
 - `auction` N : 1 `auctioneer` (?)
 
 
@@ -63,8 +63,8 @@ If `item.owner` exists, it is used as `auction.seller` (or Select from all aucit
 - auctioneer can define format of auction numbers (eg. "YY#####") and sales_pack numbers
 - there should be ability to follow `auction` (notification before end) or `item.author` (new item in auction)
 - item can have category and user can select auction by categories.
-- AuctionPack can be `(un)published /public`
-- AuctionPack can be `open (adding items , bidding)/ closed(bidding ended)`
+- SalePack can be `(un)published /public`
+- SalePack can be `open (adding items , bidding)/ closed(bidding ended)`
 - auctioneer_commission is in % and adds to sold_price in checkout
 - auction have `start_time` and `end_time`
 - auction can be `highlighted` for cover pages
@@ -72,6 +72,8 @@ If `item.owner` exists, it is used as `auction.seller` (or Select from all aucit
 - there should be two types of bid
    - one with maximal price (amount =>  maximal bid price; placed in small bids as needed), system will increase bid automagicaly unless it reaches maximum
    - second direct bid (amount => bid price; immediattely placed)
+- sales numbering: YY#### (210001, 210002, …, 259999)
+
 
 
 

@@ -29,7 +29,7 @@ module Auctify
       @sale = sale_class.new(sale_params)
 
       if @sale.save
-        redirect_to sale_path(@sale), notice: "Sale was successfully created."
+        redirect_to auctify_sale_path(@sale), notice: "Sale was successfully created."
       else
         render :new
       end
@@ -38,7 +38,7 @@ module Auctify
     # PATCH/PUT /sales/1
     def update
       if @sale.update(sale_params)
-        redirect_to sale_path(@sale), notice: "Sale was successfully updated."
+        redirect_to auctify_sale_path(@sale), notice: "Sale was successfully updated."
       else
         render :edit
       end
@@ -47,7 +47,7 @@ module Auctify
     # DELETE /sales/1
     def destroy
       @sale.destroy
-      redirect_to sales_url, notice: "Sale was successfully destroyed."
+      redirect_to auctify_sales_url, notice: "Sale was successfully destroyed."
     end
 
     private

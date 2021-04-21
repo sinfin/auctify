@@ -21,7 +21,7 @@
         <td><%= bidder_registration.aasm_state %></td>
         <td><%= bidder_registration.handled_at %></td>
         <td><%= link_to 'Show', bidder_registration %></td>
-        <td><%= link_to 'Edit', edit_bidder_registration_path(bidder_registration) %></td>
+        <td><%= link_to 'Edit', edit_auctify_bidder_registration_path(bidder_registration) %></td>
         <td><%= link_to 'Destroy', bidder_registration, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
@@ -30,4 +30,4 @@
 
 <br>
 
-<%= link_to 'New Bidder Registration', new_bidder_registration_path %>
+<%= link_to 'New Bidder Registration', new_auctify_bidder_registration_path %>

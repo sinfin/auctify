@@ -99,6 +99,8 @@ module Auctify
         in_sale? || accepted?
       end
 
+
+
       private
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?

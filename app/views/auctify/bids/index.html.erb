@@ -19,7 +19,7 @@
         <td><%= bid.price %></td>
         <td><%= bid.max_price %></td>
         <td><%= link_to 'Show', bid %></td>
-        <td><%= link_to 'Edit', edit_bid_path(bid) %></td>
+        <td><%= link_to 'Edit', edit_auctify_bid_path(bid) %></td>
         <td><%= link_to 'Destroy', bid, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
@@ -28,4 +28,4 @@
 
 <br>
 
-<%= link_to 'New Bid', new_bid_path %>
+<%= link_to 'New Bid', new_auctify_bid_path %>

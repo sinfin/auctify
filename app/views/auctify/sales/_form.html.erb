@@ -1,4 +1,4 @@
-<%= form_with(model: sale, scope: :sale, url: sales_path, local: true) do |form| %>
+<%= form_with(model: sale, scope: :sale, url:auctify_sales_path, local: true) do |form| %>
   <% if sale.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(sale.errors.count, "error") %> prohibited this sale from being saved:</h2>

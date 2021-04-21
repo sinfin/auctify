@@ -3,36 +3,54 @@ cs:
     models:
       auctify/sale/base:
       auctify/sale/retail:
+        one: Přímý prodej
+        few: Přímé prodeje
+        other: Přímých prodejů
       auctify/sale/auction:
-        one: Aukce (položky)
-        few: Aukcí
-        other: Aukcí
+        one: Aukční položka
+        few: Aukční položky
+        other: Aukčních položek
       auctify/bid:
         one: Přihoz
         few: Příhozy
         other: Příhozů
-      auctify/sale/auction_pack:
-        one: Aukční celek
-        few: Aukční celky
-        other: Aukčních celků
+      auctify/sales_pack:
+        one: Aukce
+        few: Aukce (auctify)
+        other: Aukcí
       auctify/bidder_registration:
         one: Registrace dražebníka
         other: Registrace dražebníků
 
     attributes:
+      auctify/sales_pack:
+        title: Název
+        description: Popisek
+        position: Pozice
+        slug: Varianta názvu pro odkazy
+        time_frame: Termín
+        place: Místo konání
+        published: Zveřejněno
+        sales_count: Počet položek
+        sales: Položky
       auctify/sale/base:
         buyer: Kupec
         seller: Prodejce
         item: Zboží
-      auctify/sale/retail:
-      auctify/sale/auction:
         aasm_state: Stav
+        published_at: Zveřejněno
+      auctify/sale/retail:
+        created_at: Vytvořen
+        updated_at: Změněn
+      auctify/sale/auction:
         bid_steps_ladder: Žebříček příhozů
         offered_price: Vyvolávací cena
         current_price: Aktuální cena
         sold_price: Vydražená cena
         created_at: Vytvořena
         updated_at: Změněna
+        reserve_price: Rezervovaná cena
+        ends_at: Předpokládaný konec
       auctify/bid:
         price: Výše příhozu
         max_price: Maximální výše příhozu

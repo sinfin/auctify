@@ -16,7 +16,7 @@ module Auctify
       end
 
       assert SellerTestUser.new(name: "Krutibrko").respond_to?(:sales)
-      assert SellerTestUser.new(name: "Krutibrko").respond_to?(:auctions)
+      assert SellerTestUser.new(name: "Krutibrko").respond_to?(:auction_sales)
       assert SellerTestUser.new(name: "Krutibrko").respond_to?(:offer_to_sale!)
     end
 
