@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_19_083321) do
+ActiveRecord::Schema.define(version: 2021_04_21_093652) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -59,7 +59,6 @@ ActiveRecord::Schema.define(version: 2021_04_19_083321) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "type", default: "Auctify::Sale::Base"
     t.string "aasm_state", default: "offered", null: false
-    t.decimal "selling_price"
     t.datetime "published_at"
     t.decimal "offered_price"
     t.decimal "current_price"
@@ -69,6 +68,7 @@ ActiveRecord::Schema.define(version: 2021_04_19_083321) do
     t.bigint "pack_id"
     t.datetime "ends_at"
     t.integer "position"
+    t.string "number"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["item_type", "item_id"], name: "index_auctify_sales_on_item_type_and_item_id"
     t.index ["pack_id"], name: "index_auctify_sales_on_pack_id"
