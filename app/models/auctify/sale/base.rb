@@ -21,6 +21,8 @@ module Auctify
       scope :published, -> { where("published_at <= ?", Time.current) }
       scope :not_sold, -> { where(sold_price: nil) }
 
+      delegate :to_label, to: :item
+
       [:seller, :buyer, :item].each do |behavior|
         define_method("#{behavior}_auctify_id=") do |auctify_id|
           self.send("#{behavior}=", object_from_auctify_id(auctify_id))

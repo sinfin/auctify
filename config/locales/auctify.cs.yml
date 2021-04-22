@@ -39,6 +39,7 @@ cs:
         item: Zboží
         aasm_state: Stav
         published_at: Zveřejněno
+        number: Číslo
       auctify/sale/retail:
         created_at: Vytvořen
         updated_at: Změněn
@@ -57,7 +58,6 @@ cs:
         created_at: Přihozeno
         updated_at:
         registration: Registrace do aukce položky
-      auctify/sale/auction_pack:
 
     errors:
       models:

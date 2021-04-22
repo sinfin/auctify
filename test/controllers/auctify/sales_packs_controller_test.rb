@@ -28,7 +28,7 @@ module Auctify
                                                       published: @sales_pack.published,
                                                       slug: @sales_pack.slug,
                                                       time_frame: @sales_pack.time_frame,
-                                                      title: @sales_pack.title } }
+                                                      title: @sales_pack.title + "New" } }
       end
 
       assert_redirected_to auctify_sales_pack_url(SalesPack.last)
