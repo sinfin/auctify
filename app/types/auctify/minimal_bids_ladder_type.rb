@@ -11,6 +11,7 @@ module Auctify
 
     def cast(value) # setter
       # hash is expected as value
+      value = JSON.parse(value) if value.is_a?(String)
       case value.keys.first
       when Range  # { (0...1_000) => 200, (1_000..) => 500 }
         cast_from_ranges(value)

@@ -52,6 +52,8 @@ cs:
         updated_at: Změněna
         reserve_price: Rezervovaná cena
         ends_at: Předpokládaný konec
+        pack_id: Aukce+
+        pack: Aukce-
       auctify/bid:
         price: Výše příhozu
         max_price: Maximální výše příhozu

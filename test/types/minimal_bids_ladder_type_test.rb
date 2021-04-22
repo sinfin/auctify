@@ -37,6 +37,15 @@ module Auctify
       assert_equal db_store_version, auction.read_attribute_before_type_cast("bid_steps_ladder")
     end
 
+    test "it can store min_prices from json" do
+      auction.bid_steps_ladder = minimal_bids_in_json
+      auction.save!
+      auction.reload
+
+      assert_equal app_usage_version, auction.bid_steps_ladder
+      assert_equal db_store_version, auction.read_attribute_before_type_cast("bid_steps_ladder")
+    end
+
     private
       def app_usage_version
         minimal_bids_as_ranges
@@ -80,6 +89,10 @@ module Auctify
           100_000 => 5_000,
           1_000_000 => 50_000
         }
+      end
+
+      def minimal_bids_in_json
+        minimal_bids_by_strings.to_json
       end
   end
 end
