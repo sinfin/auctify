@@ -26,7 +26,6 @@ module Auctify
                                                       place: @sales_pack.place,
                                                       position: @sales_pack.position,
                                                       published: @sales_pack.published,
-                                                      slug: @sales_pack.slug,
                                                       time_frame: @sales_pack.time_frame,
                                                       title: @sales_pack.title + "New" } }
       end
@@ -49,7 +48,6 @@ module Auctify
                                                                  place: @sales_pack.place,
                                                                  position: @sales_pack.position,
                                                                  published: @sales_pack.published,
-                                                                 slug: @sales_pack.slug,
                                                                  time_frame: @sales_pack.time_frame,
                                                                  title: @sales_pack.title } }
       assert_redirected_to auctify_sales_pack_url(@sales_pack)
