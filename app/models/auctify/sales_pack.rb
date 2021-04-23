@@ -3,6 +3,9 @@
 module Auctify
   class SalesPack < ApplicationRecord
     include Folio::FriendlyId
+    include Folio::HasAttachments
+    include Folio::Positionable
+    include Folio::Publishable::Basic
 
     has_many :sales, class_name: "Auctify::Sale::Base", foreign_key: :pack_id, inverse_of: :pack, dependent: :nullify
     # has_many :items, through: :sales
@@ -12,6 +15,11 @@ module Auctify
               uniqueness: true
 
     scope :ordered, -> { order(id: :desc) }
+
+    pg_search_scope :by_query,
+                    against: %i[title],
+                    ignoring: :accents,
+                    using: { tsearch: { prefix: true } }
 
     def items
       @items ||= sales.collect(&:item) # TODO: make it Arel/Association like

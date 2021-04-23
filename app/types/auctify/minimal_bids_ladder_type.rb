@@ -12,16 +12,16 @@ module Auctify
     def cast(value) # setter
       # hash is expected as value
       value = JSON.parse(value) if value.is_a?(String)
-      case value.keys.first
-      when Range  # { (0...1_000) => 200, (1_000..) => 500 }
-        cast_from_ranges(value)
-      when String # { "0" => 200, "1_000" => 500 }
-        cast_from_min_strings(value)
-      when Numeric # { 0 => 200, 1000 => 500 }
-        cast_from_min_numbers(value)
+      if value.blank?
+        {}
       else
-        if value.blank?
-          {}
+        case value.keys.first
+        when Range  # { (0...1_000) => 200, (1_000..) => 500 }
+          cast_from_ranges(value)
+        when String # { "0" => 200, "1_000" => 500 }
+          cast_from_min_strings(value)
+        when Numeric # { 0 => 200, 1000 => 500 }
+          cast_from_min_numbers(value)
         else
           raise "Uncovered ladder key type `#{value.keys.first}`"
         end

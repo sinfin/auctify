@@ -3,6 +3,9 @@
 module Auctify
   module Sale
     class Base < ApplicationRecord
+      include Folio::Positionable
+      include Folio::Publishable::Basic
+
       self.table_name = "auctify_sales"
 
       attribute :bid_steps_ladder, MinimalBidsLadderType.new
