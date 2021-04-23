@@ -1,1 +1,1 @@
-#= require aukceaukci/atom/images/images
+# Override in main app
