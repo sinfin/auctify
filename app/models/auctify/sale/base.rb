@@ -12,7 +12,7 @@ module Auctify
       belongs_to :seller, polymorphic: true
       belongs_to :buyer, polymorphic: true, optional: true
       belongs_to :item, polymorphic: true
-      belongs_to :pack, class_name: "Auctify::SalesPack", inverse_of: :sales, optional: true
+      belongs_to :pack, class_name: "Auctify::SalesPack", inverse_of: :sales, optional: true, counter_cache: :sales_count
 
       validate :valid_seller
       validate :valid_item
