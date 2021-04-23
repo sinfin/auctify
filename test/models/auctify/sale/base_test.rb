@@ -40,22 +40,22 @@ module Auctify
         assert sale.valid?
 
         sale.item = nil
-
         assert sale.invalid?
-        assert_equal ["musí existovat", "musí existovat"], sale.errors[:item]
+
+        assert_equal ["musí existovat"], sale.errors[:item]
 
         item_not_in_db = Thing.new(id: (Thing.order(id: :desc).pick(:id) + 1))
         sale.item = item_not_in_db
 
         assert sale.invalid?
-        assert_equal ["musí existovat"], sale.errors[:item]
+        assert_equal ["musí existovat", "musí existovat"], sale.errors[:item] # TODO remove duplication
 
         non_auctified_item = CleanThing.first
         assert non_auctified_item.present?
 
         sale.item = non_auctified_item
         assert sale.invalid?
-        assert_equal ["objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`"], sale.errors[:item]
+        assert_equal ["objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`", "musí existovat"], sale.errors[:item]
       end
 
       test "validates buyer if present" do

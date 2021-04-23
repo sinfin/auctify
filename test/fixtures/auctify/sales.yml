@@ -3,7 +3,7 @@
 eve_apple:
   seller: eve (User)
   buyer: adam (User)
-  item: apple (Thing)
+  item: apple
   type: Auctify::Sale::Auction
   offered_price: 100.0
   sold_price: 100.0
@@ -14,7 +14,7 @@ eve_apple:
 adam_innocence:
   seller: adam (User)
   buyer:
-  item: innocence (Thing)
+  item: innocence
   type: Auctify::Sale::Retail
   published_at: <%= Time.new(1,1,1,2,2,2) %>
   pack: things_from_eden
@@ -22,13 +22,13 @@ adam_innocence:
 unpublished_sale:
   seller: adam (User)
   buyer:
-  item: leaf (Thing)
+  item: leaf
   type: Auctify::Sale::Retail
 
 auction_in_progress:
   seller: eve (User)
   buyer:
-  item: snake (Thing)
+  item: snake
   type: Auctify::Sale::Auction
   aasm_state: in_sale
   published_at: <%= Time.current - 1.minute %>
@@ -37,7 +37,7 @@ auction_in_progress:
 future_auction:
   seller: eve (User)
   buyer:
-  item: flaming_sword (Thing)
+  item: flaming_sword
   type: Auctify::Sale::Auction
   published_at: <%= Time.current + 1.day %>
   pack: things_from_eden
@@ -45,7 +45,7 @@ future_auction:
 accepted_auction:
   seller: eve (User)
   buyer:
-  item: fun (Thing)
+  item: fun
   type: Auctify::Sale::Auction
   aasm_state: accepted
   published_at: <%= Time.current - 1.day %>

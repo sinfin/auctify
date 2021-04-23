@@ -14,10 +14,19 @@ module Auctify
 
         def offer_to_sale!(item, options = {})
           assoc = options[:in] == :auction ? auction_sales : retail_sales
-          assoc.create!(item: item,
-                        seller: self,
-                        buyer: nil,
-                        offered_price: options[:price])
+
+          if item.class.included_modules.include?(Auctify::Behavior::Item)
+            assoc.create!(item: item,
+                          seller: self,
+                          buyer: nil,
+                          offered_price: options[:price])
+          else
+            sale = assoc.build(seller: self,
+                               buyer: nil,
+                               offered_price: options[:price])
+            sale.errors.add(:item, :not_auctified)
+            raise ActiveRecord::RecordInvalid.new(sale)
+          end
         end
       end
     end

@@ -8,9 +8,14 @@ module Auctify
       include Auctify::Behavior::Base
 
       included do
-        has_many :sales, as: :item, class_name: "Auctify::Sale::Base"
-        has_many :auction_sales, as: :item, class_name: "Auctify::Sale::Auction"
-        has_many :retail_sales, as: :item, class_name: "Auctify::Sale::Retail"
+        has_many :sales, class_name: "Auctify::Sale::Base", foreign_key: :item_id, inverse_of: :item
+        has_many :auction_sales, class_name: "Auctify::Sale::Auction", foreign_key: :item_id, inverse_of: :item
+        has_many :retail_sales, class_name: "Auctify::Sale::Retail", foreign_key: :item_id, inverse_of: :item
+
+        c_name = self.name
+        Auctify::Sale::Base.class_eval do
+          belongs_to :item, class_name: c_name
+        end
       end
     end
   end
