@@ -52,27 +52,33 @@ end
 # Table name: auctify_sales
 #
 #  id               :bigint(8)        not null, primary key
-#  aasm_state       :string           default("offered"), not null
-#  bid_steps_ladder :json
-#  buyer_type       :string
-#  current_price    :decimal(, )
-#  item_type        :string           not null
-#  offered_price    :decimal(, )
-#  published_at     :datetime
-#  reserve_price    :decimal(, )
 #  seller_type      :string           not null
-#  selling_price    :decimal(, )
-#  sold_price       :decimal(, )
-#  type             :string           default("Auctify::Sale::Base")
+#  seller_id        :bigint(8)        not null
+#  buyer_type       :string
+#  buyer_id         :bigint(8)
+#  item_type        :string           not null
+#  item_id          :bigint(8)        not null
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
-#  buyer_id         :integer
-#  item_id          :integer          not null
-#  seller_id        :integer          not null
+#  type             :string           default("Auctify::Sale::Base")
+#  aasm_state       :string           default("offered"), not null
+#  offered_price    :decimal(12, 2)
+#  current_price    :decimal(12, 2)
+#  sold_price       :decimal(12, 2)
+#  published_at     :datetime
+#  bid_steps_ladder :jsonb
+#  reserve_price    :decimal(, )
+#  pack_id          :bigint(8)
+#  ends_at          :datetime
+#  position         :integer
+#  number           :string
 #
 # Indexes
 #
 #  index_auctify_sales_on_buyer_type_and_buyer_id    (buyer_type,buyer_id)
 #  index_auctify_sales_on_item_type_and_item_id      (item_type,item_id)
+#  index_auctify_sales_on_pack_id                    (pack_id)
+#  index_auctify_sales_on_position                   (position)
+#  index_auctify_sales_on_published_at               (published_at)
 #  index_auctify_sales_on_seller_type_and_seller_id  (seller_type,seller_id)
 #

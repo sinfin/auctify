@@ -29,11 +29,11 @@ end
 # Table name: auctify_bids
 #
 #  id              :bigint(8)        not null, primary key
-#  max_price       :decimal(12, 2)
+#  registration_id :bigint(8)        not null
 #  price           :decimal(12, 2)   not null
+#  max_price       :decimal(12, 2)
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  registration_id :integer          not null
 #
 # Indexes
 #
