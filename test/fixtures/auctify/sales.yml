@@ -6,10 +6,13 @@ eve_apple:
   item: apple
   type: Auctify::Sale::Auction
   offered_price: 100.0
+  current_price: 100.0
   sold_price: 100.0
   aasm_state: auctioned_successfully
   published_at: <%= Date.new(1,1,1) %>
   pack: things_from_eden
+  ends_at: <%= Date.new(1,1,2) %>
+  currently_ends_at: <%= Date.new(1,1,2) %>
 
 adam_innocence:
   seller: adam (User)
@@ -33,6 +36,10 @@ auction_in_progress:
   aasm_state: in_sale
   published_at: <%= Time.current - 1.minute %>
   pack: things_from_eden
+  offered_price: 101
+  current_price: 101
+  ends_at: <%= etime = Time.current + 1.day %>
+  currently_ends_at: <%= etime %>
 
 future_auction:
   seller: eve (User)
@@ -50,4 +57,5 @@ accepted_auction:
   aasm_state: accepted
   published_at: <%= Time.current - 1.day %>
   pack:
-
+  offered_price: 102
+  ends_at: <%= etime = Time.current + 1.day %>

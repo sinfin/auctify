@@ -80,8 +80,8 @@ module Auctify
         @winning_bid = nil
         @bids = auction.bids.reload
 
-        auction.current_price = new_current_price
-        fail! unless auction.save
+
+        fail! unless auction.succesfull_bid!(price: new_current_price, time: bid.reload.created_at)
         self.current_price = auction.current_price
       end
 
@@ -122,21 +122,23 @@ module Auctify
 
       def check_same_bidder
         return if increasing_own_max_price?
+
         if winning_bid.present? && (winning_bid.bidder == bid.bidder)
           bid.errors.add(:bidder, :you_cannot_overbid_yourself)
         end
       end
 
       def check_auction_state
-        unless auction.in_sale?
-          bid.errors.add(:auction, :auction_is_not_accepting_bids_now)
-        end
+        # comparing time with seconds precision, use `.to_i`
+        return if auction.in_sale? && bid.created_at.to_i <= auction.currently_ends_at.to_i
+
+        bid.errors.add(:auction, :auction_is_not_accepting_bids_now)
       end
 
       def check_bid_registration_to_auction
-        if bid.registration.auction != auction
-          bid.errors.add(:auction, :bidder_is_not_registered_for_this_auction)
-        end
+        return bid.registration.auction == auction
+
+        bid.errors.add(:auction, :bidder_is_not_registered_for_this_auction)
       end
 
       def solve_winner(winning_bid, new_bid)

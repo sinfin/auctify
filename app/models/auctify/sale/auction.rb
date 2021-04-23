@@ -33,6 +33,7 @@ module Auctify
         event :start_sale do
           before do
             self.current_price = self.offered_price
+            self.currently_ends_at = self.ends_at
             self.buyer = nil
           end
 
@@ -80,6 +81,8 @@ module Auctify
 
       def bid!(bid)
         ActiveRecord::Base.transaction do
+          bid.created_at ||= Time.current
+
           bap = Auctify::BidsAppender.call(auction: self, bid: bid)
           return true if bap.success?
           # errors can be in `bid.errors` or as `bap.errors`
@@ -99,6 +102,14 @@ module Auctify
 
       def allows_new_bidder_registrations?
         @allows_new_bidder_registrations ||= (in_sale? || accepted?)
+      end
+
+      def succesfull_bid!(price:, time:)
+        return false if price < current_price || time.blank?
+
+        self.current_price = price
+        extend_end_time(time)
+        self.save!
       end
 
       private
@@ -142,6 +153,11 @@ module Auctify
           end
 
           @allows_new_bidder_registrations = false
+        end
+
+        def extend_end_time(bid_time)
+          new_end_time = bid_time + Auctify.configuration.auction_prolonging_limit
+          self.currently_ends_at = [currently_ends_at, new_end_time].max
         end
     end
   end

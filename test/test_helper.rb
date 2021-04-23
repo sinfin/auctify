@@ -28,5 +28,6 @@ end
 I18n.locale = "cs"
 
 require "webdrivers"
+require "minitest/mock"
 
 ENV["RAILS_ROOT"] ||= File.expand_path(File.join(File.dirname(__FILE__), "test", "dummy"))

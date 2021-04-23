@@ -125,8 +125,8 @@ end
       ```ruby
         Auctify.configure do |config|
           config.autoregister_as_bidders_all_instances_of_classes = [User] # default is []
+          config.auction_prolonging_limit = 10.minutes # default is 1.minute
         end
-
       ```
   4. ### Use directly
       ```ruby

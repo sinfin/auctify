@@ -11,6 +11,7 @@ module Auctify
     setup do
       @auction = auctify_sales(:accepted_auction)
       @auction.offered_price = 1_000
+      @auction.ends_at = Time.current + 1.hour
       @auction.start_sale
       assert_nil @auction.buyer
       @auction.save! # just for sure

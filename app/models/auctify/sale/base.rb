@@ -34,12 +34,6 @@ module Auctify
         super if errors.blank?
       end
 
-      def ends_at=(value)
-        super
-        self.currently_ends_at = value if currently_ends_at.blank? || currently_ends_at < value
-      end
-
-
       [:seller, :buyer, :item].each do |behavior|
         define_method("#{behavior}_auctify_id=") do |auctify_id|
           self.send("#{behavior}=", object_from_auctify_id(auctify_id))

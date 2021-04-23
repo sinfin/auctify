@@ -17,15 +17,14 @@ module Auctify
         @lucifer = users(:lucifer)
         @adam = users(:adam)
 
-        @registrations = {}
-        @registrations[@adam] = @auction.bidder_registrations.detect { |r| r.bidder == @adam }
-        @registrations[@lucifer] = @auction.bidder_registrations.detect { |r| r.bidder == @lucifer }
+        allow_bids_for([@lucifer, @adam], @auction)
 
         assert_equal [@adam, @lucifer], @auction.bidders
       end
 
       test "can process bids" do
         auction.offered_price = 1_000
+
         assert_nil auction.current_price
 
         auction.start_sale
@@ -33,15 +32,15 @@ module Auctify
 
         assert_equal 1_000, auction.reload.current_price
 
-        assert_equal true, auction.bid!(bid_for(lucifer, 1_001))
+        assert auction.bid!(bid_for(lucifer, 1_001))
 
         assert_equal 1_001, auction.current_price
 
-        assert_equal false, auction.bid!(bid_for(lucifer, 1_002)) # You cannot overbid Yourself
+        assert_not auction.bid!(bid_for(lucifer, 1_002)) # You cannot overbid Yourself
 
         assert_equal 1_001, auction.current_price
 
-        assert_equal true, auction.bid!(bid_for(adam, 1_002))
+        assert auction.bid!(bid_for(adam, 1_002))
 
         assert_equal 1_002, auction.reload.current_price
 

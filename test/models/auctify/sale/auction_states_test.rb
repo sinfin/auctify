@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "test_helper"
-require "minitest/mock"
 
 module Auctify
   module Sale
@@ -11,7 +10,10 @@ module Auctify
       include Auctify::AuctionHelpers
 
       setup do
-        @auction = Auctify::Sale::Auction.new(seller: users(:eve), item: things(:apple), offered_price: 123.4)
+        @auction = Auctify::Sale::Auction.new(seller: users(:eve),
+                                              item: things(:apple),
+                                              offered_price: 123.4,
+                                              ends_at: Time.current + 1.hour)
 
         assert @auction.valid?, "auction is not valid! : #{@auction.errors.full_messages}"
         assert_nil auction.buyer
@@ -85,12 +87,14 @@ module Auctify
 
         offered_price = auction.offered_price
         assert_nil auction.current_price
+        assert_nil auction.currently_ends_at
 
         auction.start_sale
 
         assert auction.in_sale?
         assert_equal offered_price, auction.offered_price
         assert_equal offered_price, auction.current_price
+        assert_equal auction.ends_at, auction.currently_ends_at
 
         auction.close_bidding
 
@@ -208,27 +212,6 @@ module Auctify
           auction.not_sold_in_auction
           assert auction.auctioned_unsuccessfully?
         end
-      end
-
-      test "when config :autoregister_all_users_as_bidders is set => do it" do
-        # default is []
-        Auctify.configure do |config|
-          config.autoregister_as_bidders_all_instances_of_classes = []
-        end
-
-        users_count = User.count
-        assert users_count.positive?
-
-        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4)
-        assert_equal 0, auction.bidder_registrations.size
-
-        Auctify.configure do |config|
-          config.autoregister_as_bidders_all_instances_of_classes = [User]
-        end
-
-        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4)
-        assert_equal users_count, auction.bidder_registrations.size
-        assert_equal users_count, auction.bidder_registrations.approved.size, auction.bidder_registrations.to_json
       end
     end
   end
