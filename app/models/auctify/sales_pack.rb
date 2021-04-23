@@ -2,6 +2,8 @@
 
 module Auctify
   class SalesPack < ApplicationRecord
+    include Folio::FriendlyId
+
     has_many :sales, class_name: "Auctify::Sale::Base", foreign_key: :pack_id, inverse_of: :pack, dependent: :nullify
     # has_many :items, through: :sales
 
