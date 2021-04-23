@@ -7,7 +7,5 @@ class ApplicationRecord < ActiveRecord::Base
   include Folio::Sortable
   include Folio::ToLabel
 
-  scope :ordered, -> { order(id: :desc) }
-
   self.abstract_class = true
 end
