@@ -14,7 +14,7 @@ module Auctify
 
       belongs_to :seller, polymorphic: true
       belongs_to :buyer, polymorphic: true, optional: true
-#      belongs_to :item, class_name: @@item_class_name
+      # added on usage of `auctify_as :item` =>     belongs_to :item, class_name: ???
       belongs_to :pack, class_name: "Auctify::SalesPack", inverse_of: :sales, optional: true, counter_cache: :sales_count
 
       validate :valid_seller
@@ -26,6 +26,7 @@ module Auctify
 
       delegate :to_label, to: :item
 
+      # need to cover wrong class of item before assigning
       def item=(item)
         @item = item
         valid_item
@@ -33,6 +34,10 @@ module Auctify
         super if errors.blank?
       end
 
+      def ends_at=(value)
+        super
+        self.currently_ends_at = value if currently_ends_at.blank? || currently_ends_at < value
+      end
 
 
       [:seller, :buyer, :item].each do |behavior|

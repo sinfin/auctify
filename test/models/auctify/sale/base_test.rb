@@ -117,6 +117,44 @@ module Auctify
         assert_equal buyer, sale.buyer
         assert_equal item, sale.item
       end
+
+      test "sets currently_ands_at" do
+        d1 = Time.current + 1.day
+        d2 = Time.current + 2.days
+        d3 = Time.current + 3.days
+        d4 = Time.current + 4.days
+        d5 = Time.current + 5.days
+
+        sale = Auctify::Sale::Base.new
+
+        assert_nil sale.ends_at
+        assert_nil sale.currently_ends_at
+
+        sale.update(ends_at: d1)
+
+        assert_equal d1, sale.ends_at
+        assert_equal d1, sale.currently_ends_at
+
+        sale.update(ends_at: d2)
+
+        assert_equal d2, sale.ends_at
+        assert_equal d2, sale.currently_ends_at
+
+        sale.update(currently_ends_at: d4) # change on bid close to ends_at
+
+        assert_equal d2, sale.ends_at
+        assert_equal d4, sale.currently_ends_at
+
+        sale.update(ends_at: d3)
+
+        assert_equal d3, sale.ends_at
+        assert_equal d4, sale.currently_ends_at
+
+        sale.update(ends_at: d5)
+
+        assert_equal d5, sale.ends_at
+        assert_equal d5, sale.currently_ends_at
+      end
     end
   end
 end
