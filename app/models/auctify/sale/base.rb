@@ -3,6 +3,9 @@
 module Auctify
   module Sale
     class Base < ApplicationRecord
+      include Folio::Positionable
+      include Folio::Publishable::Basic
+
       self.table_name = "auctify_sales"
 
       attribute :bid_steps_ladder, MinimalBidsLadderType.new
@@ -12,7 +15,7 @@ module Auctify
       belongs_to :seller, polymorphic: true
       belongs_to :buyer, polymorphic: true, optional: true
       belongs_to :item, polymorphic: true
-      belongs_to :pack, class_name: "Auctify::SalesPack", inverse_of: :sales, optional: true
+      belongs_to :pack, class_name: "Auctify::SalesPack", inverse_of: :sales, optional: true, counter_cache: :sales_count
 
       validate :valid_seller
       validate :valid_item
