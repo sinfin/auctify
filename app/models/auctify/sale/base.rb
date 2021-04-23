@@ -104,6 +104,10 @@ module Auctify
         rescue ActiveRecord::RecordNotFound
           nil
         end
+
+        def configuration
+          Auctify.configuration
+        end
     end
   end
 end

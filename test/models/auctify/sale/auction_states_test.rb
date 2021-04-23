@@ -196,8 +196,7 @@ module Auctify
         auction.close_bidding
         assert auction.bidding_ended?
 
-        Auctify::BidsAppender.stub(:call,
-OpenStruct.new(result: OpenStruct.new(won_price: 1_000, winner: users(:adam)))) do
+        Auctify::BidsAppender.stub(:call, OpenStruct.new(result: OpenStruct.new(won_price: 1_000, winner: users(:adam)))) do
           assert_raises(AASM::InvalidTransition) do
             auction.not_sold_in_auction
           end
@@ -209,6 +208,27 @@ OpenStruct.new(result: OpenStruct.new(won_price: 1_000, winner: users(:adam)))) 
           auction.not_sold_in_auction
           assert auction.auctioned_unsuccessfully?
         end
+      end
+
+      test "when config :autoregister_all_users_as_bidders is set => do it" do
+        # default is []
+        Auctify.configure do |config|
+          config.autoregister_as_bidders_all_instances_of_classes = []
+        end
+
+        users_count = User.count
+        assert users_count.positive?
+
+        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4)
+        assert_equal 0, auction.bidder_registrations.size
+
+        Auctify.configure do |config|
+          config.autoregister_as_bidders_all_instances_of_classes = [User]
+        end
+
+        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4)
+        assert_equal users_count, auction.bidder_registrations.size
+        assert_equal users_count, auction.bidder_registrations.approved.size, auction.bidder_registrations.to_json
       end
     end
   end

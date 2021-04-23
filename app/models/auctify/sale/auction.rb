@@ -72,6 +72,8 @@ module Auctify
 
       validate :buyer_vs_bidding_consistence
 
+      after_create :autoregister_bidders
+
       def bidders
         @bidders ||= bidder_registrations.collect { |br| br.bidder }.sort_by(&:name)
       end
@@ -85,9 +87,9 @@ module Auctify
         end
       end
 
-      delegate :winning_bid, to: :bidding_final_result
+      delegate :winning_bid, to: :bidding_result
 
-      def bidding_final_result
+      def bidding_result
         Auctify::BidsAppender.call(auction: self, bid: nil).result
       end
 
@@ -96,36 +98,50 @@ module Auctify
       end
 
       def allows_new_bidder_registrations?
-        in_sale? || accepted?
+        @allows_new_bidder_registrations ||= (in_sale? || accepted?)
       end
-
-
 
       private
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?
 
-          unless buyer == bidding_final_result.winner
+          unless buyer == bidding_result.winner
             errors.add(:buyer,
                        :buyer_is_not_the_winner,
                        buyer: buyer.to_label,
-                       winner: bidding_final_result.winner.to_label)
+                       winner: bidding_result.winner.to_label)
           end
 
-          unless sold_price == bidding_final_result.won_price
+          unless sold_price == bidding_result.won_price
             errors.add(:sold_price,
                        :sold_price_is_not_from_bidding,
                        sold_price: sold_price,
-                       won_price: bidding_final_result.won_price)
+                       won_price: bidding_result.won_price)
           end
         end
 
         def no_winner?
-          return true if bidding_final_result.winner.blank?
+          return true if bidding_result.winner.blank?
           errors.add(:buyer,
             :there_is_a_buyer_for_not_sold_auction,
-             winner: bidding_final_result.winner.to_label)
+             winner: bidding_result.winner.to_label)
           false
+        end
+
+        def autoregister_bidders
+          classes = configuration.autoregister_as_bidders_all_instances_of_classes.to_a
+          return if classes.blank?
+
+          @allows_new_bidder_registrations = true
+
+          classes.each do |klass|
+            klass.all.each { |bidder| self.bidder_registrations.approved.create!(bidder: bidder, handled_at: Time.current) }
+            # requires activerecord-import gem
+            # bidder_registrations = klass.all.collect { |bidder| Auctify::BidderRegistration.new(bidder: bidder, auction: self, state: :approved) }
+            # Auctify::BidderRegistration.import bidder_registrations
+          end
+
+          @allows_new_bidder_registrations = false
         end
     end
   end

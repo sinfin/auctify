@@ -89,24 +89,120 @@ class Painting < ApplicationRecord
   auctify_as :item # this will add method like `sales` ....
 end
 ```
-`Auctify` expects that auctifyied model instances responds to `to_label` !!
+`Auctify` expects that auctifyied model instances responds to `to_label` and `:item` to reponds to `owner` (which should lead to object auctified as `:seller`)!
 
 ## Installation
-Add this line to your application's Gemfile:
+  1. ### Add gem
+      Add this line to your application's Gemfile:
 
-```ruby
-gem 'auctify'
-```
+      ```ruby
+      gem 'auctify'
+      ```
 
-And then execute:
-```bash
-$ bundle
-```
+      And then execute:
+      ```bash
+      $ bundle
+      ```
 
-Or install it yourself as:
-```bash
-$ gem install auctify
-```
+      Or install it yourself as:
+      ```bash
+      $ gem install auctify
+      ```
+
+  2. ### Auctify classes
+      ```ruby
+      class User < ApplicationRecord
+        auctify_as :buyer, :seller # this will add method like `sales`, `puchases` ....
+      end
+
+      class Painting < ApplicationRecord
+        auctify_as :item # this will add method like `sales` ....
+      end
+      ```
+
+  3. ### Configure
+      - optional
+      ```ruby
+        Auctify.configure do |config|
+          config.autoregister_as_bidders_all_instances_of_classes = [User] # default is []
+        end
+
+      ```
+  4. ### Use directly
+      ```ruby
+        banksy = User.find_by(nickname: "Banksy")
+        bidder1 = User.find_by(nickname: "Bidder1")
+        bidder2 = User.find_by(nickname: "Bidder2")
+        piece = Painting.find_by(title: "Love is in the bin")
+
+        piece.owner == banksy # => (not actually) :true
+
+        auction = banksy.offer_to_sale!(piece, { in: :auction, price: 100 })
+
+        auction.offered? # => :true
+        auction.item == piece # => :true
+        auction.seller == banksy # => :true
+        auction.offered_price # => 100.0
+
+        banksy.sales # => [auction]
+        banksy.auction_sales # => [auction]
+        banksy.retail_sales # => []
+
+        pieces.sales # => [auction]
+
+        auction.bidder_registrations # => []   unless config.autoregister_as_bidders_all_instances_of_classes is set
+        auction.bidder_registrations.create(bidder: bidder1) # => error, not allowed ("Aukce aktuálně neupovoluje nové registrace")
+
+        auction.accept_offer!
+
+        b1_reg = auction.bidder_registrations.create(bidder: bidder1)
+        b2_reg = auction.bidder_registrations.create(bidder: bidder2)
+
+        auction.bidder_registrations.size # => 2
+        auction.current_price # => nil
+
+        auction.start_sale!
+        auction.current_price # => 100.0
+
+        aucion.bid!(Auctify::Bid.new(registration: b1_reg, price: nil, max_price: 150))
+
+        auction.current_price # => 100.0
+        auction.bidding_result.winner # => bidder1
+        auction.bidding_result.current_price # => 100.0
+        auction.bidding_result.current_minimal_bid # => 101.0    `auction.bid_steps_ladder` is empty, we increasing by 1
+
+        aucion.bid!(Auctify::Bid.new(registration: b2_reg, price: 145, max_price: nil))
+        # some auto bidding is done
+        auction.current_price # => 146.0
+        auction.bidding_result.winner # => bidder1
+        auction.bidding_result.current_price # => 146.0
+        auction.bidding_result.current_minimal_bid # => 147.0
+
+        aucion.bid!(Auctify::Bid.new(registration: b2_reg, price: 149, max_price: 155))
+        # some auto bidding is done
+        auction.current_price # => 151.0
+        auction.bidding_result.winner # => bidder2
+        auction.bidding_result.current_price # => 151.0
+        auction.bidding_result.current_minimal_bid # => 152.0
+
+        auction.close_bidding!
+        auction.bidding_ended? # => true
+        auction.buyer # => nil
+
+        auction.sold_in_auction!(buyer: bidder2, price: 149)  # it is verified against bids!
+
+        auction.auctioned_successfully? # => true
+        auction.buyer # => bidder2
+
+        # when all negotiations went well
+        auction.sell!
+
+        auction.sold? # => true
+      ```
+
+      Look into tests `test/models/auctify/sale/auction_bidding_test.rb` and `test/services/auctify/bid_appender_test.rb` for more info about bidding process.
+
+
 
 ## Contributing
 Contribution directions go here.
