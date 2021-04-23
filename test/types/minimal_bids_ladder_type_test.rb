@@ -16,7 +16,7 @@ module Auctify
       auction.reload
 
       assert_equal app_usage_version, auction.bid_steps_ladder
-      assert_equal db_store_version, auction.read_attribute_before_type_cast("bid_steps_ladder")
+      assert_equal JSON.parse(db_store_version), JSON.parse(auction.read_attribute_before_type_cast("bid_steps_ladder"))
     end
 
     test "it can store min prices as strings" do
@@ -25,7 +25,7 @@ module Auctify
       auction.reload
 
       assert_equal app_usage_version, auction.bid_steps_ladder
-      assert_equal db_store_version, auction.read_attribute_before_type_cast("bid_steps_ladder")
+      assert_equal JSON.parse(db_store_version), JSON.parse(auction.read_attribute_before_type_cast("bid_steps_ladder"))
     end
 
     test "it can store min_prices as numbers" do
@@ -34,7 +34,7 @@ module Auctify
       auction.reload
 
       assert_equal app_usage_version, auction.bid_steps_ladder
-      assert_equal db_store_version, auction.read_attribute_before_type_cast("bid_steps_ladder")
+      assert_equal JSON.parse(db_store_version), JSON.parse(auction.read_attribute_before_type_cast("bid_steps_ladder"))
     end
 
     test "it can store min_prices from json" do
@@ -43,7 +43,7 @@ module Auctify
       auction.reload
 
       assert_equal app_usage_version, auction.bid_steps_ladder
-      assert_equal db_store_version, auction.read_attribute_before_type_cast("bid_steps_ladder")
+      assert_equal JSON.parse(db_store_version), JSON.parse(auction.read_attribute_before_type_cast("bid_steps_ladder"))
     end
 
     private
