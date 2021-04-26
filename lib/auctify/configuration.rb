@@ -13,12 +13,12 @@ module Auctify
     end
   end
 
-  class << self
-    attr_accessor :configuration
+
+  def self.configuration
+    @configuration ||= Auctify::Configuration.new
   end
 
   def self.configure
-    self.configuration ||= Auctify::Configuration.new
     yield(configuration)
   end
 end
