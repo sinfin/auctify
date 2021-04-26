@@ -104,6 +104,7 @@ module Auctify
         Time.stub(:current, bid_time) { assert auction.bid!(bid_for(adam, 1_003)) }
 
         assert_equal (bid_time + 10.minutes).to_i, auction.currently_ends_at.to_i
+        Auctify.configure { |c| c.auction_prolonging_limit = 2.minutes }
       end
     end
   end
