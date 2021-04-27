@@ -22,7 +22,7 @@
         <td><%= sale.seller.name %></td>
         <td><%= sale.buyer&.name %></td>
         <td><%= sale.item.name %></td>
-        <td><%= sale.published? ? "YES" : sale.published_at  %></td>
+        <td><%= sale.published? ? "YES" : "NO" %></td>
         <td><%= link_to 'Show',auctify_sale_path(sale) %></td>
         <td><%= link_to 'Edit', edit_auctify_sale_path(sale) %></td>
         <td><%= link_to 'Destroy',auctify_sale_path(sale), method: :delete, data: { confirm: 'Are you sure?' } %></td>

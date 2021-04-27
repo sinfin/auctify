@@ -21,7 +21,7 @@ module Auctify
       validate :valid_item
       validate :valid_buyer
 
-      scope :published, -> { where("published_at <= ?", Time.current) }
+      scope :published, -> { where(published: true) }
       scope :not_sold, -> { where(sold_price: nil) }
 
       delegate :to_label, to: :item
@@ -45,16 +45,8 @@ module Auctify
       end
 
       def publish!
-        publish_from(Time.current)
+        self.published = true
         save
-      end
-
-      def publish_from(time)
-        self.published_at = time
-      end
-
-      def published?
-        published_at && (published_at <= Time.current)
       end
 
       private

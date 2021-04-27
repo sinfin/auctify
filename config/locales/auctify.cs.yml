@@ -38,7 +38,7 @@ cs:
         seller: Prodejce
         item: Zboží
         aasm_state: Stav
-        published_at: Zveřejněno
+        published: Zveřejněno
         number: Číslo
       auctify/sale/retail:
         created_at: Vytvořen

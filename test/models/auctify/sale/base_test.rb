@@ -87,21 +87,6 @@ module Auctify
         sale.publish!
 
         assert sale.reload.published?
-        assert sale.published_at <= Time.current
-      end
-
-      test "can be published from selected time" do
-        assert_not sale.published?
-
-        publish_at = Time.current + 2.seconds
-        sale.publish_from(publish_at)
-
-
-        assert_not sale.published?
-        assert sale.published_at = publish_at
-
-        sleep 2
-        assert sale.published?
       end
 
       test "can be build from form params with auctify_ids" do

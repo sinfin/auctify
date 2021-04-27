@@ -9,7 +9,7 @@ eve_apple:
   current_price: 100.0
   sold_price: 100.0
   aasm_state: auctioned_successfully
-  published_at: <%= Date.new(1,1,1) %>
+  published: true
   pack: things_from_eden
   ends_at: <%= Date.new(1,1,2) %>
   currently_ends_at: <%= Date.new(1,1,2) %>
@@ -19,7 +19,7 @@ adam_innocence:
   buyer:
   item: innocence
   type: Auctify::Sale::Retail
-  published_at: <%= Time.new(1,1,1,2,2,2) %>
+  published: true
   pack: things_from_eden
 
 unpublished_sale:
@@ -34,7 +34,7 @@ auction_in_progress:
   item: snake
   type: Auctify::Sale::Auction
   aasm_state: in_sale
-  published_at: <%= Time.current - 1.minute %>
+  published: true
   pack: things_from_eden
   offered_price: 101
   current_price: 101
@@ -46,7 +46,7 @@ future_auction:
   buyer:
   item: flaming_sword
   type: Auctify::Sale::Auction
-  published_at: <%= Time.current + 1.day %>
+  published: false
   pack: things_from_eden
 
 accepted_auction:
@@ -55,7 +55,7 @@ accepted_auction:
   item: fun
   type: Auctify::Sale::Auction
   aasm_state: accepted
-  published_at: <%= Time.current - 1.day %>
+  published: true
   pack:
   offered_price: 102
   ends_at: <%= etime = Time.current + 1.day %>
