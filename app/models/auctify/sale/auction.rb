@@ -169,19 +169,19 @@ end
 #
 #  id                :bigint(8)        not null, primary key
 #  seller_type       :string           not null
-#  seller_id         :integer          not null
+#  seller_id         :bigint(8)        not null
 #  buyer_type        :string
-#  buyer_id          :integer
-#  item_id           :integer          not null
+#  buyer_id          :bigint(8)
+#  item_id           :bigint(8)        not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  type              :string           default("Auctify::Sale::Base")
 #  aasm_state        :string           default("offered"), not null
+#  offered_price     :decimal(12, 2)
+#  current_price     :decimal(12, 2)
+#  sold_price        :decimal(12, 2)
 #  published_at      :datetime
-#  offered_price     :decimal(, )
-#  current_price     :decimal(, )
-#  sold_price        :decimal(, )
-#  bid_steps_ladder  :json
+#  bid_steps_ladder  :jsonb
 #  reserve_price     :decimal(, )
 #  pack_id           :bigint(8)
 #  ends_at           :datetime
@@ -192,6 +192,7 @@ end
 # Indexes
 #
 #  index_auctify_sales_on_buyer_type_and_buyer_id    (buyer_type,buyer_id)
+#  index_auctify_sales_on_ends_at                    (ends_at)
 #  index_auctify_sales_on_pack_id                    (pack_id)
 #  index_auctify_sales_on_position                   (position)
 #  index_auctify_sales_on_published_at               (published_at)
