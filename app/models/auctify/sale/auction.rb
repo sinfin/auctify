@@ -91,9 +91,20 @@ module Auctify
       end
 
       delegate :winning_bid, to: :bidding_result
-
       def bidding_result
         Auctify::BidsAppender.call(auction: self, bid: nil).result
+      end
+
+      def current_winner
+        bidding_result.winner
+      end
+
+      def current_minimal_bid
+        bidding_result.current_minimal_bid
+      end
+
+      def open_for_bids?
+        in_sale?
       end
 
       def opening_price

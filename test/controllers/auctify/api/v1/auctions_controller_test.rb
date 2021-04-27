@@ -30,15 +30,20 @@ module Auctify
           assert_response :success
 
           json = JSON.parse(response.body)
-          assert_equal auction.id, json["auction"]["id"]
-          assert_equal auction.current_winner.id, json["auction"]["current_winner"]["id"]
-          assert_equal auction.current_winner.auctify_id, json["auction"]["current_winner"]["auctify_id"]
-          assert_equal auction.current_winner.to_label, json["auction"]["current_winner"]["to_label"]
-          assert_equal auction.current_price, json["auction"]["current_price"]
-          assert_equal auction.current_minimal_bid, json["auction"]["current_minimal_bid"]
-          assert_equal auction.ends_at, json["auction"]["ends_at"]
-          assert_equal auction.currently_ends_at, json["auction"]["currently_ends_at"]
-          assert_equal auction.open_for_bids?, json["auction"]["open_for_bids?"]
+
+          assert_equal auction.id, json["data"]["id"].to_i
+          assert_equal "auction", json["data"]["type"]
+
+          json_attributes = json["data"]["attributes"]
+          assert_equal auction.current_winner.id, json_attributes["current_winner"]["id"]
+          assert_equal auction.current_winner.auctify_id, json_attributes["current_winner"]["auctify_id"]
+          assert_equal auction.current_winner.to_label, json_attributes["current_winner"]["to_label"]
+
+          assert_equal auction.current_price.to_f, json_attributes["current_price"].to_f
+          assert_equal auction.current_minimal_bid.to_f, json_attributes["current_minimal_bid"].to_f
+          assert_equal auction.ends_at, json_attributes["ends_at"]
+          assert_equal auction.currently_ends_at, json_attributes["currently_ends_at"]
+          assert_equal auction.open_for_bids?, json_attributes["open_for_bids?"]
         end
 
         test "GET #SHOW returns 404 if no auction found" do

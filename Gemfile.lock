@@ -62,6 +62,7 @@ PATH
   specs:
     auctify (0.1.0)
       aasm (~> 5.1.1)
+      fast_jsonapi
       rails (~> 6.0.2, >= 6.0.2.2)
 
 GEM

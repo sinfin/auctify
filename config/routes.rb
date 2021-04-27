@@ -6,5 +6,15 @@ Auctify::Engine.routes.draw do
     resources :bids
     resources :bidder_registrations
     resources :sales
+
+    namespace :api do
+      namespace :v1 do
+        resources :auctions do
+          member do
+            resources :bids
+          end
+        end
+      end
+    end
   end
 end
