@@ -13,14 +13,15 @@ module Auctify
         assert @sale.valid?, "Valid_sale is not valid! : #{@sale.errors.full_messages}"
       end
 
-      test "validates seller" do
+      test "validates optional seller" do
         assert sale.valid?
 
         sale.seller = nil
 
-        assert sale.invalid?
-        assert_equal ["musí existovat", "musí existovat"], sale.errors[:seller]
+        assert sale.valid?
+      end
 
+      test "if seller is appended, must be auctified and present" do
         user_not_in_db = User.new(id: (User.order(id: :desc).pick(:id) + 1))
         sale.seller = user_not_in_db
 

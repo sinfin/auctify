@@ -15,7 +15,7 @@
     <% @things.each do |thing| %>
       <tr>
         <td><%= thing.name %></td>
-        <td><%= link_to(thing.owner.name, user_path(thing.owner)) %></td>
+        <td><%= link_to(thing.owner.name, user_path(thing.owner)) if thing.owner %></td>
         <td><%= link_to 'Show', thing %></td>
         <td><%= link_to 'Edit', edit_thing_path(thing) %></td>
         <td><%= link_to 'Destroy', thing, method: :delete, data: { confirm: 'Are you sure?' } %></td>

@@ -5,9 +5,9 @@ require "test_helper"
 class FixturesConsistencyTest < ActiveSupport::TestCase
   test "counts" do
     assert_equal %w[Lucifer Eve Adam].sort, User.pluck("name").sort
-    assert_equal ["Apple", "Innocence", "Fig leave", "Naughty fun", "Snake (without apple)", "Flaming sword"].sort,
+    assert_equal ["Apple", "Innocence", "Fig leave", "Magic ball", "Naughty fun", "Snake (without apple)", "Flaming sword"].sort,
                  Thing.pluck("name").sort
-    assert_equal 6, Auctify::Sale::Base.count # details bellow
+    assert_equal 7, Auctify::Sale::Base.count # details bellow
     assert_equal 6, Auctify::BidderRegistration.count
     assert_equal 3, Auctify::SalesPack.count
     assert_equal 4, auctify_sales_packs(:things_from_eden).sales.count
@@ -85,5 +85,15 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_nil sale.pack
 
     assert_equal %w[Adam Lucifer], sale.bidders.pluck(:name)
+  end
+
+  test "sale without seller" do
+    sale = auctify_sales(:sale_without_seller)
+    assert_nil sale.seller
+    assert_nil sale.buyer
+    assert_equal things(:magic_ball), sale.item
+    assert sale.is_a?(Auctify::Sale::Auction)
+    assert sale.offered?
+    assert_nil sale.pack
   end
 end

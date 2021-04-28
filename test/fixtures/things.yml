@@ -23,3 +23,7 @@ flaming_sword:
 fun:
   name: Naughty fun
   owner: eve
+
+magic_ball:
+  name: Magic ball
+  owner:

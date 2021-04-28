@@ -58,4 +58,16 @@ accepted_auction:
   published: true
   pack:
   offered_price: 102
-  ends_at: <%= etime = Time.current + 1.day %>
+  ends_at: <%= Time.current + 1.day %>
+
+sale_without_seller:
+  seller_id:
+  seller_type:
+  buyer:
+  item: magic_ball
+  type: Auctify::Sale::Auction
+  aasm_state: offered
+  published: false
+  pack:
+  offered_price: 103
+  ends_at: <%= Time.current + 1.day %>
