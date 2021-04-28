@@ -5,6 +5,7 @@ require "test_helper"
 class ThingsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @thing = things(:apple)
+    sign_in users(:adam)
   end
 
   test "should get index" do

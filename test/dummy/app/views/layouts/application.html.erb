@@ -14,6 +14,10 @@
     <%= link_to("Things", things_path) %>
     | <%= link_to("Sales", auctify.auctify_sales_path) %>
     <hr />
+    <p class="notice"><%= notice %></p>
+    <p class="alert"><%= alert %></p>
+    <hr />
+
     <%= yield %>
   </body>
 </html>

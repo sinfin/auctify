@@ -8,7 +8,7 @@ class ThingTest < ActiveSupport::TestCase
   # end
 
   test "knows its owner" do
-    u = User.create!(name: "John")
+    u = User.create!(name: "John", email: "jd@here.com", password: "password")
     t = Thing.create!(owner: u, name: "Velké kulové")
 
     t.reload

@@ -31,3 +31,7 @@ require "webdrivers"
 require "minitest/mock"
 
 ENV["RAILS_ROOT"] ||= File.expand_path(File.join(File.dirname(__FILE__), "test", "dummy"))
+
+ActionDispatch::IntegrationTest.class_eval do |it|
+  include Devise::Test::IntegrationHelpers
+end
