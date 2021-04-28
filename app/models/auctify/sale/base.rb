@@ -21,7 +21,6 @@ module Auctify
       validate :valid_item
       validate :valid_buyer
 
-      scope :published, -> { where(published: true) }
       scope :not_sold, -> { where(sold_price: nil) }
 
       delegate :to_label, to: :item
