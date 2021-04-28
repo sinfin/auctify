@@ -68,7 +68,6 @@ module Auctify
         end
 
         private
-
           def assert_auction_json_response
             json = JSON.parse(response.body)
 
