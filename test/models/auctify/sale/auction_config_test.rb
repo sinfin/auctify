@@ -10,7 +10,6 @@ module Auctify
       include Auctify::AuctionHelpers
       include ActiveJob::TestHelper
 
-
       test "when config :autoregister_all_users_as_bidders is set => do it" do
         # default is []
         Auctify.configure do |config|

@@ -38,6 +38,10 @@ module Auctify
           end
 
           transitions from: :accepted, to: :in_sale
+
+          after do
+            run_bidding_closer_job!
+          end
         end
 
         event :close_bidding do
@@ -165,7 +169,12 @@ module Auctify
 
         def run_close_bidding_callback!
           job = configuration.job_to_run_after_bidding_ends
-          job.perform_later(auction_id: self.id) if job
+          job.perform_later(auction_id: id) if job
+        end
+
+        def run_bidding_closer_job!
+          Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
+                                   .perform_later(auction_id: id)
         end
     end
   end
