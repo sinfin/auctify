@@ -42,6 +42,9 @@ module Auctify
 
         event :close_bidding do
           transitions from: :in_sale, to: :bidding_ended
+          after do
+            run_close_bidding_callback!
+          end
         end
 
         event :sold_in_auction do
@@ -158,6 +161,11 @@ module Auctify
         def extend_end_time(bid_time)
           new_end_time = bid_time + Auctify.configuration.auction_prolonging_limit
           self.currently_ends_at = [currently_ends_at, new_end_time].max
+        end
+
+        def run_close_bidding_callback!
+          job = configuration.job_to_run_after_bidding_ends
+          job.perform_later(auction_id: self.id) if job
         end
     end
   end
