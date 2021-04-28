@@ -48,37 +48,48 @@ module Auctify
         end
 
         test "POST /api/auctions/xxxx/bids will create bid for current_user" do
-          assert_difference("Auctify::Bid.count", +1) do
-            post api_path_for("/auctions/#{auction.id}/bids"), params: { bid: { price: 1200, max_price: 2000 } }
-          end
+          sign_in lucifer
 
-          assert_response :created
+          assert_difference("Auctify::Bid.count", +1) do
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { bid: { price: 1_200.0, max_price: 2_000.0 } }
+            assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
+          end
 
           auction.reload
           assert_auction_json_response
+
+          assert_equal 1_101.0, auction.current_price.to_f # only autobidding was applied
+          assert_equal lucifer, auction.current_winner
+
+          bid = auction.bids.last
+          assert_equal 1_101, bid.price
+          assert_equal 2_000, bid.max_price
+          assert_equal lucifer, bid.bidder
         end
 
-        def assert_auction_json_response
-          json = JSON.parse(response.body)
+        private
 
-          assert_equal auction.id, json["data"]["id"].to_i
-          assert_equal "auction", json["data"]["type"]
+          def assert_auction_json_response
+            json = JSON.parse(response.body)
 
-          json_attributes = json["data"]["attributes"]
-          assert_equal auction.current_winner.id, json_attributes["current_winner"]["id"]
-          assert_equal auction.current_winner.auctify_id, json_attributes["current_winner"]["auctify_id"]
-          assert_equal auction.current_winner.to_label, json_attributes["current_winner"]["to_label"]
+            assert_equal auction.id, json["data"]["id"].to_i
+            assert_equal "auction", json["data"]["type"]
 
-          assert_equal auction.current_price.to_f, json_attributes["current_price"].to_f
-          assert_equal auction.current_minimal_bid.to_f, json_attributes["current_minimal_bid"].to_f
-          assert_equal auction.ends_at, json_attributes["ends_at"]
-          assert_equal auction.currently_ends_at, json_attributes["currently_ends_at"]
-          assert_equal auction.open_for_bids?, json_attributes["open_for_bids?"]
-        end
+            json_attributes = json["data"]["attributes"]
+            assert_equal auction.current_winner.id, json_attributes["current_winner"]["id"]
+            assert_equal auction.current_winner.auctify_id, json_attributes["current_winner"]["auctify_id"]
+            assert_equal auction.current_winner.to_label, json_attributes["current_winner"]["to_label"]
 
-        def api_path_for(resource_path)
-          "/auctify/api/v1/" + resource_path.match(/\/?(.*)/)[1]
-        end
+            assert_equal auction.current_price.to_f, json_attributes["current_price"].to_f
+            assert_equal auction.current_minimal_bid.to_f, json_attributes["current_minimal_bid"].to_f
+            assert_equal auction.ends_at, json_attributes["ends_at"]
+            assert_equal auction.currently_ends_at, json_attributes["currently_ends_at"]
+            assert_equal auction.open_for_bids?, json_attributes["open_for_bids?"]
+          end
+
+          def api_path_for(resource_path)
+            "/auctify/api/v1/" + resource_path.match(/\/?(.*)/)[1]
+          end
       end
     end
   end

@@ -11,11 +11,31 @@ module Auctify
         end
 
         def bids
+          if @auction.bid!(new_bid)
+            render_record @auction.reload
+          else
+            render_invalid new_bid # new_bid.errors
+          end
         end
 
         private
           def find_auction
             @auction = Auctify::Sale::Auction.find(params[:id])
+          end
+
+          def bid_params
+            params.require(:bid).permit(:max_price, :price)
+          end
+
+          def new_bid
+            Auctify::Bid.new(bid_params.merge(registration: bidder_registration))
+          end
+
+          def bidder_registration
+            b_reg = @auction.bidder_registrations.find_by(bidder: current_user)
+            return b_reg if b_reg.present?
+
+            raise " neco "
           end
       end
     end

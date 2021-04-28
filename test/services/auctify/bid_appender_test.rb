@@ -64,6 +64,11 @@ module Auctify
       assert_nil auction.buyer
     end
 
+    test "if price AND max_price is passed first price up then autobid" do
+      skip "TODO: not implemented"
+      # currently only autobidding happens so current_price can be lower than :price "
+    end
+
     test "can handle autobidding with max_price" do
       assert_equal 1_000, auction.reload.current_price
 
@@ -183,7 +188,7 @@ module Auctify
       assert_equal 1_001, appender.result.current_minimal_bid
     end
 
-    test "if no auction.bid_steps_ladder is present, minimal bid is increased according to it" do
+    test "if auction.bid_steps_ladder is present, minimal bid is increased according to it" do
       # You CAN bid out of defined steps (eg  3666,-)
       # next minimal bid is calculated from current price and current step; even if new value is in next step
 
