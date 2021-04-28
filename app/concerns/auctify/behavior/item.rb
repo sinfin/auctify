@@ -14,7 +14,7 @@ module Auctify
 
         c_name = self.name
         Auctify::Sale::Base.class_eval do
-          belongs_to :item, class_name: c_name
+          belongs_to :item, class_name: c_name, counter_cache: :sales_count
         end
       end
     end
