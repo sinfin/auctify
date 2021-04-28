@@ -4,8 +4,6 @@ module Auctify
   class Bid < ApplicationRecord
     belongs_to :registration, class_name: "Auctify::BidderRegistration", inverse_of: :bids
 
-    delegate :bidder, :auction, to: :registration
-
     scope :ordered, -> { order(price: :desc, created_at: :asc, id: :asc) }
 
     validate :price_is_not_bigger_then_max_price
@@ -20,6 +18,14 @@ module Auctify
 
     def price_is_not_bigger_then_max_price
       errors.add(:price, :must_be_lower_or_equal_max_price) if max_price && max_price < price
+    end
+
+    def bidder
+      registration&.bidder
+    end
+
+    def auction
+      registration&.auction
     end
   end
 end

@@ -6,6 +6,7 @@ module Auctify
 
     def initialize(auction:, bid: nil)
       super()
+
       @auction = auction
       @bid = bid
     end
@@ -57,10 +58,11 @@ module Auctify
       end
 
       def approve_bid
+        check_bid_registration_to_auction
         check_price_minimum unless increasing_own_max_price?
         check_same_bidder
         check_auction_state
-        check_bid_registration_to_auction
+
 
         errors.add_from_hash(bid.errors.to_hash)
 
@@ -136,7 +138,7 @@ module Auctify
       end
 
       def check_bid_registration_to_auction
-        return bid.registration.auction == auction
+        return if bid.registration&.auction == auction
 
         bid.errors.add(:auction, :bidder_is_not_registered_for_this_auction)
       end

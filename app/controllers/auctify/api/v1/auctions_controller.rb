@@ -28,14 +28,11 @@ module Auctify
           end
 
           def new_bid
-            Auctify::Bid.new(bid_params.merge(registration: bidder_registration))
+            @new_bid ||= Auctify::Bid.new(bid_params.merge(registration: bidder_registration))
           end
 
           def bidder_registration
-            b_reg = @auction.bidder_registrations.find_by(bidder: current_user)
-            return b_reg if b_reg.present?
-
-            raise " neco "
+            @bidder_registration ||= @auction.bidder_registrations.find_by(bidder: current_user)
           end
       end
     end

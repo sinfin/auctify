@@ -47,7 +47,7 @@ module Auctify
           assert_response :not_found
         end
 
-        test "POST /api/auctions/xxxx/bids will create bid for current_user" do
+        test "POST /api/auctions/:id/bids will create bid for current_user" do
           sign_in lucifer
 
           assert_difference("Auctify::Bid.count", +1) do
@@ -67,14 +67,37 @@ module Auctify
           assert_equal lucifer, bid.bidder
         end
 
+        test "POST /api/auctions/:id/bids will handle not succesfull bid" do
+          sign_in users(:eve) # not bidder for auction
+
+          assert_no_difference("Auctify::Bid.count") do
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { bid: { price: 1_200.0, max_price: 2_000.0 } }
+            assert_response 400, "Bid should not be created, response.body is:\n #{response.body}"
+          end
+
+          assert_includes response_json["errors"], { "status" => 400,
+                                                     "title" => "ActiveRecord::RecordInvalid",
+                                                     "detail" => "Auction dražitel není registrován k této aukci" }
+
+          @response_json = nil
+          sign_in adam # current winner
+
+          assert_no_difference("Auctify::Bid.count") do
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { bid: { price: 1_200.0 } }
+            assert_response 400, "Bid should not be created, response.body is:\n #{response.body}"
+          end
+
+          assert_includes response_json["errors"], { "status" => 400,
+                                                     "title" => "ActiveRecord::RecordInvalid",
+                                                     "detail" => "Bidder Není možné přehazovat své příhozy" }
+        end
+
         private
           def assert_auction_json_response
-            json = JSON.parse(response.body)
+            assert_equal auction.id, response_json["data"]["id"].to_i
+            assert_equal "auction", response_json["data"]["type"]
 
-            assert_equal auction.id, json["data"]["id"].to_i
-            assert_equal "auction", json["data"]["type"]
-
-            json_attributes = json["data"]["attributes"]
+            json_attributes = response_json["data"]["attributes"]
             assert_equal auction.current_winner.id, json_attributes["current_winner"]["id"]
             assert_equal auction.current_winner.auctify_id, json_attributes["current_winner"]["auctify_id"]
             assert_equal auction.current_winner.to_label, json_attributes["current_winner"]["to_label"]
@@ -88,6 +111,10 @@ module Auctify
 
           def api_path_for(resource_path)
             "/auctify/api/v1/" + resource_path.match(/\/?(.*)/)[1]
+          end
+
+          def response_json
+            @response_json ||= JSON.parse(response.body)
           end
       end
     end

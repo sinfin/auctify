@@ -64,6 +64,18 @@ module Auctify
         assert_equal adam, auction.buyer
         assert_equal 2, auction.bids.size # only successfull bids are stored
       end
+
+      test "get errors from failed bid" do
+        auction.start_sale
+
+        bid = Bid.new(price: 200_000, registration: nil)
+        assert bid.errors.empty?
+
+        assert_not auction.bid!(bid)
+
+        assert bid.errors.present?
+        assert_includes bid.errors[:auction], "dražitel není registrován k této aukci"
+      end
     end
   end
 end

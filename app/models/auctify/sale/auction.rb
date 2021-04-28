@@ -84,6 +84,7 @@ module Auctify
           bid.created_at ||= Time.current
 
           bap = Auctify::BidsAppender.call(auction: self, bid: bid)
+
           return true if bap.success?
           # errors can be in `bid.errors` or as `bap.errors`
           return false
