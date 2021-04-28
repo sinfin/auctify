@@ -10,6 +10,9 @@ module Auctify
           render_record @auction
         end
 
+        def bids
+        end
+
         private
           def find_auction
             @auction = Auctify::Sale::Auction.find(params[:id])

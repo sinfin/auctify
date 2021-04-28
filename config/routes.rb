@@ -11,7 +11,7 @@ Auctify::Engine.routes.draw do
       namespace :v1 do
         resources :auctions do
           member do
-            resources :bids
+            post :bids
           end
         end
       end

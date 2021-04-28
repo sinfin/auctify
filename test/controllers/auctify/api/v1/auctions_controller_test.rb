@@ -29,6 +29,36 @@ module Auctify
 
           assert_response :success
 
+          assert_auction_json_response
+        end
+
+        test "GET #SHOW returns 404 if no auction found" do
+          get "/auctify/api/v1/auctions/#{Auctify::Sale::Base.maximum(:id) + 1}"
+
+          assert_response :not_found
+        end
+
+        test "GET #SHOW returns 404 if sale is not auction" do
+          retail_sale = auctify_sales(:adam_innocence)
+          assert_not retail_sale.is_a?(Auctify::Sale::Auction)
+
+          get "/auctify/api/v1/auctions/#{retail_sale.id}"
+
+          assert_response :not_found
+        end
+
+        test "POST /api/auctions/xxxx/bids will create bid for current_user" do
+          assert_difference("Auctify::Bid.count", +1) do
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { bid: { price: 1200, max_price: 2000 } }
+          end
+
+          assert_response :created
+
+          auction.reload
+          assert_auction_json_response
+        end
+
+        def assert_auction_json_response
           json = JSON.parse(response.body)
 
           assert_equal auction.id, json["data"]["id"].to_i
@@ -46,9 +76,8 @@ module Auctify
           assert_equal auction.open_for_bids?, json_attributes["open_for_bids?"]
         end
 
-        test "GET #SHOW returns 404 if no auction found" do
-          skip
-          # same for retail sale
+        def api_path_for(resource_path)
+          "/auctify/api/v1/" + resource_path.match(/\/?(.*)/)[1]
         end
       end
     end
