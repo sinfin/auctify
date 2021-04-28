@@ -8,6 +8,7 @@ module Auctify
       attr_reader :auction, :registrations
 
       include Auctify::AuctionHelpers
+      include ActiveJob::TestHelper
 
 
       test "when config :autoregister_all_users_as_bidders is set => do it" do
@@ -105,6 +106,24 @@ module Auctify
 
         assert_equal (bid_time + 10.minutes).to_i, auction.currently_ends_at.to_i
         Auctify.configure { |c| c.auction_prolonging_limit = 2.minutes }
+      end
+
+      test "when auction ends run specific job" do
+        # TODO
+        class MyJob < ApplicationJob
+          def perform(_auction)
+          end
+        end
+
+        Auctify.configure { |c| c.job_to_run_after_bidding_ends = MyJob }
+
+        auction = auctify_sales(:auction_in_progress)
+
+
+        assert_enqueued_jobs 1, only: MyJob do
+          auction.close_bidding!
+        end
+        puts ActiveJob::Base.queue_adapter.enqueued_jobs
       end
     end
   end
