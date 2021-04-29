@@ -21,6 +21,13 @@ module Auctify
       validate :valid_item
       validate :valid_buyer
 
+      validates :offered_price,
+                :current_price,
+                :sold_price,
+                :reserve_price,
+                numericality: { greater_than_or_equal_to: 0 },
+                allow_nil: true
+
       scope :not_sold, -> { where(sold_price: nil) }
 
       delegate :to_label, to: :item

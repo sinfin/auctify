@@ -81,7 +81,6 @@ module Auctify
         assert_equal ["objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"], sale.errors[:buyer]
       end
 
-
       test "can be published immediatelly" do
         assert_not sale.published?
 
@@ -102,6 +101,14 @@ module Auctify
         assert_equal seller, sale.seller
         assert_equal buyer, sale.buyer
         assert_equal item, sale.item
+      end
+
+      test "validate prices" do
+        assert sale.valid?
+        sale.offered_price = -1
+        assert_not sale.valid?
+        sale.offered_price = 1
+        assert sale.valid?
       end
     end
   end
