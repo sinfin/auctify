@@ -16,7 +16,7 @@ cs:
         other: Příhozů
       auctify/sales_pack:
         one: Aukce
-        few: Aukce (auctify)
+        few: Aukce
         other: Aukcí
       auctify/bidder_registration:
         one: Registrace dražebníka
@@ -28,7 +28,8 @@ cs:
         description: Popisek
         position: Pozice
         slug: Varianta názvu pro odkazy
-        time_frame: Termín
+        start_date: Začátek
+        end_date: Konec
         place: Místo konání
         published: Zveřejněno
         sales_count: Počet položek

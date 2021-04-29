@@ -22,12 +22,17 @@ module Auctify
 
     test "should create sales_pack" do
       assert_difference("Auctify::SalesPack.count") do
-        post auctify_sales_packs_url, params: { sales_pack: { description: @sales_pack.description,
-                                                      place: @sales_pack.place,
-                                                      position: @sales_pack.position,
-                                                      published: @sales_pack.published,
-                                                      time_frame: @sales_pack.time_frame,
-                                                      title: @sales_pack.title + "New" } }
+        post auctify_sales_packs_url, params: {
+          sales_pack: {
+            description: @sales_pack.description,
+            place: @sales_pack.place,
+            position: @sales_pack.position,
+            published: @sales_pack.published,
+            start_date: @sales_pack.start_date,
+            end_date: @sales_pack.end_date,
+            title: @sales_pack.title + "New"
+          }
+        }
       end
 
       assert_redirected_to auctify_sales_pack_url(SalesPack.last)
@@ -44,12 +49,18 @@ module Auctify
     end
 
     test "should update sales_pack" do
-      patch auctify_sales_pack_url(@sales_pack), params: { sales_pack: { description: @sales_pack.description,
-                                                                 place: @sales_pack.place,
-                                                                 position: @sales_pack.position,
-                                                                 published: @sales_pack.published,
-                                                                 time_frame: @sales_pack.time_frame,
-                                                                 title: @sales_pack.title } }
+      patch auctify_sales_pack_url(@sales_pack), params: {
+        sales_pack: {
+          description: @sales_pack.description,
+          place: @sales_pack.place,
+          position: @sales_pack.position,
+          published: @sales_pack.published,
+          start_date: @sales_pack.start_date,
+          end_date: @sales_pack.end_date,
+          title: @sales_pack.title
+        }
+      }
+
       assert_redirected_to auctify_sales_pack_url(@sales_pack)
     end
 

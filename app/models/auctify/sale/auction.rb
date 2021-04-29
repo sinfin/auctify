@@ -10,6 +10,9 @@ module Auctify
       has_many :bidder_registrations, dependent: :destroy
       has_many :bids, through: :bidder_registrations, dependent: :destroy
 
+      validates :ends_at,
+                presence: true
+
       aasm do
         state :offered, initial: true, color: "red"
         state :accepted, color: "red"

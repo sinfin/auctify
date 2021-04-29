@@ -58,7 +58,18 @@ module Auctify
 
       # Only allow a trusted parameter "white list" through.
       def sales_pack_params
-        params.require(:sales_pack).permit(:title, :description, :position, :slug, :time_frame, :place, :published)
+        params.require(:sales_pack)
+              .permit(:title,
+                      :description,
+                      :position,
+                      :slug,
+                      :place,
+                      :published,
+                      :sales_interval,
+                      :sales_beginning_hour,
+                      :sales_beginning_minutes,
+                      :start_date,
+                      :end_date)
       end
   end
 end

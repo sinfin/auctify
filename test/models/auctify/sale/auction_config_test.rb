@@ -19,14 +19,14 @@ module Auctify
         users_count = User.count
         assert users_count.positive?
 
-        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4)
+        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4, ends_at: 1.day.from_now)
         assert_equal 0, auction.bidder_registrations.size
 
         Auctify.configure do |config|
           config.autoregister_as_bidders_all_instances_of_classes = [User]
         end
 
-        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4)
+        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4, ends_at: 1.day.from_now)
         assert_equal users_count, auction.bidder_registrations.size
         assert_equal users_count, auction.bidder_registrations.approved.size, auction.bidder_registrations.to_json
       end

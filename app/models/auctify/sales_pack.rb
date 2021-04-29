@@ -14,6 +14,17 @@ module Auctify
               presence: true,
               uniqueness: true
 
+    validates :sales_interval,
+              numericality: { greater_than: 0, less_than: 240 }
+
+    validates :sales_beginning_hour,
+              numericality: { greater_than_or_equal: 0, less_than: 23 }
+
+    validates :sales_beginning_minutes,
+              numericality: { greater_than_or_equal: 0, less_than: 59 }
+
+    validate :validate_start_and_end_dates
+
     scope :ordered, -> { order(id: :desc) }
 
     pg_search_scope :by_query,
@@ -24,6 +35,19 @@ module Auctify
     def to_label
       title
     end
+
+    private
+      def validate_start_and_end_dates
+        if start_date.blank? || end_date.blank?
+          errors.add(:start_date, :missing) if start_date.blank?
+          errors.add(:end_date, :missing) if end_date.blank?
+        else
+          if start_date > end_date
+            errors.add(:start_date, :invalid)
+            errors.add(:end_date, :invalid)
+          end
+        end
+      end
   end
 end
 
@@ -31,17 +55,21 @@ end
 #
 # Table name: auctify_sales_packs
 #
-#  id          :bigint(8)        not null, primary key
-#  title       :string
-#  description :text
-#  position    :integer          default(0)
-#  slug        :string
-#  time_frame  :string
-#  place       :string
-#  published   :boolean          default(FALSE)
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  sales_count :integer          default(0)
+#  id                      :bigint(8)        not null, primary key
+#  title                   :string
+#  description             :text
+#  position                :integer          default(0)
+#  slug                    :string
+#  place                   :string
+#  published               :boolean          default(FALSE)
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  sales_count             :integer          default(0)
+#  start_date              :date
+#  end_date                :date
+#  sales_interval          :integer          default(3)
+#  sales_beginning_hour    :integer          default(20)
+#  sales_beginning_minutes :integer          default(0)
 #
 # Indexes
 #

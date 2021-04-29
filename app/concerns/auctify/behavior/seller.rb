@@ -19,7 +19,9 @@ module Auctify
             assoc.create!(item: item,
                           seller: self,
                           buyer: nil,
-                          offered_price: options[:price])
+                          offered_price: options[:price],
+                          # FIXME @foton - this method will not be used in AA
+                          ends_at: options[:in] == :auction ? 1.day.from_now : nil)
           else
             sale = assoc.build(seller: self,
                                buyer: nil,
