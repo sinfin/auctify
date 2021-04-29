@@ -36,6 +36,20 @@ module Auctify
       title
     end
 
+    def dates_to_label
+      if start_date && end_date
+        if start_date.year == end_date.year
+          if start_date.month == end_date.month
+            "#{start_date.strftime('%-d.')}–#{end_date.strftime('%-d. %-m. %y')}"
+          else
+            "#{start_date.strftime('%-d. %-m.')} – #{end_date.strftime('%-d. %-m. %y')}"
+          end
+        else
+          "#{start_date.strftime('%-d. %-m. %y')} – #{end_date.strftime('%-d. %-m. %y')}"
+        end
+      end
+    end
+
     private
       def validate_start_and_end_dates
         if start_date.blank? || end_date.blank?
