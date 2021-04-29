@@ -34,6 +34,9 @@ cs:
         published: Zveřejněno
         sales_count: Počet položek
         sales: Položky
+        sales_interval: Časový rozestup mezi předměty v minutách
+        sales_beginning_hour: Čas prvního předmětu (hodina)
+        sales_beginning_minutes: Čas prvního předmětu (minuty)
       auctify/sale/base:
         buyer: Kupec
         seller: Prodejce
@@ -81,6 +84,10 @@ cs:
               there_is_a_buyer_for_not_sold_auction: "Aukci nelze označit za neprodanou, neboť má kupce (%{winner})"
             sold_price:
               sold_price_is_not_from_bidding: "Prodejní cena %{sold_price} neodpovídá výherní ceně z aukce %{won_price}"
+        auctify/sales_pack:
+          attributes:
+            end_date:
+              smaller_than_start_date: "musí být později než začátek"
         auctify/bid:
           attributes:
             bidder:
@@ -97,4 +104,3 @@ cs:
           attributes:
             auction:
               auction_do_not_allow_new_registrations: "Aukce aktuálně neupovoluje nové registrace"
-

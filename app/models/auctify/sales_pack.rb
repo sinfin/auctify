@@ -14,6 +14,10 @@ module Auctify
               presence: true,
               uniqueness: true
 
+    validates :start_date,
+              :end_date,
+              presence: true
+
     validates :sales_interval,
               numericality: { greater_than: 0, less_than: 240 }
 
@@ -52,14 +56,8 @@ module Auctify
 
     private
       def validate_start_and_end_dates
-        if start_date.blank? || end_date.blank?
-          errors.add(:start_date, :missing) if start_date.blank?
-          errors.add(:end_date, :missing) if end_date.blank?
-        else
-          if start_date > end_date
-            errors.add(:start_date, :invalid)
-            errors.add(:end_date, :invalid)
-          end
+        if start_date.present? && end_date.present? && start_date > end_date
+          errors.add(:end_date, :smaller_than_start_date)
         end
       end
   end
