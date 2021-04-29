@@ -84,7 +84,10 @@ module Auctify
       test "can be published immediatelly" do
         assert_not sale.published?
 
-        sale.publish!
+        assert_not sale.publish!
+
+        sale.offered_price = 1
+        assert sale.publish!
 
         assert sale.reload.published?
       end
@@ -107,6 +110,16 @@ module Auctify
         assert sale.valid?
         sale.offered_price = -1
         assert_not sale.valid?
+        sale.offered_price = 1
+        assert sale.valid?
+      end
+
+      test "validate offered_price when published" do
+        assert sale.valid?
+        sale.published = true
+        assert_not sale.valid?
+        assert_equal :required_for_published, sale.errors.details[:offered_price].first[:error]
+
         sale.offered_price = 1
         assert sale.valid?
       end

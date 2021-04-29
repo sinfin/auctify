@@ -28,6 +28,8 @@ module Auctify
                 numericality: { greater_than_or_equal_to: 0 },
                 allow_nil: true
 
+      validate :validate_offered_price_when_published
+
       scope :not_sold, -> { where(sold_price: nil) }
 
       delegate :to_label, to: :item
@@ -101,6 +103,12 @@ module Auctify
 
         def configuration
           Auctify.configuration
+        end
+
+        def validate_offered_price_when_published
+          if published? && offered_price.blank?
+            errors.add(:offered_price, :required_for_published)
+          end
         end
     end
   end
