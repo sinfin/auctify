@@ -87,5 +87,5 @@ end
 #
 #  index_auctify_sales_packs_on_position   (position)
 #  index_auctify_sales_packs_on_published  (published)
-#  index_auctify_sales_packs_on_slug       (slug)
+#  index_auctify_sales_packs_on_slug       (slug) UNIQUE
 #

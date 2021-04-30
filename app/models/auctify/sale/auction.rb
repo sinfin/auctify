@@ -209,6 +209,7 @@ end
 #  currently_ends_at :datetime
 #  published         :boolean          default(FALSE)
 #  featured          :boolean          default(FALSE)
+#  slug              :string
 #
 # Indexes
 #
@@ -218,4 +219,5 @@ end
 #  index_auctify_sales_on_position                   (position)
 #  index_auctify_sales_on_published                  (published)
 #  index_auctify_sales_on_seller_type_and_seller_id  (seller_type,seller_id)
+#  index_auctify_sales_on_slug                       (slug) UNIQUE
 #

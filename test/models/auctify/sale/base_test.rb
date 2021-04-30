@@ -49,7 +49,7 @@ module Auctify
         sale.item = item_not_in_db
 
         assert sale.invalid?
-        assert_equal ["musí existovat", "musí existovat"], sale.errors[:item] # TODO remove duplication
+        assert_equal ["musí existovat"], sale.errors[:item]
 
         non_auctified_item = CleanThing.first
         assert non_auctified_item.present?
