@@ -26,6 +26,8 @@ module Auctify
           end
 
           test "DELETE will just cancel bid and recalculate winner" do
+            # sign_in admin_account
+
             bid_to_cancel = bid_for(lucifer, 1_200)
             next_bid = bid_for(adam, 1_300)
             assert auction.bid!(bid_to_cancel)
@@ -33,16 +35,27 @@ module Auctify
 
             assert_equal 1_300, auction.current_price
 
-            assert_no_difference("auction.bids.size") do
-              assert_difference("auction.applied_bids.size", -1) do
+            assert_no_difference("auction.bids.count") do
+              assert_difference("auction.applied_bids.count", -1) do
                 delete "/auctify/api/v1/console/bids/#{bid_to_cancel.id}"
+                assert_response :success
               end
             end
 
-            assert_response :success
-
             assert bid_to_cancel.reload.cancelled?
-            assert_equal 1_300, auction.current_price
+            assert_equal 1_300, auction.reload.current_price
+            assert_equal next_bid, auction.winning_bid
+
+
+            assert_no_difference("auction.bids.count") do
+              assert_difference("auction.applied_bids.count", -1) do
+                delete "/auctify/api/v1/console/bids/#{next_bid.id}"
+                assert_response :success
+              end
+            end
+
+            assert next_bid.reload.cancelled?
+            assert_equal 1_100, auction.reload.current_price
           end
 
           test "all actions are allowed for admin account only" do
@@ -101,6 +114,10 @@ module Auctify
               "/auctify/api/v1/" + resource_path.match(/\/?(.*)/)[1]
             end
 
+            def admin_account
+              binding.pry
+              @admin_account ||= Folio::Account.create!()
+            end
         end
       end
     end

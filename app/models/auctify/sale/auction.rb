@@ -102,6 +102,15 @@ module Auctify
         end
       end
 
+      def recalculate_bidding!
+        winning_bid = bidding_result.winning_bid
+        if current_price > winning_bid.price
+          self.current_price = winning_bid.price
+          save!
+        end
+      end
+
+
       delegate :winning_bid, to: :bidding_result
       def bidding_result
         Auctify::BidsAppender.call(auction: self, bid: nil).result
@@ -132,7 +141,7 @@ module Auctify
 
         self.current_price = price
         extend_end_time(time)
-        self.save!
+        save!
       end
 
       private

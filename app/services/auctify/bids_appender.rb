@@ -80,7 +80,7 @@ module Auctify
 
       def update_auction!
         @winning_bid = nil
-        @bids = auction.bids.reload
+        @bids = bids.reload
 
 
         fail! unless auction.succesfull_bid!(price: new_current_price, time: bid.reload.created_at)
@@ -98,7 +98,7 @@ module Auctify
       end
 
       def winning_bid
-        @winning_bid ||= auction.bids.ordered.first # or should I go by the price?
+        @winning_bid ||= bids.ordered.first # or should I go by the price?
       end
 
       def overcame_reserve_price?
@@ -113,7 +113,7 @@ module Auctify
       end
 
       def bids
-        @bids ||= auction.bids
+        @bids ||= auction.applied_bids
       end
 
       def check_price_minimum

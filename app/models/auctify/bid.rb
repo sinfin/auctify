@@ -10,8 +10,11 @@ module Auctify
 
     validate :price_is_not_bigger_then_max_price
 
+    delegate :acution, to: :registration
+
     def cancel!
-      # TODO
+      update!(cancelled: true)
+      auction.recalculate_bidding!
     end
 
     def with_limit?
