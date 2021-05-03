@@ -3,6 +3,7 @@
 module Auctify
   module Sale
     class Base < ApplicationRecord
+      include Folio::FriendlyId
       include Folio::Positionable
       include Folio::Publishable::Basic
 
@@ -21,9 +22,19 @@ module Auctify
       validate :valid_item
       validate :valid_buyer
 
+      validates :offered_price,
+                :current_price,
+                :sold_price,
+                :reserve_price,
+                numericality: { greater_than_or_equal_to: 0 },
+                allow_nil: true
+
+      validate :validate_offered_price_when_published
+
       scope :not_sold, -> { where(sold_price: nil) }
 
-      delegate :to_label, to: :item
+      delegate :to_label,
+               to: :item
 
       # need to cover wrong class of item before assigning
       def item=(item)
@@ -95,6 +106,18 @@ module Auctify
         def configuration
           Auctify.configuration
         end
+
+        def validate_offered_price_when_published
+          if published? && offered_price.blank?
+            errors.add(:offered_price, :required_for_published)
+          end
+        end
+
+        def slug_candidates
+          base = try(:item).try(:title).presence || self.class.model_name.human
+          year = Time.zone.now.year
+          [base, "#{base}-#{year}"] + 9.times.map { |i| "#{base}-#{year}-#{i + 2}" }
+        end
     end
   end
 end
@@ -125,6 +148,7 @@ end
 #  currently_ends_at :datetime
 #  published         :boolean          default(FALSE)
 #  featured          :boolean          default(FALSE)
+#  slug              :string
 #
 # Indexes
 #
@@ -134,4 +158,5 @@ end
 #  index_auctify_sales_on_position                   (position)
 #  index_auctify_sales_on_published                  (published)
 #  index_auctify_sales_on_seller_type_and_seller_id  (seller_type,seller_id)
+#  index_auctify_sales_on_slug                       (slug) UNIQUE
 #

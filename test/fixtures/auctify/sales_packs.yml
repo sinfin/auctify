@@ -5,7 +5,8 @@ things_from_eden:
   description: Some heaven stuff, very rare
   position: 0
   slug: thongs-from-eden
-  time_frame: '100000 BC - 999999 AC'
+  start_date: <%= Date.new(2020, 01, 01) %>
+  end_date: <%= Date.new(2020, 02, 01) %>
   place: online
   published: true
 
@@ -14,7 +15,8 @@ published_pack:
   description: You never know what is lurking there
   position: 1
   slug: garbage
-  time_frame: '1.1.2020 - 1.2.2020'
+  start_date: <%= Date.new(2020, 01, 01) %>
+  end_date: <%= Date.new(2020, 02, 01) %>
   place: garage at Downing Street 10, London, UK
   published: true
 
@@ -23,6 +25,7 @@ unpublished_pack:
   description: You even do not tknow these items exists
   position: 2
   slug: amazing-collectibles
-  time_frame: '1.1.2022 - 1.2.2022'
+  start_date: <%= Date.new(2020, 01, 01) %>
+  end_date: <%= Date.new(2020, 02, 01) %>
   place: online
   published: false

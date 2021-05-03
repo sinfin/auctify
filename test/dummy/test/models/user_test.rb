@@ -8,7 +8,7 @@ class UserTest < ActiveSupport::TestCase
     thing = seller.things.first
     assert thing.present?
 
-    sale = seller.offer_to_sale!(thing, in: :auction, price: 1000)
+    sale = seller.offer_to_sale!(thing, in: :auction, price: 1000, ends_at: 1.day.from_now)
 
     assert seller.sales.reload.include?(sale)
     assert thing.sales.reload.include?(sale)

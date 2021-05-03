@@ -77,6 +77,8 @@ module Auctify
     end
 
     test "should update sale" do
+      @sale.save # set slug
+
       patch auctify_sale_url(@sale),
             params: { sale: { seller_auctify_id: users(:adam).auctify_id,
                               buyer_auctify_id: nil,

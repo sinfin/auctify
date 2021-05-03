@@ -49,7 +49,7 @@ module Auctify
         sale.item = item_not_in_db
 
         assert sale.invalid?
-        assert_equal ["musí existovat", "musí existovat"], sale.errors[:item] # TODO remove duplication
+        assert_equal ["musí existovat"], sale.errors[:item]
 
         non_auctified_item = CleanThing.first
         assert non_auctified_item.present?
@@ -81,11 +81,13 @@ module Auctify
         assert_equal ["objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"], sale.errors[:buyer]
       end
 
-
       test "can be published immediatelly" do
         assert_not sale.published?
 
-        sale.publish!
+        assert_not sale.publish!
+
+        sale.offered_price = 1
+        assert sale.publish!
 
         assert sale.reload.published?
       end
@@ -102,6 +104,24 @@ module Auctify
         assert_equal seller, sale.seller
         assert_equal buyer, sale.buyer
         assert_equal item, sale.item
+      end
+
+      test "validate prices" do
+        assert sale.valid?
+        sale.offered_price = -1
+        assert_not sale.valid?
+        sale.offered_price = 1
+        assert sale.valid?
+      end
+
+      test "validate offered_price when published" do
+        assert sale.valid?
+        sale.published = true
+        assert_not sale.valid?
+        assert_equal :required_for_published, sale.errors.details[:offered_price].first[:error]
+
+        sale.offered_price = 1
+        assert sale.valid?
       end
     end
   end

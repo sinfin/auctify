@@ -7,5 +7,10 @@ Rails.application.routes.draw do
   resources :users
   mount Auctify::Engine => "/", as: "auctify"
 
+  namespace :auctify do
+    resources :sales_packs
+    resources :sales
+  end
+
   root to: "users#index"
 end

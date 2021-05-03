@@ -22,8 +22,7 @@ module Auctify
 
     test "should create bid" do
       assert_difference("Bid.count") do
-        post auctify_bids_url,
-params: { bid: { max_price: @bid.max_price, price: @bid.price, registration_id: @bid.registration.id } }
+        post auctify_bids_url, params: { bid: { max_price: @bid.max_price, price: @bid.price, registration_id: @bid.registration.id } }
       end
 
       assert_redirected_to auctify_bid_url(Bid.last)
@@ -40,8 +39,7 @@ params: { bid: { max_price: @bid.max_price, price: @bid.price, registration_id: 
     end
 
     test "should update bid" do
-      patch auctify_bid_url(@bid),
-params: { bid: { max_price: @bid.max_price, price: @bid.price, registration_id: @bid.registration_id } }
+      patch auctify_bid_url(@bid), params: { bid: { max_price: @bid.max_price, price: @bid.price, registration_id: @bid.registration_id } }
       assert_redirected_to auctify_bid_url(@bid)
     end
 

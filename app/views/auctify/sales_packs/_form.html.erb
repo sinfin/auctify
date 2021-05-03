@@ -32,8 +32,13 @@
   </div>
 
   <div class="field">
-    <%= form.label :time_frame %>
-    <%= form.text_field :time_frame %>
+    <%= form.label :start_date %>
+    <%= form.date_select :start_date %>
+  </div>
+
+  <div class="field">
+    <%= form.label :end_date %>
+    <%= form.date_select :end_date %>
   </div>
 
   <div class="field">

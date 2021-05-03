@@ -8,7 +8,7 @@ module Auctify
       attr_reader :auction, :registrations
 
       include Auctify::AuctionHelpers
-
+      include ActiveJob::TestHelper
 
       test "when config :autoregister_all_users_as_bidders is set => do it" do
         # default is []
@@ -19,14 +19,14 @@ module Auctify
         users_count = User.count
         assert users_count.positive?
 
-        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4)
+        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4, ends_at: 1.day.from_now)
         assert_equal 0, auction.bidder_registrations.size
 
         Auctify.configure do |config|
           config.autoregister_as_bidders_all_instances_of_classes = [User]
         end
 
-        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4)
+        auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4, ends_at: 1.day.from_now)
         assert_equal users_count, auction.bidder_registrations.size
         assert_equal users_count, auction.bidder_registrations.approved.size, auction.bidder_registrations.to_json
       end
@@ -105,6 +105,29 @@ module Auctify
 
         assert_equal (bid_time + 10.minutes).to_i, auction.currently_ends_at.to_i
         Auctify.configure { |c| c.auction_prolonging_limit = 2.minutes }
+      end
+
+      test "when auction ends run specific job" do
+        auction = auctify_sales(:auction_in_progress)
+
+        class MyJob < ApplicationJob
+          def perform(auction_id:)
+            _auction = Auctify::Sale::Auction.find(auction_id)
+          end
+        end
+
+        Auctify.configure { |c| c.job_to_run_after_bidding_ends = MyJob }
+
+        assert_enqueued_jobs 1, only: MyJob do
+          auction.close_bidding!
+        end
+
+        enq_job = ActiveJob::Base.queue_adapter.enqueued_jobs.last
+
+        assert_equal auction.id, enq_job["arguments"].first["auction_id"]
+        assert_equal auction.id, enq_job[:args].first["auction_id"]
+
+        Auctify.configure { |c| c.job_to_run_after_bidding_ends = nil }
       end
     end
   end

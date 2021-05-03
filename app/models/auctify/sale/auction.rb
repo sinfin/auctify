@@ -10,6 +10,9 @@ module Auctify
       has_many :bidder_registrations, dependent: :destroy
       has_many :bids, through: :bidder_registrations, dependent: :destroy
 
+      validates :ends_at,
+                presence: true
+
       aasm do
         state :offered, initial: true, color: "red"
         state :accepted, color: "red"
@@ -38,10 +41,17 @@ module Auctify
           end
 
           transitions from: :accepted, to: :in_sale
+
+          after do
+            run_bidding_closer_job!
+          end
         end
 
         event :close_bidding do
           transitions from: :in_sale, to: :bidding_ended
+          after do
+            run_close_bidding_callback!
+          end
         end
 
         event :sold_in_auction do
@@ -171,6 +181,16 @@ module Auctify
           new_end_time = bid_time + Auctify.configuration.auction_prolonging_limit
           self.currently_ends_at = [currently_ends_at, new_end_time].max
         end
+
+        def run_close_bidding_callback!
+          job = configuration.job_to_run_after_bidding_ends
+          job.perform_later(auction_id: id) if job
+        end
+
+        def run_bidding_closer_job!
+          Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
+                                   .perform_later(auction_id: id)
+        end
     end
   end
 end
@@ -201,6 +221,7 @@ end
 #  currently_ends_at :datetime
 #  published         :boolean          default(FALSE)
 #  featured          :boolean          default(FALSE)
+#  slug              :string
 #
 # Indexes
 #
@@ -210,4 +231,5 @@ end
 #  index_auctify_sales_on_position                   (position)
 #  index_auctify_sales_on_published                  (published)
 #  index_auctify_sales_on_seller_type_and_seller_id  (seller_type,seller_id)
+#  index_auctify_sales_on_slug                       (slug) UNIQUE
 #

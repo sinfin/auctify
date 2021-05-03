@@ -7,7 +7,7 @@ module Auctify
     attr_reader :auction
 
     setup do
-      @auction = Auctify::Sale::Auction.new(seller: users(:eve), item: things(:apple), offered_price: 123.4)
+      @auction = Auctify::Sale::Auction.new(seller: users(:eve), item: things(:apple), offered_price: 123.4, ends_at: 1.day.from_now)
     end
 
     test "it can store ranged hash" do

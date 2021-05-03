@@ -5,7 +5,7 @@ require "application_system_test_case"
 module Auctify
   class SalesPacksTest < ApplicationSystemTestCase
     setup do
-      @sales_pack = auctify_sales_packs(:one)
+      @sales_pack = auctify_sales_packs(:things_from_eden)
     end
 
     test "visiting the index" do
@@ -22,7 +22,8 @@ module Auctify
       fill_in "Position", with: @sales_pack.position
       check "Published" if @sales_pack.published
       fill_in "Slug", with: @sales_pack.slug
-      fill_in "Time frame", with: @sales_pack.time_frame
+      fill_in "Start date", with: @sales_pack.start_date
+      fill_in "End date", with: @sales_pack.end_date
       fill_in "Title", with: @sales_pack.title
       click_on "Create Sales pack"
 
@@ -39,7 +40,8 @@ module Auctify
       fill_in "Position", with: @sales_pack.position
       check "Published" if @sales_pack.published
       fill_in "Slug", with: @sales_pack.slug
-      fill_in "Time frame", with: @sales_pack.time_frame
+      fill_in "Start date", with: @sales_pack.start_date
+      fill_in "End date", with: @sales_pack.end_date
       fill_in "Title", with: @sales_pack.title
       click_on "Update Sales pack"
 

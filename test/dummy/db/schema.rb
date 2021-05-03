@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_28_084820) do
+ActiveRecord::Schema.define(version: 2021_04_30_080419) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,12 +62,14 @@ ActiveRecord::Schema.define(version: 2021_04_28_084820) do
     t.datetime "currently_ends_at"
     t.boolean "published", default: false
     t.boolean "featured", default: false
+    t.string "slug"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["featured"], name: "index_auctify_sales_on_featured"
     t.index ["pack_id"], name: "index_auctify_sales_on_pack_id"
     t.index ["position"], name: "index_auctify_sales_on_position"
     t.index ["published"], name: "index_auctify_sales_on_published"
     t.index ["seller_type", "seller_id"], name: "index_auctify_sales_on_seller_type_and_seller_id"
+    t.index ["slug"], name: "index_auctify_sales_on_slug", unique: true
   end
 
   create_table "auctify_sales_packs", force: :cascade do |t|
@@ -75,15 +77,19 @@ ActiveRecord::Schema.define(version: 2021_04_28_084820) do
     t.text "description"
     t.integer "position", default: 0
     t.string "slug"
-    t.string "time_frame"
     t.string "place"
     t.boolean "published", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "sales_count", default: 0
+    t.date "start_date"
+    t.date "end_date"
+    t.integer "sales_interval", default: 3
+    t.integer "sales_beginning_hour", default: 20
+    t.integer "sales_beginning_minutes", default: 0
     t.index ["position"], name: "index_auctify_sales_packs_on_position"
     t.index ["published"], name: "index_auctify_sales_packs_on_published"
-    t.index ["slug"], name: "index_auctify_sales_packs_on_slug"
+    t.index ["slug"], name: "index_auctify_sales_packs_on_slug", unique: true
   end
 
   create_table "audits", force: :cascade do |t|
