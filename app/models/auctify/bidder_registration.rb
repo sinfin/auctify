@@ -11,6 +11,10 @@ module Auctify
                     inverse_of: :registration,
                     dependent: :destroy
 
+    has_many :applied_bids, -> { Auctify::Bid.applied },
+                            foreign_key: "registration_id"
+
+
     aasm do
       state :pending, initial: true, color: "gray"
       state :approved, color: "green"

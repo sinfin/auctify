@@ -13,6 +13,10 @@ Auctify::Engine.routes.draw do
             post :bids
           end
         end
+
+        namespace :console do
+          resources :bids
+        end
       end
     end
   end

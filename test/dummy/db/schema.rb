@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_30_080419) do
+ActiveRecord::Schema.define(version: 2021_05_03_095704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,6 +37,7 @@ ActiveRecord::Schema.define(version: 2021_04_30_080419) do
     t.decimal "max_price", precision: 12, scale: 2
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "cancelled", default: false
     t.index ["registration_id"], name: "index_auctify_bids_on_registration_id"
   end
 

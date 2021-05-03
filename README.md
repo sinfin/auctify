@@ -126,7 +126,7 @@ end
         Auctify.configure do |config|
           config.autoregister_as_bidders_all_instances_of_classes = [User] # default is []
           config.auction_prolonging_limit = 10.minutes # default is 1.minute
-          config.job_to_run_after_bidding_ends = MyJob  # with `def perform(auction_id:)` ; default nil,
+          config.job_to_run_after_bidding_ends = MyJob  # with `def perform(auction_id:)` ; default nil
         end
       ```
   4. ### Use directly

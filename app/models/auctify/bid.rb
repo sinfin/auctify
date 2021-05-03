@@ -5,8 +5,14 @@ module Auctify
     belongs_to :registration, class_name: "Auctify::BidderRegistration", inverse_of: :bids
 
     scope :ordered, -> { order(price: :desc, created_at: :asc, id: :asc) }
+    scope :applied, -> { where(cancelled: false) }
+    scope :canceled, -> { where(cancelled: true) }
 
     validate :price_is_not_bigger_then_max_price
+
+    def cancel!
+      # TODO
+    end
 
     def with_limit?
       max_price.present?
@@ -40,6 +46,7 @@ end
 #  max_price       :decimal(12, 2)
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  cancelled       :boolean          default(FALSE)
 #
 # Indexes
 #
