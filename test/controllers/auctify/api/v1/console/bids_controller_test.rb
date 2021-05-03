@@ -10,10 +10,15 @@ module Auctify
           include Engine.routes.url_helpers
           include Auctify::AuctionHelpers
 
-          attr_reader :auction, :adam, :lucifer
+          attr_reader :auction, :adam, :lucifer, :admin
 
           setup do
             @auction = auctify_sales(:auction_in_progress)
+            @admin = Folio::Account.create!(email: "test@test.test",
+                                            role: "superuser",
+                                            first_name: "God",
+                                            last_name: "Dummy",
+                                            password: "test@test")
 
             @lucifer = users(:lucifer)
             @adam = users(:adam)
@@ -26,7 +31,7 @@ module Auctify
           end
 
           test "DELETE will just cancel bid and recalculate winner" do
-            # sign_in admin_account
+            sign_in admin
 
             bid_to_cancel = bid_for(lucifer, 1_200)
             next_bid = bid_for(adam, 1_300)
@@ -37,7 +42,7 @@ module Auctify
 
             assert_no_difference("auction.bids.count") do
               assert_difference("auction.applied_bids.count", -1) do
-                delete "/auctify/api/v1/console/bids/#{bid_to_cancel.id}"
+                delete api_path_for("bids/#{bid_to_cancel.id}")
                 assert_response :success
               end
             end
@@ -56,11 +61,38 @@ module Auctify
 
             assert next_bid.reload.cancelled?
             assert_equal 1_100, auction.reload.current_price
+
+            sign_out(admin)
           end
 
           test "all actions are allowed for admin account only" do
-            skip
-            sign_in lucifer
+            bid = auction.applied_bids.last
+            assert bid.present?
+
+            actions = [
+              # { method: :get, url: api_path_for("bids/new"), response: :not_found },
+              # { method: :get, url: api_path_for("bids/edit"), response: :not_found },
+              # { method: :post, url: api_path_for("bids"), response: :not_found },
+              # { method: :put, url: api_path_for("bids/#{bid.id}"), response: :not_found },
+
+              { method: :get, url: api_path_for("bids/#{bid.id}"), response: :ok },
+              { method: :get, url: api_path_for("bids"), response: :ok },
+              { method: :delete, url: api_path_for("bids/#{bid.id}"), response: :ok }
+            ]
+
+            sign_in(lucifer)
+            actions.each do |action_hash|
+              send(action_hash[:method], action_hash[:url])
+              assert_response :unauthorized, "Response is #{response.code}, but expected is :unauthorized (401) for #{action_hash.except(:response)}"
+            end
+            sign_out(lucifer)
+
+            sign_in(admin)
+            actions.each do |action_hash|
+              send(action_hash[:method], action_hash[:url])
+              assert_response action_hash[:response], "Response is #{response.code}, but expected is #{action_hash}"
+            end
+            sign_out(admin)
           end
 
 
@@ -111,7 +143,7 @@ module Auctify
 
           private
             def api_path_for(resource_path)
-              "/auctify/api/v1/" + resource_path.match(/\/?(.*)/)[1]
+              "/auctify/api/v1/console/" + resource_path.match(/\/?(.*)/)[1]
             end
 
             def admin_account

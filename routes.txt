@@ -1,4 +1,19 @@
                                Prefix Verb   URI Pattern                                                                              Controller#Action
+                     new_user_session GET    /users/sign_in(.:format)                                                                 devise/sessions#new
+                         user_session POST   /users/sign_in(.:format)                                                                 devise/sessions#create
+                 destroy_user_session DELETE /users/sign_out(.:format)                                                                devise/sessions#destroy
+                    new_user_password GET    /users/password/new(.:format)                                                            devise/passwords#new
+                   edit_user_password GET    /users/password/edit(.:format)                                                           devise/passwords#edit
+                        user_password PATCH  /users/password(.:format)                                                                devise/passwords#update
+                                      PUT    /users/password(.:format)                                                                devise/passwords#update
+                                      POST   /users/password(.:format)                                                                devise/passwords#create
+             cancel_user_registration GET    /users/cancel(.:format)                                                                  devise/registrations#cancel
+                new_user_registration GET    /users/sign_up(.:format)                                                                 devise/registrations#new
+               edit_user_registration GET    /users/edit(.:format)                                                                    devise/registrations#edit
+                    user_registration PATCH  /users(.:format)                                                                         devise/registrations#update
+                                      PUT    /users(.:format)                                                                         devise/registrations#update
+                                      DELETE /users(.:format)                                                                         devise/registrations#destroy
+                                      POST   /users(.:format)                                                                         devise/registrations#create
                                things GET    /things(.:format)                                                                        things#index
                                       POST   /things(.:format)                                                                        things#create
                             new_thing GET    /things/new(.:format)                                                                    things#new
@@ -16,6 +31,22 @@
                                       PUT    /users/:id(.:format)                                                                     users#update
                                       DELETE /users/:id(.:format)                                                                     users#destroy
                               auctify        /                                                                                        Auctify::Engine
+                  auctify_sales_packs GET    /auctify/sales_packs(.:format)                                                           auctify/sales_packs#index
+                                      POST   /auctify/sales_packs(.:format)                                                           auctify/sales_packs#create
+               new_auctify_sales_pack GET    /auctify/sales_packs/new(.:format)                                                       auctify/sales_packs#new
+              edit_auctify_sales_pack GET    /auctify/sales_packs/:id/edit(.:format)                                                  auctify/sales_packs#edit
+                   auctify_sales_pack GET    /auctify/sales_packs/:id(.:format)                                                       auctify/sales_packs#show
+                                      PATCH  /auctify/sales_packs/:id(.:format)                                                       auctify/sales_packs#update
+                                      PUT    /auctify/sales_packs/:id(.:format)                                                       auctify/sales_packs#update
+                                      DELETE /auctify/sales_packs/:id(.:format)                                                       auctify/sales_packs#destroy
+                        auctify_sales GET    /auctify/sales(.:format)                                                                 auctify/sales#index
+                                      POST   /auctify/sales(.:format)                                                                 auctify/sales#create
+                     new_auctify_sale GET    /auctify/sales/new(.:format)                                                             auctify/sales#new
+                    edit_auctify_sale GET    /auctify/sales/:id/edit(.:format)                                                        auctify/sales#edit
+                         auctify_sale GET    /auctify/sales/:id(.:format)                                                             auctify/sales#show
+                                      PATCH  /auctify/sales/:id(.:format)                                                             auctify/sales#update
+                                      PUT    /auctify/sales/:id(.:format)                                                             auctify/sales#update
+                                      DELETE /auctify/sales/:id(.:format)                                                             auctify/sales#destroy
                                  root GET    /                                                                                        users#index
         rails_postmark_inbound_emails POST   /rails/action_mailbox/postmark/inbound_emails(.:format)                                  action_mailbox/ingresses/postmark/inbound_emails#create
            rails_relay_inbound_emails POST   /rails/action_mailbox/relay/inbound_emails(.:format)                                     action_mailbox/ingresses/relay/inbound_emails#create
@@ -39,14 +70,6 @@ rails_conductor_inbound_email_reroute POST   /rails/conductor/action_mailbox/:in
                  rails_direct_uploads POST   /rails/active_storage/direct_uploads(.:format)                                           active_storage/direct_uploads#create
 
 Routes for Auctify::Engine:
-             auctify_sales_packs GET    /auctify/sales_packs(.:format)                   auctify/sales_packs#index
-                                 POST   /auctify/sales_packs(.:format)                   auctify/sales_packs#create
-          new_auctify_sales_pack GET    /auctify/sales_packs/new(.:format)               auctify/sales_packs#new
-         edit_auctify_sales_pack GET    /auctify/sales_packs/:id/edit(.:format)          auctify/sales_packs#edit
-              auctify_sales_pack GET    /auctify/sales_packs/:id(.:format)               auctify/sales_packs#show
-                                 PATCH  /auctify/sales_packs/:id(.:format)               auctify/sales_packs#update
-                                 PUT    /auctify/sales_packs/:id(.:format)               auctify/sales_packs#update
-                                 DELETE /auctify/sales_packs/:id(.:format)               auctify/sales_packs#destroy
                     auctify_bids GET    /auctify/bids(.:format)                          auctify/bids#index
                                  POST   /auctify/bids(.:format)                          auctify/bids#create
                  new_auctify_bid GET    /auctify/bids/new(.:format)                      auctify/bids#new
@@ -71,3 +94,20 @@ edit_auctify_bidder_registration GET    /auctify/bidder_registrations/:id/edit(.
                                  PATCH  /auctify/sales/:id(.:format)                     auctify/sales#update
                                  PUT    /auctify/sales/:id(.:format)                     auctify/sales#update
                                  DELETE /auctify/sales/:id(.:format)                     auctify/sales#destroy
+     bids_auctify_api_v1_auction POST   /auctify/api/v1/auctions/:id/bids(.:format)      auctify/api/v1/auctions#bids
+         auctify_api_v1_auctions GET    /auctify/api/v1/auctions(.:format)               auctify/api/v1/auctions#index
+                                 POST   /auctify/api/v1/auctions(.:format)               auctify/api/v1/auctions#create
+      new_auctify_api_v1_auction GET    /auctify/api/v1/auctions/new(.:format)           auctify/api/v1/auctions#new
+     edit_auctify_api_v1_auction GET    /auctify/api/v1/auctions/:id/edit(.:format)      auctify/api/v1/auctions#edit
+          auctify_api_v1_auction GET    /auctify/api/v1/auctions/:id(.:format)           auctify/api/v1/auctions#show
+                                 PATCH  /auctify/api/v1/auctions/:id(.:format)           auctify/api/v1/auctions#update
+                                 PUT    /auctify/api/v1/auctions/:id(.:format)           auctify/api/v1/auctions#update
+                                 DELETE /auctify/api/v1/auctions/:id(.:format)           auctify/api/v1/auctions#destroy
+     auctify_api_v1_console_bids GET    /auctify/api/v1/console/bids(.:format)           auctify/api/v1/console/bids#index
+                                 POST   /auctify/api/v1/console/bids(.:format)           auctify/api/v1/console/bids#create
+  new_auctify_api_v1_console_bid GET    /auctify/api/v1/console/bids/new(.:format)       auctify/api/v1/console/bids#new
+ edit_auctify_api_v1_console_bid GET    /auctify/api/v1/console/bids/:id/edit(.:format)  auctify/api/v1/console/bids#edit
+      auctify_api_v1_console_bid GET    /auctify/api/v1/console/bids/:id(.:format)       auctify/api/v1/console/bids#show
+                                 PATCH  /auctify/api/v1/console/bids/:id(.:format)       auctify/api/v1/console/bids#update
+                                 PUT    /auctify/api/v1/console/bids/:id(.:format)       auctify/api/v1/console/bids#update
+                                 DELETE /auctify/api/v1/console/bids/:id(.:format)       auctify/api/v1/console/bids#destroy
