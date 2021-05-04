@@ -29,12 +29,26 @@ module Auctify
       errors.add(:price, :must_be_lower_or_equal_max_price) if max_price && max_price < price
     end
 
+    def bidder=(auctified_model)
+      unless configuration.autoregistering_for?(auctified_model)
+        raise "autocreating bidder_registration is not allowed for `#{auctified_model.class}`"
+      end
+      errors.add(:bidder, :not_auctified) unless auctified_model.class.included_modules.include?(Auctify::Behavior::Buyer)
+
+      raise "There is already registration for this bid!"  if registration.present?
+      @bidder = auctified_model
+    end
+
     def bidder
-      registration&.bidder
+      @bidder ||= registration&.bidder
     end
 
     def auction
       registration&.auction
+    end
+
+    def configuration
+      Auctify.configuration
     end
   end
 end

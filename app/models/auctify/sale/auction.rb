@@ -91,6 +91,8 @@ module Auctify
       end
 
       def bid!(bid)
+        bid.registration = create_registration(bid.bidder) if autocreate_registration?(bid)
+
         ActiveRecord::Base.transaction do
           bid.created_at ||= Time.current
 
@@ -109,7 +111,6 @@ module Auctify
           save!
         end
       end
-
 
       delegate :winning_bid, to: :bidding_result
       def bidding_result
@@ -178,13 +179,21 @@ module Auctify
           @allows_new_bidder_registrations = true
 
           classes.each do |klass|
-            klass.all.each { |bidder| self.bidder_registrations.approved.create!(bidder: bidder, handled_at: Time.current) }
+            klass.find_each { |bidder| create_registration(bidder) }
             # requires activerecord-import gem
             # bidder_registrations = klass.all.collect { |bidder| Auctify::BidderRegistration.new(bidder: bidder, auction: self, state: :approved) }
             # Auctify::BidderRegistration.import bidder_registrations
           end
 
           @allows_new_bidder_registrations = false
+        end
+
+        def autocreate_registration?(bid)
+          bid.registration.blank? && bid.bidder.present? && configuration.autoregistering_for?(bid.bidder)
+        end
+
+        def create_registration(bidder)
+          self.bidder_registrations.approved.create!(bidder: bidder, handled_at: Time.current)
         end
 
         def extend_end_time(bid_time)

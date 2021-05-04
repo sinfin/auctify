@@ -13,6 +13,10 @@ module Auctify
       @auction_prolonging_limit = 2.minutes
       @job_to_run_after_bidding_ends = nil
     end
+
+    def autoregistering_for?(instance)
+      autoregister_as_bidders_all_instances_of_classes.include?(instance.class)
+    end
   end
 
 

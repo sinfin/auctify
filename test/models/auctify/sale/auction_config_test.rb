@@ -31,6 +31,34 @@ module Auctify
         assert_equal users_count, auction.bidder_registrations.approved.size, auction.bidder_registrations.to_json
       end
 
+      test "when config :autoregister_all_users_as_bidders is set => new registration is created on first bid" do
+        Auctify.configure do |config|
+          config.autoregister_as_bidders_all_instances_of_classes = []
+        end
+
+        auction = auctify_sales(:auction_in_progress)
+        noe = User.create!(name: "Noe", email: "noe@arch.sea", password: "Release_the_dove!")
+
+        assert_no_difference("BidderRegistration.count") do
+          exc = assert_raise(RuntimeError) do
+            auction.bid!((Auctify::Bid.new(bidder: noe, price: 1000)))
+          end
+          assert_equal "autocreating bidder_registration is not allowed for `User`", exc.message
+        end
+
+        Auctify.configure do |config|
+          config.autoregister_as_bidders_all_instances_of_classes = [User]
+        end
+
+        assert_difference("BidderRegistration.count", +1) do
+          assert auction.bid!(Auctify::Bid.new(bidder: noe, price: 2000))
+        end
+
+        assert_equal noe, auction.bidder_registrations.last.bidder
+        assert_equal noe, auction.current_winner
+      end
+
+
       test "prolongs auction time on bid within limit" do
         auction = auctify_sales(:auction_in_progress)
         lucifer = users(:lucifer)
