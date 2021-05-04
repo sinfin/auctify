@@ -68,6 +68,10 @@ module Auctify
         end
 
         test "POST /api/auctions/:id/bids will create bid and registration for current_user" do
+          Auctify.configure do |config|
+            config.autoregister_as_bidders_all_instances_of_classes = ["User"]
+          end
+
           noe = User.create!(name: "Noe", email: "noe@arch.sea", password: "Release_the_dove!")
           assert_not_includes auction.bidders, noe
 
@@ -84,6 +88,10 @@ module Auctify
 
           assert_equal 1_101.0, auction.current_price.to_f # only autobidding was applied
           assert_equal noe, auction.current_winner
+
+          Auctify.configure do |config|
+            config.autoregister_as_bidders_all_instances_of_classes = []
+          end
         end
 
         test "POST /api/auctions/:id/bids will handle not succesfull bid" do

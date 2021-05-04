@@ -17,7 +17,7 @@ module Auctify
     end
 
     def autoregistering_for?(instance)
-      autoregister_as_bidders_all_instances_of_classes.include?(instance.class)
+      autoregister_as_bidders_all_instances_of_classes.include?(instance.class.name)
     end
   end
 
@@ -28,5 +28,8 @@ module Auctify
 
   def self.configure
     yield(configuration)
+
+    class_names = configuration.autoregister_as_bidders_all_instances_of_classes.collect { |klass| klass.is_a?(String) ? klass : klass.name }
+    configuration.autoregister_as_bidders_all_instances_of_classes = class_names.sort
   end
 end

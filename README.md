@@ -124,7 +124,7 @@ end
       - optional
       ```ruby
         Auctify.configure do |config|
-          config.autoregister_as_bidders_all_instances_of_classes = [User] # default is []
+          config.autoregister_as_bidders_all_instances_of_classes = ["User"] # default is []
           config.auction_prolonging_limit = 10.minutes # default is 1.minute
           config.job_to_run_after_bidding_ends = MyJob  # with `def perform(auction_id:)` ; default nil
           config.auctioneer_commission_in_percent = 10 # so buyer will pay: auction.current_price * ((100 + 10)/100)

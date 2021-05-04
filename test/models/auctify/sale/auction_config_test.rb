@@ -23,7 +23,7 @@ module Auctify
         assert_equal 0, auction.bidder_registrations.size
 
         Auctify.configure do |config|
-          config.autoregister_as_bidders_all_instances_of_classes = [User]
+          config.autoregister_as_bidders_all_instances_of_classes = ["User"]
         end
 
         auction = Auctify::Sale::Auction.create!(seller: users(:eve), item: things(:apple), offered_price: 123.4, ends_at: 1.day.from_now)
@@ -40,14 +40,15 @@ module Auctify
         noe = User.create!(name: "Noe", email: "noe@arch.sea", password: "Release_the_dove!")
 
         assert_no_difference("BidderRegistration.count") do
-          exc = assert_raise(RuntimeError) do
-            auction.bid!((Auctify::Bid.new(bidder: noe, price: 1000)))
-          end
-          assert_equal "autocreating bidder_registration is not allowed for `User`", exc.message
+          bid = Auctify::Bid.new(bidder: noe, price: 1000)
+
+          assert_not auction.bid!(bid)
+
+          assert_includes bid.errors[:auction], "dražitel není registrován k této aukci"
         end
 
         Auctify.configure do |config|
-          config.autoregister_as_bidders_all_instances_of_classes = [User]
+          config.autoregister_as_bidders_all_instances_of_classes = ["User"]
         end
 
         assert_difference("BidderRegistration.count", +1) do

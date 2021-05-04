@@ -177,16 +177,13 @@ module Auctify
         end
 
         def autoregister_bidders
-          classes = configuration.autoregister_as_bidders_all_instances_of_classes.to_a
-          return if classes.blank?
+          class_names = configuration.autoregister_as_bidders_all_instances_of_classes.to_a
+          return if class_names.blank?
 
           @allows_new_bidder_registrations = true
 
-          classes.each do |klass|
-            klass.find_each { |bidder| create_registration(bidder) }
-            # requires activerecord-import gem
-            # bidder_registrations = klass.all.collect { |bidder| Auctify::BidderRegistration.new(bidder: bidder, auction: self, state: :approved) }
-            # Auctify::BidderRegistration.import bidder_registrations
+          class_names.each do |class_name|
+            class_name.constantize.find_each { |bidder| create_registration(bidder) }
           end
 
           @allows_new_bidder_registrations = false

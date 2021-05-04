@@ -30,11 +30,7 @@ module Auctify
     end
 
     def bidder=(auctified_model)
-      unless configuration.autoregistering_for?(auctified_model)
-        raise "autocreating bidder_registration is not allowed for `#{auctified_model.class}`"
-      end
       errors.add(:bidder, :not_auctified) unless auctified_model.class.included_modules.include?(Auctify::Behavior::Buyer)
-
       raise "There is already registration for this bid!"  if registration.present?
       @bidder = auctified_model
     end
