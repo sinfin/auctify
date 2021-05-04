@@ -67,6 +67,25 @@ module Auctify
           assert_equal lucifer, bid.bidder
         end
 
+        test "POST /api/auctions/:id/bids will create bid and registration for current_user" do
+          noe = User.create!(name: "Noe", email: "noe@arch.sea", password: "Release_the_dove!")
+          assert_not_includes auction.bidders, noe
+
+          sign_in noe
+
+          assert_difference("Auctify::Bid.count", +1) do
+            assert_difference("Auctify::BidderRegistration.count", +1) do
+              post api_path_for("/auctions/#{auction.id}/bids"), params: { bid: { max_price: 2_000.0 } }
+              assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
+            end
+          end
+
+          auction.reload
+
+          assert_equal 1_101.0, auction.current_price.to_f # only autobidding was applied
+          assert_equal noe, auction.current_winner
+        end
+
         test "POST /api/auctions/:id/bids will handle not succesfull bid" do
           sign_in users(:eve) # not bidder for auction
 

@@ -86,17 +86,12 @@ module Auctify
 
       after_create :autoregister_bidders
 
-      def initialize(*args)
-        super
-        self.commission_in_percent = configuration.auctioneer_commission_in_percent if commission_in_percent.blank?
-      end
-
       def bidders
         @bidders ||= bidder_registrations.collect { |br| br.bidder }.sort_by(&:name)
       end
 
       def bid!(bid)
-        bid.registration = create_registration(bid.bidder) if autocreate_registration?(bid)
+        ensure_registration(bid)
 
         ActiveRecord::Base.transaction do
           bid.created_at ||= Time.current
@@ -148,6 +143,10 @@ module Auctify
         self.current_price = price
         extend_end_time(time)
         save!
+      end
+
+      def ensure_registration(bid)
+        bid.registration = create_registration(bid.bidder) if autocreate_registration?(bid)
       end
 
       private

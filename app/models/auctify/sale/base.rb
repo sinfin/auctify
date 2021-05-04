@@ -36,6 +36,11 @@ module Auctify
       delegate :to_label,
                to: :item
 
+      def initialize(*args)
+        super
+        self.commission_in_percent = configuration.auctioneer_commission_in_percent if commission_in_percent.blank?
+      end
+
       # need to cover wrong class of item before assigning
       def item=(item)
         @item = item

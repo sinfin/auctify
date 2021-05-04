@@ -28,11 +28,14 @@ module Auctify
           end
 
           def new_bid
-            @new_bid ||= Auctify::Bid.new(bid_params.merge(registration: bidder_registration))
+            @new_bid ||= Auctify::Bid.new(bid_params.merge(registration_params))
           end
 
-          def bidder_registration
-            @bidder_registration ||= @auction.bidder_registrations.find_by(bidder: current_user)
+          def registration_params
+            bidder_registration = @auction.bidder_registrations.find_by(bidder: current_user)
+            return  { registration: bidder_registration } if bidder_registration.present?
+
+            { bidder: current_user }
           end
       end
     end
