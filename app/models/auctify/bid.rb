@@ -10,7 +10,7 @@ module Auctify
 
     validate :price_is_not_bigger_then_max_price
 
-    delegate :acution, to: :registration
+    delegate :auction, to: :registration
 
     def cancel!
       update!(cancelled: true)
