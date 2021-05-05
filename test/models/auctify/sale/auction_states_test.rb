@@ -133,7 +133,7 @@ module Auctify
         auction.not_sold_in_auction
 
         assert auction.auctioned_unsuccessfully?
-        assert_equal 1 , auction.callback_runs[:after_not_sold_in_auction]
+        assert_equal 1, auction.callback_runs[:after_not_sold_in_auction]
 
         auction.end_sale # nobody buy it
 
