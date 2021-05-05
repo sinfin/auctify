@@ -117,8 +117,6 @@ module Auctify
       end
 
       def check_price_minimum
-        bid.errors.add(:price, :price_is_bellow_current) if bid.price < current_price
-        bid.errors.add(:price, :price_is_bellow_current) if bid.price == current_price && !first_bid?
         bid.errors.add(:price, :price_is_bellow_minimal_bid) if bid.price < new_current_minimal_bid
       end
 
