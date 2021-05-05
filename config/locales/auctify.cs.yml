@@ -65,6 +65,13 @@ cs:
         updated_at:
         registration: Registrace do aukce položky
 
+      folio/email_template:
+        keyword/AUCTION_URL: Odkaz na předmět v aukci
+        keyword/AUCTION_NUMBER: Číslo předmětu v aukci
+        keyword/AUCTION_TITLE: Název předmětu v aukci
+        keyword/BID_PRICE: Výše příhozu
+        keyword/BID_MAX_PRICE: Výše limitu
+
     errors:
       models:
         auctify/sale/base:
