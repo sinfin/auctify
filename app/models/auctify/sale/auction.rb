@@ -90,6 +90,15 @@ module Auctify
         @bidders ||= bidder_registrations.collect { |br| br.bidder }.sort_by(&:name)
       end
 
+      def published=(value)
+        super
+
+        if published?
+          accept_offer if offered?
+          start_sale if accepted?
+        end
+      end
+
       def bid!(bid)
         ensure_registration(bid)
 

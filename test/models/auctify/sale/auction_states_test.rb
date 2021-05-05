@@ -213,6 +213,30 @@ module Auctify
           assert auction.auctioned_unsuccessfully?
         end
       end
+
+      test "when published is set to true, sale starts immediatelly (for offered auction)" do
+        auction.published = false
+
+        assert_not auction.in_sale?
+        assert auction.offered?
+
+        auction.published = true
+
+        assert auction.in_sale?
+      end
+
+      test "when published is set to true, sale starts immediatelly (for accepted auction)" do
+        auction.accept_offer
+
+        auction.published = false
+
+        assert_not auction.in_sale?
+        assert auction.accepted?
+
+        auction.published = true
+
+        assert auction.in_sale?
+      end
     end
   end
 end
