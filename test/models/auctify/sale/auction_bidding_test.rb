@@ -76,6 +76,51 @@ module Auctify
         assert bid.errors.present?
         assert_includes bid.errors[:auction], "dražitel není registrován k této aukci"
       end
+
+      test "can say, if it is #succes?" do
+        all_states = auction.aasm.states.collect(&:name)
+        not_decided_states = %i[offered accepted refused cancelled in_sale]
+        success_states = %i[auctioned_successfully sold]
+        fail_states = %i[auctioned_unsuccessfully not_sold]
+
+        other_states = all_states - not_decided_states - success_states - fail_states
+        assert_equal [:bidding_ended], other_states
+
+        not_decided_states.each do |st|
+          auction.aasm_state = st
+          assert_nil auction.success?, "`auction.success?` should return NIL for #{st} state, but got #{auction.success?}"
+        end
+
+        success_states.each do |st|
+          auction.aasm_state = st
+          assert_equal true, auction.success?, "`auction.success?` should return TRUE for #{st} state, but got #{auction.success?}"
+        end
+
+        fail_states.each do |st|
+          auction.aasm_state = st
+          assert_equal false, auction.success?, "`auction.success?` should return FALSE for #{st} state, but got #{auction.success?}"
+        end
+
+        other_states.each do |st|
+          auction.aasm_state = st
+          auction.current_price = 1000
+
+          assert auction.bids_count.zero?
+          assert_nil auction.reserve_price
+
+          assert_equal false, auction.success?, "`auction.success?` should return FALSE for #{st} state, but got #{auction.success?}"
+
+          auction.stub(:bids_count, 1) do
+            assert_equal true, auction.success?, "`auction.success?` should return TRUE for #{st} state, but got #{auction.success?}"
+
+            auction.reserve_price = 1000
+            assert_equal true, auction.success?, "`auction.success?` should return TRUE for #{st} state, but got #{auction.success?}"
+
+            auction.reserve_price = 1001
+            assert_equal false, auction.success?, "`auction.success?` should return FALSE for #{st} state, but got #{auction.success?}"
+          end
+        end
+      end
     end
   end
 end

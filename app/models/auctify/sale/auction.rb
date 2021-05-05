@@ -52,6 +52,7 @@ module Auctify
           transitions from: :in_sale, to: :bidding_ended
           after do
             run_close_bidding_callback!
+            process_bidding_result! if configuration.autofinish_auction_after_bidding == true
           end
         end
 
@@ -98,6 +99,16 @@ module Auctify
           start_sale if accepted?
         end
       end
+
+      def success?
+        return nil if offered? || accepted? || refused? || cancelled? || in_sale? # or raise error?
+        return true if auctioned_successfully? || sold?
+        return false if auctioned_unsuccessfully? || not_sold?
+
+        bids_count.positive? && ((reserve_price || 0) <= current_price)
+      end
+
+
 
       def bid!(bid)
         ensure_registration(bid)
@@ -224,6 +235,17 @@ module Auctify
         def run_bidding_closer_job!
           Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
                                    .perform_later(auction_id: id)
+        end
+
+        def process_bidding_result!
+          case success?
+          when true
+            sold_in_auction!(buyer: current_winner, price: current_price)
+          when false
+            not_sold_in_auction!
+          else
+            # => nil
+          end
         end
     end
   end

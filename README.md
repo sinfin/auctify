@@ -128,6 +128,7 @@ end
           config.auction_prolonging_limit = 10.minutes # default is 1.minute
           config.job_to_run_after_bidding_ends = MyJob  # with `def perform(auction_id:)` ; default nil
           config.auctioneer_commission_in_percent = 10 # so buyer will pay: auction.current_price * ((100 + 10)/100)
+          config.autofinish_auction_after_bidding = true # after `auction.close_bidding!` immediatelly proces result to `auction.sold_in_auction!` or `auction.not_sold_in_auction!`; default false
         end
       ```
   4. ### Use directly
