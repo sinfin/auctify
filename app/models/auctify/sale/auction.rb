@@ -149,6 +149,11 @@ module Auctify
         bid.registration = create_registration(bid.bidder) if autocreate_registration?(bid)
       end
 
+      # TODO replace with counter_cache
+      def bids_count
+        bids.size
+      end
+
       private
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?
