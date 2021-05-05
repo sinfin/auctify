@@ -11,9 +11,9 @@ module Auctify
 
       setup do
         @auction = Auctify::Sale::Auction.new(seller: users(:eve),
-                                              item: things(:apple),
-                                              offered_price: 123.4,
-                                              ends_at: Time.current + 1.hour)
+                                   item: things(:apple),
+                                   offered_price: 123.4,
+                                   ends_at: Time.current + 1.hour)
 
         assert @auction.valid?, "auction is not valid! : #{@auction.errors.full_messages}"
         assert_nil auction.buyer
@@ -95,10 +95,12 @@ module Auctify
         assert_equal offered_price, auction.offered_price
         assert_equal offered_price, auction.current_price
         assert_equal auction.ends_at, auction.currently_ends_at
+        assert_equal 1, auction.callback_runs[:after_start_sale]
 
         auction.close_bidding
 
         assert auction.bidding_ended?
+        assert_equal 1, auction.callback_runs[:after_close_bidding]
 
         appender_result = OpenStruct.new(won_price: 1_000, winner: users(:adam))
         Auctify::BidsAppender.stub(:call, OpenStruct.new(result: appender_result)) do
@@ -108,6 +110,7 @@ module Auctify
         assert auction.auctioned_successfully?
         assert_equal users(:adam), auction.buyer
         assert_equal 1_000.00, auction.sold_price
+        assert_equal 1, auction.callback_runs[:after_sold_in_auction]
 
         auction.sell
 
@@ -130,6 +133,7 @@ module Auctify
         auction.not_sold_in_auction
 
         assert auction.auctioned_unsuccessfully?
+        assert_equal 1 , auction.callback_runs[:after_not_sold_in_auction]
 
         auction.end_sale # nobody buy it
 

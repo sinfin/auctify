@@ -28,23 +28,29 @@ module Auctify
         assert_nil auction.current_price
 
         auction.start_sale
+        assert_equal 1, auction.callback_runs[:after_start_sale]
+
         auction.save! # just for sure
 
         assert_equal 1_000, auction.reload.current_price
 
         assert auction.bid!(bid_for(lucifer, 1_001))
+        assert_equal 1, auction.callback_runs[:after_bid_appended]
 
         assert_equal 1_001, auction.current_price
 
         assert_not auction.bid!(bid_for(lucifer, 1_002)) # You cannot overbid Yourself
+        assert_equal 1, auction.callback_runs[:after_bid_not_appended]
 
         assert_equal 1_001, auction.current_price
 
         assert auction.bid!(bid_for(adam, 1_002))
+        assert_equal 2, auction.callback_runs[:after_bid_appended]
 
         assert_equal 1_002, auction.reload.current_price
 
         auction.close_bidding
+        assert_equal 1, auction.callback_runs[:after_close_bidding]
 
         assert_equal 1_000, auction.offered_price
         assert_equal 1_002, auction.current_price
@@ -53,11 +59,13 @@ module Auctify
         bid = bid_for(lucifer, 10_000)
         assert_no_difference("Auctify::Bid.count") do
           assert_equal false, auction.bid!(bid)
+          assert_equal 2, auction.callback_runs[:after_bid_not_appended]
         end
 
         assert_includes bid.errors[:auction], "je momentálně uzavřena pro přihazování"
 
         auction.sold_in_auction(buyer: auction.winning_bid.bidder, price: auction.winning_bid.price)
+        assert_equal 1, auction.callback_runs[:after_sold_in_auction]
         auction.save!
 
         assert_equal 1_002, auction.reload.sold_price

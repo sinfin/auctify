@@ -4,6 +4,7 @@ module Auctify
   module Sale
     class Auction < Auctify::Sale::Base
       include AASM
+      include Auctify::Sale::AuctionCallbacks
 
       attr_accessor :winning_bid
 
@@ -44,30 +45,41 @@ module Auctify
           transitions from: :accepted, to: :in_sale
 
           after do
-            run_bidding_closer_job!
+            set_bidding_closer_job
+            set_bidding_is_close_to_end_job
+            after_start_sale
           end
         end
 
         event :close_bidding do
           transitions from: :in_sale, to: :bidding_ended
+
           after do
-            run_close_bidding_callback!
+            after_close_bidding
             process_bidding_result! if configuration.autofinish_auction_after_bidding == true
           end
         end
 
         event :sold_in_auction do
-          transitions from: :bidding_ended, to: :auctioned_successfully, if: :valid?
-
           before do |*args| # TODO: sold_at
             params = args.first # expecting keys :buyer, :price
             self.buyer = params[:buyer]
             self.sold_price = params[:price]
           end
+
+          transitions from: :bidding_ended, to: :auctioned_successfully, if: :valid?
+
+          after do
+            after_sold_in_auction
+          end
         end
 
         event :not_sold_in_auction do
           transitions from: :bidding_ended, to: :auctioned_unsuccessfully, if: :no_winner?
+
+          after do
+            after_not_sold_in_auction
+          end
         end
 
         event :sell do
@@ -117,10 +129,8 @@ module Auctify
           bid.created_at ||= Time.current
 
           bap = Auctify::BidsAppender.call(auction: self, bid: bid)
-
-          return true if bap.success?
-          # errors can be in `bid.errors` or as `bap.errors`
-          return false
+          bap.success? ? after_bid_appended : after_bid_not_appended(bap.errors)
+          bap.success?
         end
       end
 
@@ -146,7 +156,7 @@ module Auctify
       end
 
       def open_for_bids?
-        in_sale?
+        in_sale? && Time.current <= currently_ends_at
       end
 
       def opening_price
@@ -227,12 +237,7 @@ module Auctify
           self.currently_ends_at = [currently_ends_at, new_end_time].max
         end
 
-        def run_close_bidding_callback!
-          job = configuration.job_to_run_after_bidding_ends
-          job.perform_later(auction_id: id) if job
-        end
-
-        def run_bidding_closer_job!
+        def set_bidding_closer_job
           Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
                                    .perform_later(auction_id: id)
         end
@@ -246,6 +251,13 @@ module Auctify
           else
             # => nil
           end
+        end
+
+        def set_bidding_is_close_to_end_job
+          configured_period = Auctify.configuration.when_to_notify_bidders_before_end_of_bidding
+          notify_time = ends_at - configured_period
+          Auctify::BiddingIsCloseToEndNotifierJob.set(wait_until: notify_time)
+                                                 .perform_later(auction_id: id)
         end
     end
   end
