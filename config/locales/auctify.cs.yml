@@ -71,6 +71,8 @@ cs:
         keyword/AUCTION_TITLE: Název předmětu v aukci
         keyword/BID_PRICE: Výše příhozu
         keyword/BID_MAX_PRICE: Výše limitu
+        keyword/BIDDER_NAME: Jméno dražitele
+        keyword/BIDDER_NUMBER: Číslo dražitele
 
     errors:
       models:
