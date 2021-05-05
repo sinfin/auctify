@@ -141,7 +141,7 @@ module Auctify
           end
 
           def response_json
-            @response_json ||= JSON.parse(response.body)
+            @response_json ||= JSON.parse(Capybara.string(response.parsed_body["data"]).native.inner_text)
           end
       end
     end

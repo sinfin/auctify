@@ -14,7 +14,7 @@ module Auctify
           if @auction.bid!(new_bid)
             render_record @auction.reload
           else
-            render_invalid new_bid # new_bid.errors
+            render_record @auction, bid: new_bid, status: 400
           end
         end
 
@@ -36,6 +36,12 @@ module Auctify
             return  { registration: bidder_registration } if bidder_registration.present?
 
             { bidder: current_user }
+          end
+
+          def render_record(auction, bid: nil, status: 200)
+            render json: {
+              data: cell("#{global_namespace_path}/auctify/auctions/form", auction, bid: bid).show
+            }, status: status
           end
       end
     end

@@ -7,6 +7,15 @@ module Auctify
         include Folio::ApiControllerBase
 
         # TODO handle authorization here if needed
+
+        private
+          def global_namespace_path
+            @global_namespace_path ||= global_namespace.underscore
+          end
+
+          def global_namespace
+            @global_namespace ||= Rails.application.class.name.deconstantize
+          end
       end
     end
   end
