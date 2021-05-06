@@ -92,6 +92,7 @@ cs:
           attributes:
             bidder:
               you_cannot_overbid_yourself: "Není možné přehazovat své příhozy"
+              you_are_not_allowed_to_bid: "Nemáte povoleno dražit"
             auction:
               auction_is_not_accepting_bids_now: "je momentálně uzavřena pro přihazování"
               bidder_is_not_registered_for_this_auction: "dražitel není registrován k této aukci"

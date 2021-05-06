@@ -182,8 +182,9 @@ module Auctify
         save!
       end
 
-      def ensure_registration(bid)
-        bid.registration = create_registration(bid.bidder) if autocreate_registration?(bid)
+      def bidding_allowed_for?(bidder)
+        babm = bidding_allowed_by_method_for?(bidder)
+        babm.nil? ? true : babm # if no method defined => allow
       end
 
       private
@@ -226,12 +227,25 @@ module Auctify
           @allows_new_bidder_registrations = false
         end
 
+        def ensure_registration(bid)
+          bid.registration = create_registration(bid.bidder) if autocreate_registration?(bid)
+        end
+
         def autocreate_registration?(bid)
-          bid.registration.blank? && bid.bidder.present? && configuration.autoregistering_for?(bid.bidder)
+          return false  if bid.registration.present?
+          return true if configuration.autoregistering_for?(bid.bidder)
+
+          babm = bidding_allowed_by_method_for?(bid.bidder)
+          babm.nil? ? false : babm # if no method defined, do not create
         end
 
         def create_registration(bidder)
           self.bidder_registrations.approved.create!(bidder: bidder, handled_at: Time.current)
+        end
+
+        def bidding_allowed_by_method_for?(bidder)
+          return false if bidder.blank?
+          bidder.try(:bidding_allowed?)
         end
 
         def extend_end_time(bid_time)

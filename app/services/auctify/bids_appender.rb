@@ -58,7 +58,7 @@ module Auctify
       end
 
       def approve_bid
-        check_bid_registration_to_auction
+        check_bidder
         check_price_minimum unless increasing_own_max_price?
         check_same_bidder
         check_auction_state
@@ -135,10 +135,13 @@ module Auctify
         bid.errors.add(:auction, :auction_is_not_accepting_bids_now)
       end
 
-      def check_bid_registration_to_auction
-        return if bid.registration&.auction == auction
-
-        bid.errors.add(:auction, :bidder_is_not_registered_for_this_auction)
+      def check_bidder
+        unless bid.registration&.auction == auction
+          bid.errors.add(:auction, :bidder_is_not_registered_for_this_auction)
+        end
+        unless auction.bidding_allowed_for?(bid.bidder)
+          bid.errors.add(:bidder, :you_are_not_allowed_to_bid)
+        end
       end
 
       def solve_winner(winning_bid, new_bid)

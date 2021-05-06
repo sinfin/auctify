@@ -123,6 +123,12 @@ module Auctify
         sale.offered_price = 1
         assert sale.valid?
       end
+
+      test "fill bid_steps_ladder for auctions from config, if not set" do
+        skip "TODO"
+        # ladder = { 0...10 => 1, 10...100 => 5, 100.. => 10 }
+        # Auctify.configure {|c| c.default_bid_steps_ladder = }
+      end
     end
   end
 end

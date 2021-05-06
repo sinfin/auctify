@@ -19,6 +19,8 @@ module Auctify
     end
 
     def autoregistering_for?(instance)
+      return false if instance.blank?
+
       autoregister_as_bidders_all_instances_of_classes.include?(instance.class.name)
     end
   end

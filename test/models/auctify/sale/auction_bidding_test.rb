@@ -85,6 +85,24 @@ module Auctify
         assert_includes bid.errors[:auction], "dražitel není registrován k této aukci"
       end
 
+      test "verify bidder before processing bid" do
+        auction.offered_price = 1_000
+        auction.start_sale
+
+        auction.stub(:bidding_allowed_for?, true) do
+          assert auction.bid!(bid_for(lucifer, 1_001))
+        end
+
+        auction.stub(:bidding_allowed_for?, false) do
+          bid = bid_for(adam, 1_100)
+          assert_not auction.bid!(bid)
+          assert_includes bid.errors[:bidder], "Nemáte povoleno dražit"
+        end
+      end
+
+      test "create registration if bidder responds to `register_to auction_on_first_bid?`" do
+      end
+
       test "can say, if it is #succes?" do
         all_states = auction.aasm.states.collect(&:name)
         not_decided_states = %i[offered accepted refused cancelled in_sale]
