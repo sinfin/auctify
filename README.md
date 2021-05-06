@@ -126,12 +126,16 @@ end
         Auctify.configure do |config|
           config.autoregister_as_bidders_all_instances_of_classes = ["User"] # default is []
           config.auction_prolonging_limit = 10.minutes # default is 1.minute
-          config.job_to_run_after_bidding_ends = MyJob  # with `def perform(auction_id:)` ; default nil
           config.auctioneer_commission_in_percent = 10 # so buyer will pay: auction.current_price * ((100 + 10)/100)
           config.autofinish_auction_after_bidding = true # after `auction.close_bidding!` immediatelly proces result to `auction.sold_in_auction!` or `auction.not_sold_in_auction!`; default false
+          config.when_to_notify_bidders_before_end_of_bidding = 30.minutes # default 1.hour
         end
       ```
-  4. ### Use directly
+  4. ### Callbacks
+    For available auction callback methods to override see `app/concerns/auctify/sale/auction_callbacks.rb`
+
+
+  5. ### Use directly
       ```ruby
         banksy = User.find_by(nickname: "Banksy")
         bidder1 = User.find_by(nickname: "Bidder1")
@@ -168,6 +172,8 @@ end
         auction.current_price # => 100.0
 
         aucion.bid!(Auctify::Bid.new(registration: b1_reg, price: nil, max_price: 150))
+        # auction.bid_appended! is called after succesfull bid, You can override it
+        # auction.bid_not_appended!(errors) is called after unsuccesfull bid, You can override it
 
         auction.current_price # => 100.0
         auction.bidding_result.winner # => bidder1

@@ -22,10 +22,10 @@ module Auctify
               numericality: { greater_than: 0, less_than: 240 }
 
     validates :sales_beginning_hour,
-              numericality: { greater_than_or_equal: 0, less_than: 23 }
+              numericality: { greater_than_or_equal: 0, less_than: 24 }
 
     validates :sales_beginning_minutes,
-              numericality: { greater_than_or_equal: 0, less_than: 59 }
+              numericality: { greater_than_or_equal: 0, less_than: 60 }
 
     validate :validate_start_and_end_dates
 
