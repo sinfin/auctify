@@ -131,6 +131,8 @@ end
           config.when_to_notify_bidders_before_end_of_bidding = 30.minutes # default 1.hour
         end
       ```
+
+      If model autified as `:buyer` responds to `:bidding_allowed?` , check is done before each `auction.bid!`. Also if `buyer.bidding_allowed? => true` , registration to auction is created on first bid.
   4. ### Callbacks
     For available auction callback methods to override see `app/concerns/auctify/sale/auction_callbacks.rb`
 

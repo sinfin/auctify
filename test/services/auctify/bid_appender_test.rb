@@ -44,6 +44,8 @@ module Auctify
       assert_equal 1_002, appender.result.current_minimal_bid
       assert_equal 1_001, appender.result.current_price
       assert_equal bid, appender.result.winning_bid
+      assert_equal bid, appender.bid
+      assert_equal auction, appender.auction
 
       assert_equal 1_001, auction.reload.current_price # yes , appender updated auction
       assert_equal 1, auction.bids.count
@@ -55,6 +57,8 @@ module Auctify
       assert_equal 1_003, appender.result.current_minimal_bid
       assert_equal 1_002, appender.result.current_price
       assert_equal bid, appender.result.winning_bid
+      assert_equal bid, appender.bid
+      assert_equal auction, appender.auction
 
       assert_equal 1_002, auction.reload.current_price
       assert_equal 2, auction.bids.count
