@@ -115,6 +115,12 @@ module Auctify
         end
       end
 
+      def ends_at=(value)
+        super
+
+        self.currently_ends_at = value if currently_ends_at.present?
+      end
+
       def success?
         return nil if offered? || accepted? || refused? || cancelled? || in_sale? # or raise error?
         return true if auctioned_successfully? || sold?
