@@ -12,6 +12,7 @@ module Auctify
 
     def cancel!
       update!(cancelled: true)
+
       auction.recalculate_bidding!
     end
 

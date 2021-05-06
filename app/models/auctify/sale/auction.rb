@@ -123,8 +123,6 @@ module Auctify
         bids_count.positive? && ((reserve_price || 0) <= current_price)
       end
 
-
-
       def bid!(bid)
         ensure_registration(bid)
 
@@ -139,10 +137,9 @@ module Auctify
 
       def recalculate_bidding!
         winning_bid = bidding_result.winning_bid
-        if current_price > winning_bid.price
-          self.current_price = winning_bid.price
-          save!
-        end
+        self.bids_count = applied_bids.size
+        self.current_price = winning_bid.price if current_price > winning_bid.price
+        save!
       end
 
       delegate :winning_bid, to: :bidding_result
@@ -174,17 +171,13 @@ module Auctify
         return false if price < current_price || time.blank?
 
         self.current_price = price
+        self.bids_count = applied_bids.size
         extend_end_time(time)
         save!
       end
 
       def ensure_registration(bid)
         bid.registration = create_registration(bid.bidder) if autocreate_registration?(bid)
-      end
-
-      # TODO replace with counter_cache
-      def bids_count
-        bids.size
       end
 
       private
@@ -297,6 +290,7 @@ end
 #  commission_in_percent :integer
 #  winner_type           :string
 #  winner_id             :bigint(8)
+#  bids_count            :integer          default(0)
 #
 # Indexes
 #
