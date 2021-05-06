@@ -12,6 +12,8 @@ module Auctify
       has_many :bids, through: :bidder_registrations, dependent: :destroy
       has_many :applied_bids, class_name: "Auctify::Bid", through: :bidder_registrations
 
+      belongs_to :winner, polymorphic: true, optional: true
+
       validates :ends_at,
                 presence: true
 
@@ -55,6 +57,7 @@ module Auctify
           transitions from: :in_sale, to: :bidding_ended
 
           after do
+            self.winner = current_winner
             after_close_bidding
             process_bidding_result! if configuration.autofinish_auction_after_bidding == true
           end
@@ -188,11 +191,11 @@ module Auctify
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?
 
-          unless buyer == bidding_result.winner
+          unless buyer == winner
             errors.add(:buyer,
                        :buyer_is_not_the_winner,
                        buyer: buyer.to_label,
-                       winner: bidding_result.winner.to_label)
+                       winner: winner.to_label)
           end
 
           unless sold_price == bidding_result.won_price
@@ -204,10 +207,10 @@ module Auctify
         end
 
         def no_winner?
-          return true if bidding_result.winner.blank?
+          return true if winner.blank?
           errors.add(:buyer,
             :there_is_a_buyer_for_not_sold_auction,
-             winner: bidding_result.winner.to_label)
+             winner: winner.to_label)
           false
         end
 
@@ -292,6 +295,8 @@ end
 #  slug                  :string
 #  contract_number       :string
 #  commission_in_percent :integer
+#  winner_type           :string
+#  winner_id             :bigint(8)
 #
 # Indexes
 #
@@ -302,4 +307,5 @@ end
 #  index_auctify_sales_on_published                  (published)
 #  index_auctify_sales_on_seller_type_and_seller_id  (seller_type,seller_id)
 #  index_auctify_sales_on_slug                       (slug) UNIQUE
+#  index_auctify_sales_on_winner_type_and_winner_id  (winner_type,winner_id)
 #

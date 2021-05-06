@@ -186,6 +186,7 @@ end
         auction.bidding_result.winner # => bidder1
         auction.bidding_result.current_price # => 146.0
         auction.bidding_result.current_minimal_bid # => 147.0
+        auction.winner # => nil
 
         aucion.bid!(Auctify::Bid.new(registration: b2_reg, price: 149, max_price: 155))
         # some auto bidding is done
@@ -197,6 +198,7 @@ end
         auction.close_bidding!
         auction.bidding_ended? # => true
         auction.buyer # => nil
+        auction.winner # => bidder2
 
         auction.sold_in_auction!(buyer: bidder2, price: 149)  # it is verified against bids!
 

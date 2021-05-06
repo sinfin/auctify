@@ -76,6 +76,8 @@ end
 #  slug                  :string
 #  contract_number       :string
 #  commission_in_percent :integer
+#  winner_type           :string
+#  winner_id             :bigint(8)
 #
 # Indexes
 #
@@ -86,4 +88,5 @@ end
 #  index_auctify_sales_on_published                  (published)
 #  index_auctify_sales_on_seller_type_and_seller_id  (seller_type,seller_id)
 #  index_auctify_sales_on_slug                       (slug) UNIQUE
+#  index_auctify_sales_on_winner_type_and_winner_id  (winner_type,winner_id)
 #

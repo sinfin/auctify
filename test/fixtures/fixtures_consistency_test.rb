@@ -8,7 +8,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal ["Apple", "Innocence", "Fig leave", "Magic ball", "Naughty fun", "Snake (without apple)", "Flaming sword"].sort,
                  Thing.pluck("name").sort
     assert_equal 7, Auctify::Sale::Base.count # details bellow
-    assert_equal 6, Auctify::BidderRegistration.count
+    assert_equal 8, Auctify::BidderRegistration.count
     assert_equal 3, Auctify::SalesPack.count
     assert_equal 4, auctify_sales_packs(:things_from_eden).sales.count
   end
@@ -17,6 +17,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     sale = auctify_sales(:eve_apple)
     assert_equal users(:eve), sale.seller
     assert_equal users(:adam), sale.buyer
+    assert_equal users(:adam), sale.winner
     assert_equal things(:apple), sale.item
     assert sale.is_a?(Auctify::Sale::Auction)
     assert sale.auctioned_successfully?
@@ -29,9 +30,13 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     sale = auctify_sales(:adam_innocence)
     assert_equal users(:adam), sale.seller
     assert_nil sale.buyer
+    assert_equal users(:eve), sale.winner
     assert_equal things(:innocence), sale.item
-    assert sale.is_a?(Auctify::Sale::Retail)
+    assert sale.is_a?(Auctify::Sale::Auction)
+    assert sale.bidding_ended?
     assert_equal auctify_sales_packs(:things_from_eden), sale.pack
+
+    assert_equal %w[Eve Lucifer], sale.bidders.pluck(:name)
   end
 
   test "unpublished sale" do

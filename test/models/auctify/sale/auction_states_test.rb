@@ -61,13 +61,14 @@ module Auctify
 
         assert auction.in_sale?
 
-        auction.close_bidding
-
-        assert auction.bidding_ended?
-        assert_nil auction.buyer
 
         appender_result = OpenStruct.new(won_price: 1_000, winner: users(:adam))
         Auctify::BidsAppender.stub(:call, OpenStruct.new(result: appender_result)) do
+          auction.close_bidding
+
+          assert auction.bidding_ended?
+          assert_nil auction.buyer
+
           auction.sold_in_auction(buyer: users(:adam), price: 1_000)
         end
 
@@ -97,13 +98,13 @@ module Auctify
         assert_equal auction.ends_at, auction.currently_ends_at
         assert_equal 1, auction.callback_runs[:after_start_sale]
 
-        auction.close_bidding
-
-        assert auction.bidding_ended?
-        assert_equal 1, auction.callback_runs[:after_close_bidding]
-
         appender_result = OpenStruct.new(won_price: 1_000, winner: users(:adam))
         Auctify::BidsAppender.stub(:call, OpenStruct.new(result: appender_result)) do
+          auction.close_bidding
+
+          assert auction.bidding_ended?
+          assert_equal 1, auction.callback_runs[:after_close_bidding]
+
           auction.sold_in_auction(buyer: users(:adam), price: 1_000)
         end
 
@@ -173,21 +174,24 @@ module Auctify
 
         auction.accept_offer
         auction.start_sale
-        auction.close_bidding
-        assert auction.bidding_ended?
 
         appender_result = OpenStruct.new(won_price: 1_000, winner: users(:adam))
 
         Auctify::BidsAppender.stub(:call, OpenStruct.new(result: appender_result)) do
+          auction.close_bidding
+          assert auction.bidding_ended?
+
           assert_raises(AASM::InvalidTransition) do
             auction.sold_in_auction(buyer: users(:lucifer), price: 1_000)
           end
+
           assert auction.bidding_ended?
           assert_includes auction.errors[:buyer], "Kupec Lucifer není výhercem aukce, tím je Adam"
 
           assert_raises(AASM::InvalidTransition) do
             auction.sold_in_auction(buyer: users(:adam), price: 1_001)
           end
+
           assert auction.bidding_ended?
           assert_includes auction.errors[:sold_price], "Prodejní cena 1001.0 neodpovídá výherní ceně z aukce 1000"
 
@@ -201,18 +205,27 @@ module Auctify
 
         auction.accept_offer
         auction.start_sale
-        auction.close_bidding
-        assert auction.bidding_ended?
 
         Auctify::BidsAppender.stub(:call, OpenStruct.new(result: OpenStruct.new(won_price: 1_000, winner: users(:adam)))) do
+          auction.close_bidding
+          assert auction.bidding_ended?
+
           assert_raises(AASM::InvalidTransition) do
             auction.not_sold_in_auction
           end
+
           assert auction.bidding_ended?
           assert_includes auction.errors[:buyer], "Aukci nelze označit za neprodanou, neboť má kupce (Adam)"
         end
 
+        # rewind
+        auction.winner = nil
+        auction.aasm_state = :in_sale
+
         Auctify::BidsAppender.stub(:call, OpenStruct.new(result: OpenStruct.new(won_price: nil, winner: nil))) do
+          auction.close_bidding
+          assert auction.bidding_ended?
+
           auction.not_sold_in_auction
           assert auction.auctioned_unsuccessfully?
         end

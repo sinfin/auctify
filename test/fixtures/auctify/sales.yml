@@ -13,15 +13,18 @@ eve_apple:
   pack: things_from_eden
   ends_at: <%= Date.new(1,1,2) %>
   currently_ends_at: <%= Date.new(1,1,2) %>
+  winner: adam (User)
 
 adam_innocence:
   seller: adam (User)
   buyer:
   item: innocence
-  type: Auctify::Sale::Retail
+  type: Auctify::Sale::Auction
   published: true
   pack: things_from_eden
   ends_at: <%= Date.new(1,1,2) %>
+  aasm_state: bidding_ended
+  winner: eve (User)
 
 unpublished_sale:
   seller: adam (User)

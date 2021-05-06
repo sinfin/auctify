@@ -39,7 +39,7 @@ module Auctify
         end
 
         test "GET #SHOW returns 404 if sale is not auction" do
-          retail_sale = auctify_sales(:adam_innocence)
+          retail_sale = auctify_sales(:unpublished_sale)
           assert_not retail_sale.is_a?(Auctify::Sale::Auction)
 
           get "/auctify/api/v1/auctions/#{retail_sale.id}"
