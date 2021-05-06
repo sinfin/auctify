@@ -5,7 +5,7 @@ module Auctify
     attr_accessor :autoregister_as_bidders_all_instances_of_classes,
                   :auction_prolonging_limit,
                   :auctioneer_commission_in_percent,
-                  :autofinish_auction_after_bidding
+                  :autofinish_auction_after_bidding,
                   :when_to_notify_bidders_before_end_of_bidding
 
 

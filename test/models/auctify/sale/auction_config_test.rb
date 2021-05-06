@@ -187,29 +187,6 @@ module Auctify
 
         Auctify.configure { |config| config.autofinish_auction_after_bidding = false }
       end
-
-      test "when auction ends run specific job" do
-        auction = auctify_sales(:auction_in_progress)
-
-        class MyJob < ApplicationJob
-          def perform(auction_id:)
-            _auction = Auctify::Sale::Auction.find(auction_id)
-          end
-        end
-
-        Auctify.configure { |c| c.job_to_run_after_bidding_ends = MyJob }
-
-        assert_enqueued_jobs 1, only: MyJob do
-          auction.close_bidding!
-        end
-
-        enq_job = ActiveJob::Base.queue_adapter.enqueued_jobs.last
-
-        assert_equal auction.id, enq_job["arguments"].first["auction_id"]
-        assert_equal auction.id, enq_job[:args].first["auction_id"]
-
-        Auctify.configure { |c| c.job_to_run_after_bidding_ends = nil }
-      end
     end
   end
 end
