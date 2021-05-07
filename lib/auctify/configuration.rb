@@ -6,7 +6,8 @@ module Auctify
                   :auction_prolonging_limit,
                   :auctioneer_commission_in_percent,
                   :autofinish_auction_after_bidding,
-                  :when_to_notify_bidders_before_end_of_bidding
+                  :when_to_notify_bidders_before_end_of_bidding,
+                  :default_bid_steps_ladder
 
 
     def initialize
@@ -16,6 +17,7 @@ module Auctify
       @auctioneer_commission_in_percent = 1 # %
       @autofinish_auction_after_bidding = false
       @when_to_notify_bidders_before_end_of_bidding = 1.hour
+      @default_bid_steps_ladder = { 0.. => 1 }
     end
 
     def autoregistering_for?(instance)

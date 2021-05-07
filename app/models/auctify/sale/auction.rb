@@ -136,6 +136,7 @@ module Auctify
           bid.created_at ||= Time.current
 
           bap = Auctify::BidsAppender.call(auction: self, bid: bid)
+
           bap.success? ? after_bid_appended(bap) : after_bid_not_appended(bap)
           bap.success?
         end

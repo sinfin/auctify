@@ -125,9 +125,20 @@ module Auctify
       end
 
       test "fill bid_steps_ladder for auctions from config, if not set" do
-        skip "TODO"
-        # ladder = { 0...10 => 1, 10...100 => 5, 100.. => 10 }
-        # Auctify.configure {|c| c.default_bid_steps_ladder = }
+        ladder = { 0...10 => 1, 10...100 => 5, 100.. => 10 }
+        specific_ladder = { 0...1_000 => 10, 1_000.. => 100 }
+        default_ladder = { 0.. => 1 }
+
+        assert_equal default_ladder, Auctify::Sale::Auction.new.bid_steps_ladder
+
+        Auctify.configure { |c| c.default_bid_steps_ladder = ladder }
+
+        assert_equal ladder, Auctify::Sale::Auction.new.bid_steps_ladder
+        assert_equal specific_ladder, Auctify::Sale::Auction.new(bid_steps_ladder: specific_ladder).bid_steps_ladder
+
+        assert_equal ladder, Auctify::Sale::Auction.create!(item: things(:apple), ends_at: Time.current + 1.hour).reload.bid_steps_ladder
+
+        Auctify.configure { |c| c.default_bid_steps_ladder = default_ladder }
       end
     end
   end

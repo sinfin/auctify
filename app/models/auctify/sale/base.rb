@@ -38,7 +38,9 @@ module Auctify
 
       def initialize(*args)
         super
+
         self.commission_in_percent = configuration.auctioneer_commission_in_percent if commission_in_percent.blank?
+        self.bid_steps_ladder = configuration.default_bid_steps_ladder if bid_steps_ladder.blank?
       end
 
       # need to cover wrong class of item before assigning
