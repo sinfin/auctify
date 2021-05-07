@@ -7,7 +7,7 @@ module Auctify
     include Engine.routes.url_helpers
 
     setup do
-      @bid = auctify_bids(:one)
+      @bid = auctify_bids(:adam_1)
     end
 
     test "should get index" do

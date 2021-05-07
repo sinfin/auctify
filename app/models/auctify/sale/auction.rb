@@ -143,9 +143,15 @@ module Auctify
       end
 
       def recalculate_bidding!
-        winning_bid = bidding_result.winning_bid
         self.applied_bids_count = applied_bids.size
-        self.current_price = winning_bid.price if current_price > winning_bid.price
+
+        if applied_bids_count.zero?
+          self.current_price = offered_price
+        else
+          winning_price = bidding_result.winning_bid.price
+          self.current_price = winning_price if current_price > winning_price
+        end
+
         save!
       end
 

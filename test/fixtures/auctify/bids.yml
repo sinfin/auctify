@@ -1,11 +1,12 @@
 # # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  registration: adam_in_progress
+lucifer_1:
+  registration: lucifer_in_progress
   price: 100
   max_price:
 
-two:
-  registration: lucifer_in_progress
-  price: 66
-  max_price: 6666.666
+adam_1:
+  registration: adam_in_progress
+  price: 101
+  max_price:
+

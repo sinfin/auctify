@@ -22,6 +22,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert sale.is_a?(Auctify::Sale::Auction)
     assert sale.auctioned_successfully?
     assert_equal auctify_sales_packs(:things_from_eden), sale.pack
+    assert_equal sale.applied_bids.count, sale.applied_bids_count
 
     assert_equal %w[Adam Lucifer], sale.bidders.pluck(:name)
   end
@@ -35,6 +36,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert sale.is_a?(Auctify::Sale::Auction)
     assert sale.bidding_ended?
     assert_equal auctify_sales_packs(:things_from_eden), sale.pack
+    assert_equal sale.applied_bids.count, sale.applied_bids_count
 
     assert_equal %w[Eve Lucifer], sale.bidders.pluck(:name)
   end
@@ -56,15 +58,17 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal things(:snake), auction.item
     assert auction.is_a?(Auctify::Sale::Auction)
     assert auction.in_sale?
-    assert_equal 101, auction.offered_price
+    assert_equal 10, auction.offered_price
     assert_equal 101, auction.current_price
+    assert_equal auction.winning_bid.price, auction.current_price
     assert_not_nil auction.ends_at
     assert_equal auction.ends_at, auction.currently_ends_at
     assert_equal auctify_sales_packs(:things_from_eden), auction.pack
+    assert_equal auction.applied_bids.count, auction.applied_bids_count
 
     assert_equal %w[Adam Lucifer], auction.bidders.pluck(:name)
     assert_equal 2, auction.bids.size
-    assert_equal [users(:lucifer), users(:adam)].sort, auction.bids.collect { |b| b.bidder }.sort
+    assert_equal [users(:adam), users(:lucifer)].sort, auction.bids.ordered.collect { |b| b.bidder }.sort
   end
 
   test "future auction" do

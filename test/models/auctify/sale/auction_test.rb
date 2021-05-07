@@ -4,8 +4,9 @@ require "test_helper"
 
 module Auctify
   module Sale
-    class AuctionSetupTest < ActiveSupport::TestCase
+    class AuctionTest < ActiveSupport::TestCase
       attr_reader :auction
+      include Auctify::AuctionHelpers
 
       test "have initial auctioneer_commission from config" do
         auction = Auctify::Sale::Auction.new
@@ -38,6 +39,20 @@ module Auctify
 
         assert_equal ends_at_new, auction.ends_at
         assert_equal ends_at_new, auction.currently_ends_at
+      end
+
+      test "recalculating can handle 'no_bids_left'" do
+        auction = auctify_sales(:auction_in_progress)
+        assert_equal 2, auction.applied_bids_count
+        assert_not_equal auction.offered_price, auction.current_price
+
+        auction.applied_bids.each do |bid|
+          bid.cancel! # which calls recalculating
+        end
+
+        assert auction.reload.applied_bids_count.zero?
+        assert auction.applied_bids.count.zero?
+        assert_equal auction.offered_price, auction.current_price
       end
     end
   end
