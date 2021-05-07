@@ -126,7 +126,7 @@ module Auctify
         return true if auctioned_successfully? || sold?
         return false if auctioned_unsuccessfully? || not_sold?
 
-        bids_count.positive? && ((reserve_price || 0) <= current_price)
+        applied_bids_count.positive? && ((reserve_price || 0) <= current_price)
       end
 
       def bid!(bid)
@@ -144,7 +144,7 @@ module Auctify
 
       def recalculate_bidding!
         winning_bid = bidding_result.winning_bid
-        self.bids_count = applied_bids.size
+        self.applied_bids_count = applied_bids.size
         self.current_price = winning_bid.price if current_price > winning_bid.price
         save!
       end
@@ -178,7 +178,7 @@ module Auctify
         return false if price < current_price || time.blank?
 
         self.current_price = price
-        self.bids_count = applied_bids.size
+        self.applied_bids_count = applied_bids.size
         extend_end_time(time)
         save!
       end
@@ -311,7 +311,7 @@ end
 #  commission_in_percent :integer
 #  winner_type           :string
 #  winner_id             :bigint(8)
-#  bids_count            :integer          default(0)
+#  applied_bids_count    :integer          default(0)
 #
 # Indexes
 #

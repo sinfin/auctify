@@ -131,12 +131,12 @@ module Auctify
           auction.aasm_state = st
           auction.current_price = 1000
 
-          assert auction.bids_count.zero?
+          assert auction.applied_bids_count.zero?
           assert_nil auction.reserve_price
 
           assert_equal false, auction.success?, "`auction.success?` should return FALSE for #{st} state, but got #{auction.success?}"
 
-          auction.stub(:bids_count, 1) do
+          auction.stub(:applied_bids_count, 1) do
             assert_equal true, auction.success?, "`auction.success?` should return TRUE for #{st} state, but got #{auction.success?}"
 
             auction.reserve_price = 1000

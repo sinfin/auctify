@@ -33,7 +33,7 @@ module Auctify
           test "DELETE will just cancel bid and recalculate winner" do
             sign_in admin
 
-            assert_equal 4, auction.bids_count
+            assert_equal 4, auction.applied_bids_count
 
             bid_to_cancel = bid_for(lucifer, 1_200)
             next_bid = bid_for(adam, 1_300)
@@ -41,7 +41,7 @@ module Auctify
             assert auction.bid!(next_bid)
 
             assert_equal 1_300, auction.current_price
-            assert_equal 6, auction.bids_count
+            assert_equal 6, auction.applied_bids_count
 
             assert_no_difference("auction.bids.count") do
               assert_difference("auction.applied_bids.count", -1) do
@@ -52,7 +52,7 @@ module Auctify
 
             assert bid_to_cancel.reload.cancelled?
             assert_equal 1_300, auction.reload.current_price
-            assert_equal 5, auction.bids_count
+            assert_equal 5, auction.applied_bids_count
             assert_equal next_bid, auction.winning_bid
 
 
@@ -65,7 +65,7 @@ module Auctify
 
             assert next_bid.reload.cancelled?
             assert_equal 1_100, auction.reload.current_price
-            assert_equal 4, auction.bids_count
+            assert_equal 4, auction.applied_bids_count
 
             sign_out(admin)
           end

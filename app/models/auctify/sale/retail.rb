@@ -78,7 +78,7 @@ end
 #  commission_in_percent :integer
 #  winner_type           :string
 #  winner_id             :bigint(8)
-#  bids_count            :integer          default(0)
+#  applied_bids_count    :integer          default(0)
 #
 # Indexes
 #
