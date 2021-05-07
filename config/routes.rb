@@ -15,7 +15,7 @@ Auctify::Engine.routes.draw do
         end
 
         namespace :console do
-          resources :bids
+          resources :bids, only: %i[destroy]
         end
       end
     end

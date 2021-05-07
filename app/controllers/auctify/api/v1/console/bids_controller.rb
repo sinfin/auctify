@@ -8,27 +8,13 @@ module Auctify
           before_action :api_authenticate_account!
           before_action :find_bid, except: [:index]
 
-          def index
-            scope = if params[:auction_id].present?
-              @auction = Auctify::Sale::Auction.find(params[:auction_id])
-              @auction&.bids
-            else
-              Auctify::Bid.all
-            end
-            @bids = scope
-          end
-
-          def show
-          end
-
           def destroy
-            if @bid.cancel!
-              @auction = @bid.auction
-              @bids = @auction.bids
+            auction = @bid.auction
 
-              render :index
+            if @bid.cancel!
+              render_list(auction.reload)
             else
-              render json: @bid.errors
+              render_invalid(@bid)
             end
           end
 
@@ -37,12 +23,12 @@ module Auctify
               @bid = Auctify::Bid.find(params[:id])
             end
 
-            def bidder_registration
-              @bidder_registration ||= @bid.bidder_registrations.find_by(bidder: current_user)
-            end
-
             def api_authenticate_account!
               fail CanCan::AccessDenied if current_account.blank?
+            end
+
+            def render_list(auction)
+              render json: { data: cell("folio/console/auctify/auctions/bid_list", auction).show }
             end
         end
       end

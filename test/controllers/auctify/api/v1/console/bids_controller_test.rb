@@ -80,8 +80,6 @@ module Auctify
               # { method: :post, url: api_path_for("bids"), response: :not_found },
               # { method: :put, url: api_path_for("bids/#{bid.id}"), response: :not_found },
 
-              { method: :get, url: api_path_for("bids/#{bid.id}"), response: :ok },
-              { method: :get, url: api_path_for("bids"), response: :ok },
               { method: :delete, url: api_path_for("bids/#{bid.id}"), response: :ok }
             ]
 
