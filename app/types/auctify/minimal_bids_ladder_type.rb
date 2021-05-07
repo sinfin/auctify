@@ -35,8 +35,11 @@ module Auctify
     end
 
     def serialize(value) # modifier to store in db
+      return nil if value.nil? # so You are able to do `KLASS.where(bid_steps_ladder: nil)`
+
       # value should be Hash with ranges as keys
       result = {}
+
       value.each_pair do |k_range, v|
         min_price_string = ActiveSupport::NumberHelper.number_to_delimited(k_range.first, delimiter: "_")
         result[min_price_string] = v
