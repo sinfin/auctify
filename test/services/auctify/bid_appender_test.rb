@@ -446,6 +446,9 @@ module Auctify
 
       if hash[:limits_after]
         # TODO
+        hash[:limits_after].each_pair do |bidder_sym, limit|
+          assert_equal limit, auction.current_max_price_for(send(bidder_sym))
+        end
       end
     end
   end

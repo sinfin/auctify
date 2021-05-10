@@ -180,9 +180,15 @@ module Auctify
         considered_bids.second
       end
 
-
       def current_minimal_bid
         bidding_result.current_minimal_bid
+      end
+
+      def current_max_price_for(bidder)
+        last_bidder_bid = applied_bids.ordered.detect { |bid| bid.bidder == bidder }
+        return 0 if last_bidder_bid.blank?
+
+        [last_bidder_bid.price, last_bidder_bid.max_price].compact.max
       end
 
       def open_for_bids?
