@@ -88,11 +88,13 @@ module Auctify
 
           assert_difference("Auctify::Bid.count", +1) do
             assert_difference("Auctify::BidderRegistration.count", +1) do
-              post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { max_price: 2_000.0 } }
+              post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", dont_confirm_bids: "1", bid: { max_price: 2_000.0 } }
 
               assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
             end
           end
+
+          assert noe.bidder_registrations.find_by(auction: auction).dont_confirm_bids
 
           auction.reload
 

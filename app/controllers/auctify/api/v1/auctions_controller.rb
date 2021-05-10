@@ -13,6 +13,13 @@ module Auctify
         def bids
           if params[:confirmation] == "1"
             if @auction.bid!(new_bid)
+              if params[:dont_confirm_bids] == "1"
+                # use SQL update in case of some obscure invalid attributes
+                current_user.bidder_registrations
+                            .where(auction: @auction)
+                            .update_all(dont_confirm_bids: true)
+              end
+
               render_record @auction.reload
             else
               render_record @auction, bid: new_bid, status: 400
