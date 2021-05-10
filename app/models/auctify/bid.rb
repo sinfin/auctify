@@ -53,7 +53,7 @@ end
 # Table name: auctify_bids
 #
 #  id              :bigint(8)        not null, primary key
-#  registration_id :integer          not null
+#  registration_id :bigint(8)        not null
 #  price           :decimal(12, 2)   not null
 #  max_price       :decimal(12, 2)
 #  created_at      :datetime         not null

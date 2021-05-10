@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_07_085845) do
+ActiveRecord::Schema.define(version: 2021_05_10_063146) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,19 +20,20 @@ ActiveRecord::Schema.define(version: 2021_05_07_085845) do
 
   create_table "auctify_bidder_registrations", force: :cascade do |t|
     t.string "bidder_type", null: false
-    t.integer "bidder_id", null: false
-    t.integer "auction_id", null: false
+    t.bigint "bidder_id", null: false
+    t.bigint "auction_id", null: false
     t.string "aasm_state", default: "pending", null: false
     t.datetime "handled_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "dont_confirm_bids", default: false
     t.index ["aasm_state"], name: "index_auctify_bidder_registrations_on_aasm_state"
     t.index ["auction_id"], name: "index_auctify_bidder_registrations_on_auction_id"
     t.index ["bidder_type", "bidder_id"], name: "index_auctify_bidder_registrations_on_bidder"
   end
 
   create_table "auctify_bids", force: :cascade do |t|
-    t.integer "registration_id", null: false
+    t.bigint "registration_id", null: false
     t.decimal "price", precision: 12, scale: 2, null: false
     t.decimal "max_price", precision: 12, scale: 2
     t.datetime "created_at", precision: 6, null: false
@@ -45,16 +46,16 @@ ActiveRecord::Schema.define(version: 2021_05_07_085845) do
     t.string "seller_type"
     t.integer "seller_id"
     t.string "buyer_type"
-    t.integer "buyer_id"
-    t.integer "item_id", null: false
+    t.bigint "buyer_id"
+    t.bigint "item_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "type", default: "Auctify::Sale::Base"
     t.string "aasm_state", default: "offered", null: false
-    t.decimal "offered_price"
-    t.decimal "current_price"
-    t.decimal "sold_price"
-    t.json "bid_steps_ladder"
+    t.decimal "offered_price", precision: 12, scale: 2
+    t.decimal "current_price", precision: 12, scale: 2
+    t.decimal "sold_price", precision: 12, scale: 2
+    t.jsonb "bid_steps_ladder"
     t.decimal "reserve_price"
     t.bigint "pack_id"
     t.datetime "ends_at"
