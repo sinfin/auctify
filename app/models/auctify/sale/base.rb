@@ -5,6 +5,7 @@ module Auctify
     class Base < ApplicationRecord
       include Folio::FriendlyId
       include Folio::Positionable
+      include Folio::Featurable::Basic
       include Folio::Publishable::Basic
 
       self.table_name = "auctify_sales"
