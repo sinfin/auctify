@@ -70,12 +70,12 @@ module Auctify
       end
 
       def append_bids!
-        # saving first, so it will still be winning even if both have same price
+        fail! unless bid.save
+
+        # saving last, so it will still be winning, even if both have same price
         if @updated_win_bid.present?
           fail! unless @updated_win_bid.save
         end
-
-        fail! unless bid.save
       end
 
       def update_auction!
@@ -98,7 +98,7 @@ module Auctify
       end
 
       def winning_bid
-        @winning_bid ||= bids.ordered.first # or should I go by the price?
+        @winning_bid ||= bids.ordered.first
       end
 
       def overcame_reserve_price?
@@ -147,9 +147,9 @@ module Auctify
       def solve_winner(winning_bid, new_bid)
         return if winning_bid.blank? || increasing_own_max_price?
 
-        solve_limits_fight(winning_bid, new_bid)          if  bid.with_limit? &&  winning_bid.with_limit?
-        increase_bid_price(winning_bid, new_bid)          if  bid.with_limit? && !winning_bid.with_limit?
-        duplicate_increased_win_bid(winning_bid, new_bid) if !bid.with_limit? &&  winning_bid.with_limit?
+        solve_limits_fight(winning_bid, new_bid)          if  new_bid.with_limit? &&  winning_bid.with_limit?
+        increase_bid_price(winning_bid, new_bid)          if  new_bid.with_limit? && !winning_bid.with_limit?
+        duplicate_increased_win_bid(winning_bid, new_bid) if !new_bid.with_limit? &&  winning_bid.with_limit?
         # do nothing, all is solved already               if !bid.with_limit? && !winning_bid.with_limit?
       end
 
@@ -180,6 +180,8 @@ module Auctify
       end
 
       def update_winning_bid_to(price)
+        return if price <= winning_bid.price
+
         @updated_win_bid = winning_bid.dup
         @updated_win_bid.price = [price, winning_bid.max_price].min
       end

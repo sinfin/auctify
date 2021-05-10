@@ -4,7 +4,7 @@ module Auctify
   class Bid < ApplicationRecord
     belongs_to :registration, class_name: "Auctify::BidderRegistration", inverse_of: :bids
 
-    scope :ordered, -> { order(price: :desc, created_at: :asc, id: :asc) }
+    scope :ordered, -> { order(price: :desc, id: :desc) }
     scope :applied, -> { where(cancelled: false) }
     scope :canceled, -> { where(cancelled: true) }
 

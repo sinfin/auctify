@@ -106,7 +106,7 @@ module Auctify
         # final Lucifer's attack
         { bid: { price: nil, max_price: 6_666, bidder: lucifer },
           appender: { success: true, errors: {} },
-          auction_after: { current_price: 3_001, current_minimal_bid: 3_002, winner: lucifer, bids_count: 10 } },
+          auction_after: { current_price: 3_001, current_minimal_bid: 3_002, winner: lucifer, bids_count: 9 } },
         #    bids_count: 8 + Lucifer's winning bid (no updated Adam's autobid, because it is already at maximum price)
       ]
 
@@ -303,6 +303,102 @@ module Auctify
       bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
     end
 
+    test "two bids with same limit, first one wins" do
+      assert_equal 1_000, auction.reload.current_price
+
+      bid_l = bid_for(lucifer, nil, 3_000)
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_l)
+
+      assert appender.success?
+      assert_equal 1_000, auction.current_price
+      assert_equal lucifer, auction.current_winner
+
+      bid_a = bid_for(adam, nil, 3_000)
+      appender = Auctify::BidsAppender.call(auction: auction, bid: bid_a)
+
+      assert appender.success?
+      assert_equal 3_000, auction.current_price
+      assert_equal lucifer, auction.current_winner
+    end
+
+    test "ultimate bidding test" do
+      assert_equal 1_000, auction.reload.current_price
+      auction.update!(bid_steps_ladder: { (0..) => 100 })
+
+      # time	| bidder A | bidder L	| limit for A | limit for L |	current price	| current_winner | birds.ordered
+      # --------------------------------------------------------------------------------------------------------
+      #   1	    P:1000		            1000          0	            1000	          A                1
+      #   2		             P:2000	    1000          2000          2000	          L                2,1
+      #   3	    MP:5000		            5000	        2000	        2100	          A                3,2,1
+      #   4	    MP:6000		            6000	        2000	        2100	          A                4,3,2,1
+      #   5		             P:3000	    6000	        3000	        3100	          A                4,5,3,2,1
+      #   6	    MP:7000		            7000	        3000	        3100	          A                6,5,4,3,2,1
+      #   7		             MP:5000	  7000	        5000	        5100	          A
+      #   8		             MP:7000	  7000	        7000	        7000	          A
+      #   9		             MP:8000	  7000	        8000	        7100	          L
+      #  10	    P:8000		            8000	        8000	        8000	          L
+      #  11	    P:9000		            9000	        8000	        9000	          A
+
+      bids_and_expectations = [
+        { bid: { price: 1_000, max_price: nil, bidder: adam },
+          auction_after: { current_price: 1_000, current_minimal_bid: 1_100, winner: adam, bids_count: 1 },
+          limits_after: { adam: 0, lucifer: 0 } },
+
+        { bid: { price: 2_000, max_price: nil, bidder: lucifer },
+          auction_after: { current_price: 2_000, current_minimal_bid: 2_100, winner: lucifer, bids_count: 2 },
+          limits_after: { adam: 0, lucifer: 0 } },
+
+        { bid: { price: nil, max_price: 5_000, bidder: adam },
+          auction_after: { current_price: 2_100, current_minimal_bid: 2_200, winner: adam, bids_count: 3 },
+          limits_after: { adam: 5_000, lucifer: 0 } },
+
+        { bid: { price: nil, max_price: 6_000, bidder: adam }, # increasing own limit immediatelly
+          auction_after: { current_price: 2_100, current_minimal_bid: 2_200, winner: adam, bids_count: 4 },
+          limits_after: { adam: 6_000, lucifer: 0 } },
+
+        { bid: { price: 3_000, max_price: nil, bidder: lucifer },
+          auction_after: { current_price: 3_100, current_minimal_bid: 3_200, winner: adam, bids_count: 6 },
+          limits_after: { adam: 6_000, lucifer: 0 } },
+
+        { bid: { price: nil, max_price: 7_000, bidder: adam }, # increasing own limit, when winning
+          auction_after: { current_price: 3_100, current_minimal_bid: 3_200, winner: adam, bids_count: 7 },
+          limits_after: { adam: 7_000, lucifer: 0 } },
+
+        { bid: { price: nil, max_price: 5_000, bidder: lucifer }, # increasing own limit, when losing => too low
+          auction_after: { current_price: 5_100, current_minimal_bid: 5_200, winner: adam, bids_count: 9 },
+          limits_after: { adam: 7_000, lucifer: 5_000 } },
+
+        { bid: { price: nil, max_price: 7_000, bidder: lucifer },  # same limit as Adam!
+          auction_after: { current_price: 7_000, current_minimal_bid: 7_100, winner: adam, bids_count: 11 },
+          limits_after: { adam: 7_000, lucifer: 7_000 } },
+
+        { bid: { price: nil, max_price: 8_000, bidder: lucifer }, # increasing own limit, when losing => high enough
+          auction_after: { current_price: 7_100, current_minimal_bid: 7_200, winner: lucifer, bids_count: 12 },
+          limits_after: { adam: 7_000, lucifer: 8_000 } },
+
+        { bid: { price: 8_000, max_price: nil, bidder: adam },  # increasing own limit, when losing => equal limits
+          auction_after: { current_price: 8_000, current_minimal_bid: 8_100, winner: lucifer, bids_count: 14 },
+          limits_after: { adam: 8_000, lucifer: 8_000 } },
+
+        { bid: { price: 9_000, max_price: nil, bidder: adam }, # increasing own limit, when losing => high enough
+          auction_after: { current_price: 9_000, current_minimal_bid: 9_100, winner: adam, bids_count: 15 },
+          limits_after: { adam: 9_000, lucifer: 8_000 } },
+      ]
+
+      appender = Auctify::BidsAppender.call(auction: auction, bid: nil)
+
+      assert_equal auction.current_price, appender.result.current_minimal_bid
+      assert_equal auction.current_price, appender.result.current_price
+      assert_nil appender.result.winning_bid
+
+      appended_bid = { appender: { success: true, errors: {} },  }
+
+      bids_and_expectations.each do |hash|
+        place_bid_and_verfify_results(hash.merge(appended_bid))
+        # puts("bids.ordered: \n#{auction.bids.ordered.collect(&:to_json).join("\n")} \n\n")
+      end
+    end
+
     def place_bid_and_verfify_results(hash)
       bid = bid_for(hash[:bid][:bidder], hash[:bid][:price], hash[:bid][:max_price])
       appender = Auctify::BidsAppender.call(auction: auction, bid: bid)
@@ -331,7 +427,7 @@ module Auctify
       assert_equal hash[:auction_after][:bids_count],
                    auction.bids.count,
                    "auction.bids.count #{auction.bids.count} do not match #{hash}" \
-                   " => #{auction.bids.ordered.reverse.to_json}"
+                   " \n=> #{auction.bids.ordered.reverse.collect(&:to_json).join("\n")}"
 
       if appender.failed?
         assert_equal hash[:appender][:errors],
@@ -344,6 +440,10 @@ module Auctify
                      bid_error_always_in_arrays,
                      "expected bid errors #{hash[:appender][:errors]}," \
                      " but have #{bid_error_always_in_arrays} for #{hash}"
+      end
+
+      if hash[:limits_after]
+        # TODO
       end
     end
   end
