@@ -325,44 +325,46 @@ module Auctify
       assert_equal 1_000, auction.reload.current_price
       auction.update!(bid_steps_ladder: { (0..) => 100 })
 
-      # time	| bidder A | bidder L	| limit for A | limit for L |	current price	| current_winner | birds.ordered
-      # --------------------------------------------------------------------------------------------------------
-      #   1	    P:1000		            1000          0	            1000	          A                1
-      #   2		             P:2000	    1000          2000          2000	          L                2,1
-      #   3	    MP:5000		            5000	        2000	        2100	          A                3,2,1
-      #   4	    MP:6000		            6000	        2000	        2100	          A                4,3,2,1
-      #   5		             P:3000	    6000	        3000	        3100	          A                4,5,3,2,1
-      #   6	    MP:7000		            7000	        3000	        3100	          A                6,5,4,3,2,1
+      # time	| bidder A | bidder L	| limit for A | limit for L |	current price	| current_winner
+      # -----------------------------------------------------------------------------------------
+      #   1	    P:1000		            1000          0	            1000	          A
+      #   2		             P:2000	    1000          2000          2000	          L
+      #   3	    MP:5000		            5000	        2000	        2100	          A
+      #   4	    P:3000 +
+      #         MP:6000		            6000	        2000	        3000	          A
+      #   5		             P:4000	    6000	        4000	        4100	          A
+      #   6	    MP:7000		            7000	        4000	        4100	          A
       #   7		             MP:5000	  7000	        5000	        5100	          A
       #   8		             MP:7000	  7000	        7000	        7000	          A
       #   9		             MP:8000	  7000	        8000	        7100	          L
       #  10	    P:8000		            8000	        8000	        8000	          L
-      #  11	    P:9000		            9000	        8000	        9000	          A
+      #  11	    P:9000 +
+      #   	    MP:10000		          10000	        8000	        9000	          A
 
       bids_and_expectations = [
         { bid: { price: 1_000, max_price: nil, bidder: adam },
           auction_after: { current_price: 1_000, current_minimal_bid: 1_100, winner: adam, bids_count: 1 },
-          limits_after: { adam: 0, lucifer: 0 } },
+          limits_after: { adam: 1_000, lucifer: 0 } },
 
         { bid: { price: 2_000, max_price: nil, bidder: lucifer },
           auction_after: { current_price: 2_000, current_minimal_bid: 2_100, winner: lucifer, bids_count: 2 },
-          limits_after: { adam: 0, lucifer: 0 } },
+          limits_after: { adam: 1_000, lucifer: 2_000 } },
 
         { bid: { price: nil, max_price: 5_000, bidder: adam },
           auction_after: { current_price: 2_100, current_minimal_bid: 2_200, winner: adam, bids_count: 3 },
-          limits_after: { adam: 5_000, lucifer: 0 } },
+          limits_after: { adam: 5_000, lucifer: 2_000 } },
 
-        { bid: { price: nil, max_price: 6_000, bidder: adam }, # increasing own limit immediatelly
-          auction_after: { current_price: 2_100, current_minimal_bid: 2_200, winner: adam, bids_count: 4 },
-          limits_after: { adam: 6_000, lucifer: 0 } },
+        { bid: { price: 3_000, max_price: 6_000, bidder: adam }, # increasing own limit immediatelly with also price change
+          auction_after: { current_price: 3_000, current_minimal_bid: 3_100, winner: adam, bids_count: 4 },
+          limits_after: { adam: 6_000, lucifer: 2_000 } },
 
-        { bid: { price: 3_000, max_price: nil, bidder: lucifer },
-          auction_after: { current_price: 3_100, current_minimal_bid: 3_200, winner: adam, bids_count: 6 },
-          limits_after: { adam: 6_000, lucifer: 0 } },
+        { bid: { price: 4_000, max_price: nil, bidder: lucifer },
+          auction_after: { current_price: 4_100, current_minimal_bid: 4_200, winner: adam, bids_count: 6 },
+          limits_after: { adam: 6_000, lucifer: 4_000 } },
 
         { bid: { price: nil, max_price: 7_000, bidder: adam }, # increasing own limit, when winning
-          auction_after: { current_price: 3_100, current_minimal_bid: 3_200, winner: adam, bids_count: 7 },
-          limits_after: { adam: 7_000, lucifer: 0 } },
+          auction_after: { current_price: 4_100, current_minimal_bid: 4_200, winner: adam, bids_count: 7 },
+          limits_after: { adam: 7_000, lucifer: 4_000 } },
 
         { bid: { price: nil, max_price: 5_000, bidder: lucifer }, # increasing own limit, when losing => too low
           auction_after: { current_price: 5_100, current_minimal_bid: 5_200, winner: adam, bids_count: 9 },
@@ -376,13 +378,13 @@ module Auctify
           auction_after: { current_price: 7_100, current_minimal_bid: 7_200, winner: lucifer, bids_count: 12 },
           limits_after: { adam: 7_000, lucifer: 8_000 } },
 
-        { bid: { price: 8_000, max_price: nil, bidder: adam },  # increasing own limit, when losing => equal limits
+        { bid: { price: 8_000, max_price: nil, bidder: adam },  # price change, when losing => equal limits
           auction_after: { current_price: 8_000, current_minimal_bid: 8_100, winner: lucifer, bids_count: 14 },
           limits_after: { adam: 8_000, lucifer: 8_000 } },
 
-        { bid: { price: 9_000, max_price: nil, bidder: adam }, # increasing own limit, when losing => high enough
+        { bid: { price: 9_000, max_price: 10_000, bidder: adam }, # increasing own limit with price change, when losing => high enough
           auction_after: { current_price: 9_000, current_minimal_bid: 9_100, winner: adam, bids_count: 15 },
-          limits_after: { adam: 9_000, lucifer: 8_000 } },
+          limits_after: { adam: 10_000, lucifer: 8_000 } },
       ]
 
       appender = Auctify::BidsAppender.call(auction: auction, bid: nil)
@@ -405,7 +407,7 @@ module Auctify
 
       assert_equal hash[:appender][:success],
                    appender.success?,
-                   "result was not #{hash[:success] ? "successfull" : "failure"} for #{hash} \nERR:#{appender.errors}"
+                   "result was not #{hash[:appender][:success] ? "successfull" : "failure"} for #{hash} \nERR:#{appender.errors}"
       assert_equal hash[:auction_after][:current_price],
                    appender.result.current_price,
                    "current price #{appender.result.current_price} do not match #{hash}"

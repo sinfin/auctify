@@ -156,7 +156,7 @@ module Auctify
       def solve_limits_fight(winning_bid, new_bid)
         if winning_bid.max_price < new_bid.max_price
           update_winning_bid_to(winning_bid.max_price)
-          new_bid.price = increase_price_to(overcome: winning_bid.max_price, ceil: new_bid.max_price)
+          new_bid.price = [new_bid.price, increase_price_to(overcome: winning_bid.max_price, ceil: new_bid.max_price)].max
         else
           new_bid.price = new_bid.max_price
           update_winning_bid_to(increase_price_to(overcome: new_bid.max_price, ceil: winning_bid.max_price))
@@ -165,7 +165,7 @@ module Auctify
 
       def increase_bid_price(winning_bid, new_bid)
         if winning_bid.price < new_bid.max_price
-          new_bid.price = increase_price_to(overcome: winning_bid.price, ceil: new_bid.max_price)
+          new_bid.price = [new_bid.price, increase_price_to(overcome: winning_bid.price, ceil: new_bid.max_price)].max
         else
           new_bid.price = new_bid.max_price
         end

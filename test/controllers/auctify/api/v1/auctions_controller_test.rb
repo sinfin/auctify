@@ -67,11 +67,11 @@ module Auctify
           auction.reload
           assert_auction_json_response
 
-          assert_equal 1_101.0, auction.current_price.to_f # only autobidding was applied
+          assert_equal 1_200, auction.current_price.to_f
           assert_equal lucifer, auction.current_winner
 
           bid = auction.bids.last
-          assert_equal 1_101, bid.price
+          assert_equal 1_200, bid.price
           assert_equal 2_000, bid.max_price
           assert_equal lucifer, bid.bidder
         end
