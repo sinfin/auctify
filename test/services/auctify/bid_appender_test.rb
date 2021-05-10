@@ -338,8 +338,8 @@ module Auctify
       #   8		             MP:7000	  7000	        7000	        7000	          A
       #   9		             MP:8000	  7000	        8000	        7100	          L
       #  10	    P:8000		            8000	        8000	        8000	          L
-      #  11	    P:9000 +
-      #   	    MP:10000		          10000	        8000	        9000	          A
+      #  11	    P:9000                9000          8000          9000            A
+      #  12	    MP:10000		          10000	        8000	        9000	          A
 
       bids_and_expectations = [
         { bid: { price: 1_000, max_price: nil, bidder: adam },
@@ -382,8 +382,12 @@ module Auctify
           auction_after: { current_price: 8_000, current_minimal_bid: 8_100, winner: lucifer, bids_count: 14 },
           limits_after: { adam: 8_000, lucifer: 8_000 } },
 
-        { bid: { price: 9_000, max_price: 10_000, bidder: adam }, # increasing own limit with price change, when losing => high enough
+        { bid: { price: 9_000, max_price: nil, bidder: adam }, # overcoming limit with simple price
           auction_after: { current_price: 9_000, current_minimal_bid: 9_100, winner: adam, bids_count: 15 },
+          limits_after: { adam: 9_000, lucifer: 8_000 } },
+
+        { bid: { price: nil, max_price: 10_000, bidder: adam }, # securing my own winning price with limit
+          auction_after: { current_price: 9_000, current_minimal_bid: 9_100, winner: adam, bids_count: 16 },
           limits_after: { adam: 10_000, lucifer: 8_000 } },
       ]
 
@@ -445,7 +449,6 @@ module Auctify
       end
 
       if hash[:limits_after]
-        # TODO
         hash[:limits_after].each_pair do |bidder_sym, limit|
           assert_equal limit, auction.current_max_price_for(send(bidder_sym))
         end
