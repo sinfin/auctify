@@ -89,6 +89,7 @@ cs:
             end_date:
               smaller_than_start_date: "musí být později než začátek"
         auctify/bid:
+          not_confirmed: "Příhoz je potřeba potvrdit"
           attributes:
             bidder:
               you_cannot_overbid_yourself: "Není možné přehazovat své příhozy"

@@ -11,9 +11,14 @@ module Auctify
         end
 
         def bids
-          if @auction.bid!(new_bid)
-            render_record @auction.reload
+          if params[:confirmation] == "1"
+            if @auction.bid!(new_bid)
+              render_record @auction.reload
+            else
+              render_record @auction, bid: new_bid, status: 400
+            end
           else
+            new_bid.errors.add(:base, :not_confirmed)
             render_record @auction, bid: new_bid, status: 400
           end
         end
