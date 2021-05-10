@@ -164,6 +164,19 @@ module Auctify
         bidding_result.winner
       end
 
+      def current_winning_bid
+        bidding_result.winning_bid
+      end
+
+      def previous_winning_bid(relative_to_bid = nil)
+        return nil if bids.empty?
+
+        relative_to_bid ||= current_winning_bid
+        considered_bids = bids.ordered.drop_while { |b| b != relative_to_bid }
+        considered_bids.second
+      end
+
+
       def current_minimal_bid
         bidding_result.current_minimal_bid
       end

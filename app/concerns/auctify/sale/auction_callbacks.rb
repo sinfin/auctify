@@ -25,6 +25,7 @@ module Auctify
         def after_bid_appended(bid_appender)
           # override me, if You want
           # see bid_appender.result
+          # to get previous_winning bid, call `previous_winning_bid(bid_appender.bid)`
           callback_runs[:after_bid_appended] += 1
         end
 
