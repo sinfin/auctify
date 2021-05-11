@@ -11,6 +11,7 @@ module Auctify
       has_many :bidder_registrations, dependent: :destroy
       has_many :bids, through: :bidder_registrations, dependent: :destroy
       has_many :applied_bids, class_name: "Auctify::Bid", through: :bidder_registrations
+      has_many :ordered_applied_bids, class_name: "Auctify::Bid", through: :bidder_registrations
 
       belongs_to :winner, polymorphic: true, optional: true
 
