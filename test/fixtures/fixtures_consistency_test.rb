@@ -22,7 +22,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert sale.is_a?(Auctify::Sale::Auction)
     assert sale.auctioned_successfully?
     assert_equal auctify_sales_packs(:things_from_eden), sale.pack
-    assert_equal sale.applied_bids.count, sale.applied_bids_count
+    assert_equal sale.ordered_applied_bids.count, sale.applied_bids_count
 
     assert_equal %w[Adam Lucifer], sale.bidders.pluck(:name)
   end
@@ -36,7 +36,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert sale.is_a?(Auctify::Sale::Auction)
     assert sale.bidding_ended?
     assert_equal auctify_sales_packs(:things_from_eden), sale.pack
-    assert_equal sale.applied_bids.count, sale.applied_bids_count
+    assert_equal sale.ordered_applied_bids.count, sale.applied_bids_count
 
     assert_equal %w[Eve Lucifer], sale.bidders.pluck(:name)
   end
@@ -64,7 +64,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_not_nil auction.ends_at
     assert_equal auction.ends_at, auction.currently_ends_at
     assert_equal auctify_sales_packs(:things_from_eden), auction.pack
-    assert_equal auction.applied_bids.count, auction.applied_bids_count
+    assert_equal auction.ordered_applied_bids.count, auction.applied_bids_count
 
     assert_equal %w[Adam Lucifer], auction.bidders.pluck(:name)
     assert_equal 2, auction.bids.size

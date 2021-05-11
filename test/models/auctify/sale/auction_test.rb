@@ -46,12 +46,12 @@ module Auctify
         assert_equal 2, auction.applied_bids_count
         assert_not_equal auction.offered_price, auction.current_price
 
-        auction.applied_bids.each do |bid|
+        auction.ordered_applied_bids.each do |bid|
           bid.cancel! # which calls recalculating
         end
 
         assert auction.reload.applied_bids_count.zero?
-        assert auction.applied_bids.count.zero?
+        assert auction.ordered_applied_bids.count.zero?
         assert_equal auction.offered_price, auction.current_price
       end
     end

@@ -11,11 +11,6 @@ module Auctify
                     inverse_of: :registration,
                     dependent: :destroy
 
-    has_many :applied_bids, -> { applied },
-                            class_name: "Auctify::Bid",
-                            foreign_key: "registration_id",
-                            inverse_of: :registration
-
     has_many :ordered_applied_bids, -> { applied.ordered },
                                     class_name: "Auctify::Bid",
                                     foreign_key: "registration_id",

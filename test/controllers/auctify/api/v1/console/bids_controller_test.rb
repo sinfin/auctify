@@ -44,7 +44,7 @@ module Auctify
             assert_equal 6, auction.applied_bids_count
 
             assert_no_difference("auction.bids.count") do
-              assert_difference("auction.applied_bids.count", -1) do
+              assert_difference("auction.ordered_applied_bids.count", -1) do
                 delete api_path_for("bids/#{bid_to_cancel.id}")
                 assert_response :success
               end
@@ -57,7 +57,7 @@ module Auctify
 
 
             assert_no_difference("auction.bids.count") do
-              assert_difference("auction.applied_bids.count", -1) do
+              assert_difference("auction.ordered_applied_bids.count", -1) do
                 delete "/auctify/api/v1/console/bids/#{next_bid.id}"
                 assert_response :success
               end
@@ -71,7 +71,7 @@ module Auctify
           end
 
           test "all actions are allowed for admin account only" do
-            bid = auction.applied_bids.last
+            bid = auction.ordered_applied_bids.last
             assert bid.present?
 
             actions = [

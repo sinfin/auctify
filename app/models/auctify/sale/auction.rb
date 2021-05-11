@@ -148,7 +148,7 @@ module Auctify
       end
 
       def recalculate_bidding!
-        self.applied_bids_count = applied_bids.size
+        self.applied_bids_count = ordered_applied_bids.size
 
         if applied_bids_count.zero?
           self.current_price = offered_price
@@ -186,7 +186,7 @@ module Auctify
       end
 
       def current_max_price_for(bidder)
-        last_bidder_bid = applied_bids.ordered.detect { |bid| bid.bidder == bidder }
+        last_bidder_bid = ordered_applied_bids.ordered.detect { |bid| bid.bidder == bidder }
         return 0 if last_bidder_bid.blank?
 
         [last_bidder_bid.price, last_bidder_bid.max_price].compact.max
@@ -208,7 +208,7 @@ module Auctify
         return false if price < current_price || time.blank?
 
         self.current_price = price
-        self.applied_bids_count = applied_bids.size
+        self.applied_bids_count = ordered_applied_bids.size
         extend_end_time(time)
         save!
       end
