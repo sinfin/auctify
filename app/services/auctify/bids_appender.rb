@@ -98,7 +98,7 @@ module Auctify
       end
 
       def winning_bid
-        @winning_bid ||= bids.ordered.first
+        @winning_bid ||= bids.first
       end
 
       def overcame_reserve_price?
@@ -113,7 +113,7 @@ module Auctify
       end
 
       def bids
-        @bids ||= auction.applied_bids
+        @bids ||= auction.ordered_applied_bids
       end
 
       def check_price_minimum
