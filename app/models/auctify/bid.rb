@@ -53,7 +53,7 @@ end
 # Table name: auctify_bids
 #
 #  id              :bigint(8)        not null, primary key
-#  registration_id :bigint(8)        not null
+#  registration_id :integer          not null
 #  price           :decimal(12, 2)   not null
 #  max_price       :decimal(12, 2)
 #  created_at      :datetime         not null
@@ -62,6 +62,7 @@ end
 #
 # Indexes
 #
+#  index_auctify_bids_on_cancelled        (cancelled)
 #  index_auctify_bids_on_registration_id  (registration_id)
 #
 # Foreign Keys
