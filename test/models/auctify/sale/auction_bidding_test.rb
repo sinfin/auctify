@@ -128,7 +128,7 @@ module Auctify
 
       test "verify bidder before processing bid" do
         auction.offered_price = 1_000
-        auction.start_sale
+        auction.start_sale!
 
         auction.stub(:bidding_allowed_for?, true) do
           assert auction.bid!(bid_for(lucifer, 1_001))

@@ -54,7 +54,7 @@ future_auction:
   type: Auctify::Sale::Auction
   published: false
   pack: things_from_eden
-  ends_at: <%= Date.new(1,1,2) %>
+  ends_at: <%= Time.current + 1.day %>
 
 accepted_auction:
   seller: eve (User)

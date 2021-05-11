@@ -6,11 +6,16 @@ module Auctify
       include AASM
       include Auctify::Sale::AuctionCallbacks
 
+      ATTRIBUTES_UNMUTABLE_AT_SOME_STATE = %i[ends_at offered_price]
+      DEPENDENT_ATTRIBUTES = {
+        ends_at: %i[currently_ends_at],
+        offered_price: %i[current_price]
+      }
+
       attr_accessor :winning_bid
 
       has_many :bidder_registrations, dependent: :destroy
       has_many :bids, through: :bidder_registrations, dependent: :destroy
-      has_many :applied_bids, class_name: "Auctify::Bid", through: :bidder_registrations
       has_many :ordered_applied_bids, class_name: "Auctify::Bid", through: :bidder_registrations
 
       belongs_to :winner, polymorphic: true, optional: true
@@ -104,6 +109,7 @@ module Auctify
       end
 
       validate :buyer_vs_bidding_consistence
+      validate :forbidden_changes
 
       after_create :autoregister_bidders
 
@@ -126,6 +132,12 @@ module Auctify
         self.currently_ends_at = value if currently_ends_at.present?
       end
 
+      def offered_price=(value)
+        super
+
+        self.current_price = value if current_price.present?
+      end
+
       def success?
         return nil if offered? || accepted? || refused? || cancelled? || in_sale? # or raise error?
         return true if auctioned_successfully? || sold?
@@ -145,6 +157,17 @@ module Auctify
           bap.success? ? after_bid_appended(bap) : after_bid_not_appended(bap)
           bap.success?
         end
+      end
+
+      # callback from bid_appender
+      def succesfull_bid!(price:, time:)
+        return false if price < current_price || time.blank?
+
+        self.current_price = price
+        self.applied_bids_count = ordered_applied_bids.size
+        extend_end_time(time)
+
+        save!
       end
 
       def recalculate_bidding!
@@ -204,18 +227,13 @@ module Auctify
         @allows_new_bidder_registrations ||= (in_sale? || accepted?)
       end
 
-      def succesfull_bid!(price:, time:)
-        return false if price < current_price || time.blank?
-
-        self.current_price = price
-        self.applied_bids_count = ordered_applied_bids.size
-        extend_end_time(time)
-        save!
-      end
-
       def bidding_allowed_for?(bidder)
         babm = bidding_allowed_by_method_for?(bidder)
         babm.nil? ? true : babm # if no method defined => allow
+      end
+
+      def locked_for_modifications?
+        applied_bids_count.positive?
       end
 
       private
@@ -305,6 +323,18 @@ module Auctify
           notify_time = ends_at - configured_period
           Auctify::BiddingIsCloseToEndNotifierJob.set(wait_until: notify_time)
                                                  .perform_later(auction_id: id)
+        end
+
+        def forbidden_changes
+          ATTRIBUTES_UNMUTABLE_AT_SOME_STATE.each do |att|
+            if changes[att].present? && locked_for_modifications?
+              errors.add(att, :no_modification_allowed_now)
+              write_attribute(att, changes[att].first)
+              DEPENDENT_ATTRIBUTES[att].each do |datt|
+                write_attribute(datt, changes[datt].first) if changes[datt].present?
+              end
+            end
+          end
         end
     end
   end

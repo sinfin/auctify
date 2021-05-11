@@ -160,7 +160,7 @@ end
         pieces.sales # => [auction]
 
         auction.bidder_registrations # => []   unless config.autoregister_as_bidders_all_instances_of_classes is set
-        auction.bidder_registrations.create(bidder: bidder1) # => error, not allowed ("Aukce aktuálně neupovoluje nové registrace")
+        auction.bidder_registrations.create(bidder: bidder1) # => error, not allowed ("Aukce aktuálně nepovoluje nové registrace")
 
         auction.accept_offer!
 

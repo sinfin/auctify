@@ -57,10 +57,11 @@ module Auctify
 
 
       test "prolongs auction time on bid within limit" do
-        auction = auctify_sales(:auction_in_progress)
+        auction = auctify_sales(:accepted_auction)
         lucifer = users(:lucifer)
         adam = users(:adam)
-        assert_equal [lucifer, adam].sort, auction.bids.collect { |b| b.bidder }.sort
+        auction.bidder_registrations.approved.create!(bidder: adam)
+        auction.bidder_registrations.approved.create!(bidder: lucifer)
         allow_bids_for([lucifer, adam], auction)
 
         original_end_time = Time.current + 1.hour
@@ -105,9 +106,11 @@ module Auctify
       end
 
       test "respects config.auction_prolonging_limit change" do
-        auction = auctify_sales(:auction_in_progress)
+        auction = auctify_sales(:accepted_auction)
         lucifer = users(:lucifer)
         adam = users(:adam)
+        auction.bidder_registrations.approved.create!(bidder: adam)
+        auction.bidder_registrations.approved.create!(bidder: lucifer)
         allow_bids_for([lucifer, adam], auction)
 
         original_end_time = Time.current + 1.hour

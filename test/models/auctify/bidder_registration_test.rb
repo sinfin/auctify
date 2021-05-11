@@ -28,7 +28,7 @@ module Auctify
         b_reg = Auctify::BidderRegistration.create(bidder: bidder, auction: auction)
 
         assert_includes b_reg.errors[:auction],
-                        "Aukce aktuálně neupovoluje nové registrace",
+                        "Aukce aktuálně nepovoluje nové registrace",
                         "creating registration for state '#{state}' " \
                           "should be forbidden, errors: #{b_reg.errors.full_messages}"
       end
