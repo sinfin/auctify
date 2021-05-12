@@ -202,7 +202,7 @@ end
         auction.buyer # => nil
         auction.winner # => bidder2
 
-        auction.sold_in_auction!(buyer: bidder2, price: 149)  # it is verified against bids!
+        auction.sold_in_auction!(buyer: bidder2, price: 149, sold_at: currently_ends_at)  # it is verified against bids!
 
         auction.auctioned_successfully? # => true
         auction.buyer # => bidder2

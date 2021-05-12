@@ -74,10 +74,11 @@ module Auctify
         end
 
         event :sold_in_auction do
-          before do |*args| # TODO: sold_at
+          before do |*args|
             params = args.first # expecting keys :buyer, :price
             self.buyer = params[:buyer]
             self.sold_price = params[:price]
+            self.sold_at = params[:sold_at] || currently_ends_at
           end
 
           transitions from: :bidding_ended, to: :auctioned_successfully, if: :valid?
@@ -310,7 +311,7 @@ module Auctify
         def process_bidding_result!
           case success?
           when true
-            sold_in_auction!(buyer: current_winner, price: current_price)
+            sold_in_auction!(buyer: current_winner, price: current_price, sold_at: currently_ends_at)
           when false
             not_sold_in_auction!
           else
@@ -372,6 +373,7 @@ end
 #  winner_type           :string
 #  winner_id             :bigint(8)
 #  applied_bids_count    :integer          default(0)
+#  sold_at               :datetime
 #
 # Indexes
 #

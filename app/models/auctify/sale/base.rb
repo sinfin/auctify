@@ -162,6 +162,7 @@ end
 #  winner_type           :string
 #  winner_id             :bigint(8)
 #  applied_bids_count    :integer          default(0)
+#  sold_at               :datetime
 #
 # Indexes
 #
