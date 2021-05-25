@@ -5,7 +5,13 @@ module Auctify
     queue_as :default
 
     def perform(auction_id:)
-      auction = Auctify::Sale::Auction.find(auction_id)
+      return if auction_id.blank?
+      begin
+        auction = Auctify::Sale::Auction.find(auction_id)
+      rescue ActiveRecord::RecordNotFound
+        return
+      end
+
       notify_time = auction.ends_at - Auctify.configuration.when_to_notify_bidders_before_end_of_bidding
 
       return unless auction.open_for_bids?

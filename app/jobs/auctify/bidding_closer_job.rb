@@ -5,7 +5,13 @@ module Auctify
     queue_as :default
 
     def perform(auction_id:)
-      auction = Auctify::Sale::Auction.find(auction_id)
+      return if auction_id.blank?
+      begin
+        auction = Auctify::Sale::Auction.find(auction_id)
+      rescue ActiveRecord::RecordNotFound
+        return
+      end
+
       if auction.currently_ends_at <= Time.current
         auction.close_bidding! if auction.in_sale?
       else
