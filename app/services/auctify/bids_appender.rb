@@ -195,16 +195,14 @@ module Auctify
 
       def increase_price_to(overcome:, ceil:)
         return ceil if overcome == ceil
-        raise ":ceil is lower than :ovecome" if ceil < overcome
+        raise ":ceil is lower than :overcome" if ceil < overcome
 
         running_price = current_price
         while running_price <= overcome
           running_price = increase_price(running_price)
         end
 
-        return running_price if running_price <= ceil
-
-        raise "Runing price overcome the ceil price!"
+        [running_price, ceil].min
       end
 
       def bid_steps_ladder

@@ -229,21 +229,24 @@ module Auctify
         { bid: { price: nil, max_price: 2_500, bidder: adam },
           appender: { success: true, errors: {} },
           auction_after: { current_price: 2_099, current_minimal_bid: 2_199, winner: adam, bids_count: 4 } },
-        #                                          bids_count: 4 + Lucifer's bid + Adam's autobid with increased price
 
         # second bid with limit
         # 2099 -> 2199 -> 2299 -> 2399 -> 2499 -> 2599
         { bid: { price: nil, max_price: 4_666, bidder: lucifer },
           appender: { success: true, errors: {} },
           auction_after: { current_price: 2_599, current_minimal_bid: 2_699, winner: lucifer, bids_count: 6 } },
-        #                                          bids_count: 4 + Lucifer's bid + Adam's autobid with increased price
 
         # adam increases his limit (bidding will progress to next minimal bid step)
         # 2699 -> 2799 -> 2899 -> 2999 -> 3099 -> 3599 -> 4099
         { bid: { price: nil, max_price: 3_990, bidder: adam },
           appender: { success: true, errors: {} },
-          auction_after: { current_price: 4_099, current_minimal_bid: 4_599, winner: lucifer, bids_count: 8 } }
-        #                                          bids_count: 6 + Lucifer's bid + Adam's autobid with increased price
+          auction_after: { current_price: 4_099, current_minimal_bid: 4_599, winner: lucifer, bids_count: 8 } },
+
+        # adam do direct bid, which is less then bid-step beneath lucifers limit
+        # 2699 -> 2799 -> 2899 -> 2999 -> 3099 -> 3599 -> 4099 -> 4601 -> 4666
+        { bid: { price: 4601, max_price: nil, bidder: adam },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 4_666, current_minimal_bid: 5166, winner: lucifer, bids_count: 10 } }
       ]
 
       bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
