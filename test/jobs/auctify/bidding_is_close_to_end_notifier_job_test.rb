@@ -11,8 +11,14 @@ module Auctify
 
     setup do
       @auction = auctify_sales(:accepted_auction)
-      @configured_period = Auctify.configuration.when_to_notify_bidders_before_end_of_bidding
+      @configured_period = 1.hour
+      @originaly_configured_period = Auctify.configuration.when_to_notify_bidders_before_end_of_bidding
+      Auctify.configure { |c| c.when_to_notify_bidders_before_end_of_bidding = configured_period }
       @notify_time = @auction.ends_at - configured_period
+    end
+
+    teardown do
+      Auctify.configure { |c| c.when_to_notify_bidders_before_end_of_bidding = @originaly_configured_period }
     end
 
     test "is started on auction.start_sale event" do

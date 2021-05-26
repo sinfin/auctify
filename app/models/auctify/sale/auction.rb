@@ -323,6 +323,7 @@ module Auctify
 
         def set_bidding_is_close_to_end_job
           configured_period = Auctify.configuration.when_to_notify_bidders_before_end_of_bidding
+          return if configured_period.blank?
           notify_time = ends_at - configured_period
           Auctify::BiddingIsCloseToEndNotifierJob.set(wait_until: notify_time)
                                                  .perform_later(auction_id: id)

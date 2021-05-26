@@ -6,6 +6,8 @@ module Auctify
 
     def perform(auction_id:)
       return if auction_id.blank?
+      return if Auctify.configuration.when_to_notify_bidders_before_end_of_bidding.nil?
+
       begin
         auction = Auctify::Sale::Auction.find(auction_id)
       rescue ActiveRecord::RecordNotFound

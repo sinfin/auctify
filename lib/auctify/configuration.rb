@@ -16,7 +16,7 @@ module Auctify
       @auction_prolonging_limit = 2.minutes
       @auctioneer_commission_in_percent = 1 # %
       @autofinish_auction_after_bidding = false
-      @when_to_notify_bidders_before_end_of_bidding = 1.hour
+      @when_to_notify_bidders_before_end_of_bidding = nil # no notifying
       @default_bid_steps_ladder = { 0.. => 1 }
     end
 
