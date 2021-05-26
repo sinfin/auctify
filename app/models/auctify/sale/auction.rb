@@ -70,6 +70,9 @@ module Auctify
 
           after do
             self.winner = current_winner
+            now = Time.current
+            self.currently_ends_at = now if now < currently_ends_at
+
             after_close_bidding
             process_bidding_result! if configuration.autofinish_auction_after_bidding == true
           end
