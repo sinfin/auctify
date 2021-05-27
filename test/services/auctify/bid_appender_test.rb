@@ -212,7 +212,7 @@ module Auctify
 
         # too low bid
         { bid: { price: 1_099, max_price: nil, bidder: adam },
-          appender: { success: false, errors: { price: ["je nižší než aktuální minimální příhoz"] } },
+          appender: { success: false, errors: { price: ["je nižší než aktuální minimální příhoz 1 100 Kč"] } },
           auction_after: { current_price: 1_000, current_minimal_bid: 1_100, winner: lucifer, bids_count: 1 } },
 
         # exact bid
