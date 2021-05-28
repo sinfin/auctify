@@ -15,10 +15,11 @@ module Auctify
       attr_accessor :winning_bid
 
       has_many :bidder_registrations, dependent: :destroy
-      has_many :bids, through: :bidder_registrations, dependent: :destroy
+      has_many :bids, through: :bidder_registrations, dependent: :restrict_with_error # destroy them manually first
       has_many :ordered_applied_bids,  -> { applied.ordered },
                                        through: :bidder_registrations,
-                                       source: :bids
+                                       source: :bids,
+                                       dependent: :restrict_with_error # destroy them manually first
 
       belongs_to :winner, polymorphic: true, optional: true
 
@@ -118,6 +119,7 @@ module Auctify
       validate :forbidden_changes
 
       after_create :autoregister_bidders
+      before_destroy :forbid_destroy_if_there_are_bids, prepend: true
 
       def bidders
         @bidders ||= bidder_registrations.collect { |br| br.bidder }.sort_by(&:name)
@@ -342,6 +344,10 @@ module Auctify
               end
             end
           end
+        end
+
+        def forbid_destroy_if_there_are_bids
+          errors.add(:base, :you_cannot_delete_auction_with_bids) if bids.any?
         end
     end
   end

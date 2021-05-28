@@ -89,6 +89,7 @@ cs:
               there_is_a_buyer_for_not_sold_auction: "Aukci nelze označit za neprodanou, neboť má kupce (%{winner})"
             sold_price:
               sold_price_is_not_from_bidding: "Prodejní cena %{sold_price} neodpovídá výherní ceně z aukce %{won_price}"
+          you_cannot_delete_auction_with_bids: "Není možné mazat aukční položku, která má příhozy"
         auctify/sales_pack:
           attributes:
             end_date:

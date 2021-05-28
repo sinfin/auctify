@@ -78,5 +78,23 @@ module Auctify
       assert b_reg.handled_at.present?
       assert b_reg.handled_at <= Time.current
     end
+
+    test "forbid deleting if there are any bids" do
+      b_reg = Auctify::BidderRegistration.create(bidder: bidder, auction: auction)
+      assert_includes auction.bidder_registrations, b_reg
+
+      assert auction.bid!(Auctify::Bid.new(registration: b_reg, price: 2000))
+      assert b_reg.bids.count.positive?
+
+      assert_not b_reg.destroy
+      assert_includes b_reg.errors[:base], "Nemůžu smazat položku protože existuje závislé/ý bids", b_reg.errors.to_json
+
+      b_reg.bids.destroy_all
+      assert b_reg.bids.count.zero?
+
+      assert b_reg.destroy
+
+      assert_not_includes auction.bidder_registrations.reload, b_reg
+    end
   end
 end

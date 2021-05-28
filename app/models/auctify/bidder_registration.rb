@@ -9,12 +9,13 @@ module Auctify
     has_many :bids, class_name: "Auctify::Bid",
                     foreign_key: "registration_id",
                     inverse_of: :registration,
-                    dependent: :destroy
+                    dependent: :restrict_with_error # destroy them manually first
 
     has_many :ordered_applied_bids, -> { applied.ordered },
                                     class_name: "Auctify::Bid",
                                     foreign_key: "registration_id",
-                                    inverse_of: :registration
+                                    inverse_of: :registration,
+                                    dependent: :restrict_with_error # destroy them manually first
 
     aasm do
       state :pending, initial: true, color: "gray"

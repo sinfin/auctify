@@ -215,6 +215,8 @@ end
 
       Look into tests `test/models/auctify/sale/auction_bidding_test.rb` and `test/services/auctify/bid_appender_test.rb` for more info about bidding process.
 
+      To protect accidential deletions, many associations are binded with `dependent: restrict_with_error`. Correct order ofdeletion is `bids` => `sales` => `sales_packs`.
+
 
 
 ## Contributing

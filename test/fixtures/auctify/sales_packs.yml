@@ -4,7 +4,7 @@ things_from_eden:
   title: Things from Eden
   description: Some heaven stuff, very rare
   position: 0
-  slug: thongs-from-eden
+  slug: things-from-eden
   start_date: <%= Date.new(2020, 01, 01) %>
   end_date: <%= Date.new(2020, 02, 01) %>
   place: online

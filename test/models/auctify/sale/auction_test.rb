@@ -101,6 +101,21 @@ module Auctify
         assert auction.ordered_applied_bids.count.zero?
         assert_equal auction.offered_price, auction.current_price
       end
+
+      test "forbid deleting if there are any bids" do
+        auction = auctify_sales(:auction_in_progress)
+        assert_equal 2, auction.applied_bids_count
+
+        assert_not auction.destroy
+        assert_includes auction.errors[:base], "Není možné mazat aukční položku, která má příhozy", auction.errors.to_json
+
+        auction.bidder_registrations.each { |br| br.bids.destroy_all }
+        assert auction.bids.count.zero?
+
+        assert_difference("Auctify::BidderRegistration.count", (-1 * auction.bidder_registrations.size)) do
+          assert auction.destroy
+        end
+      end
     end
   end
 end

@@ -8,7 +8,7 @@ module Auctify
     include Folio::Publishable::Basic
     include Folio::Sitemap::Base
 
-    has_many :sales, class_name: "Auctify::Sale::Base", foreign_key: :pack_id, inverse_of: :pack, dependent: :nullify
+    has_many :sales, class_name: "Auctify::Sale::Base", foreign_key: :pack_id, inverse_of: :pack, dependent: :restrict_with_error
     has_many :items, through: :sales
 
     validates :title,
