@@ -37,6 +37,8 @@ module Auctify
                     ignoring: :accents,
                     using: { tsearch: { prefix: true } }
 
+    after_initialize :set_commission
+
     def to_label
       title
     end
@@ -61,6 +63,12 @@ module Auctify
           errors.add(:end_date, :smaller_than_start_date)
         end
       end
+
+      def set_commission
+        return if self.commission_in_percent.present?
+
+        self.commission_in_percent = Auctify.configuration.auctioneer_commission_in_percent
+      end
   end
 end
 
@@ -83,6 +91,7 @@ end
 #  sales_interval          :integer          default(3)
 #  sales_beginning_hour    :integer          default(20)
 #  sales_beginning_minutes :integer          default(0)
+#  commission_in_percent   :integer
 #
 # Indexes
 #

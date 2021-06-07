@@ -8,11 +8,36 @@ module Auctify
       attr_reader :auction
       include Auctify::AuctionHelpers
 
-      test "have initial auctioneer_commission from config" do
-        auction = Auctify::Sale::Auction.new
-        assert_equal Auctify.configuration.auctioneer_commission_in_percent, auction.commission_in_percent
-        assert auction.commission_in_percent.present?
+      test "take auctioneer_commission from itself, sale_pack or config" do
+        auction = Auctify::Sale::Auction.new(sold_price: 10_000)
+        assert auction.commission_in_percent.blank?
+        assert auction.pack.blank?
+
+        assert_equal 1, Auctify.configuration.auctioneer_commission_in_percent
+
+        assert_equal auction.sold_price * 0.01, auction.auctioneer_commission
+
+        auction.pack = Auctify::SalesPack.new(commission_in_percent: 5)
+
+        assert_equal auction.sold_price * 0.05, auction.auctioneer_commission
+
+        assert auction.commission_in_percent = 33
+
+        assert_equal auction.sold_price * 0.33, auction.auctioneer_commission
       end
+
+      test "no commision when not sold" do
+        auction = Auctify::Sale::Auction.new(commission_in_percent: 50)
+
+        assert_nil auction.sold_price
+
+        assert_nil auction.auctioneer_commission
+
+        auction.sold_price = 10_000
+
+        assert_equal 5_000, auction.auctioneer_commission
+      end
+
 
 
       test "current_price adapts according to offered_price until first bid" do

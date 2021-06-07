@@ -40,7 +40,6 @@ module Auctify
       def initialize(*args)
         super
 
-        self.commission_in_percent = configuration.auctioneer_commission_in_percent if commission_in_percent.blank?
         self.bid_steps_ladder = configuration.default_bid_steps_ladder if bid_steps_ladder.blank?
       end
 
@@ -65,6 +64,16 @@ module Auctify
       def publish!
         self.published = true
         save
+      end
+
+      def auctioneer_commission
+        return nil if sold_price.nil?
+
+        percent = commission_in_percent \
+                  || (pack&.commission_in_percent) \
+                  || Auctify.configuration.auctioneer_commission_in_percent
+
+        sold_price * percent * 0.01
       end
 
       private

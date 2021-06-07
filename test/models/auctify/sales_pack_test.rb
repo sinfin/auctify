@@ -33,5 +33,16 @@ module Auctify
       assert_equal 0, pack.sales.reload.size
       assert pack.destroy
     end
+
+    test "fill up commission_in_percent from config" do
+      original = Auctify.configuration.auctioneer_commission_in_percent
+      new_commission = 33
+
+      Auctify.configure { |config| config.auctioneer_commission_in_percent = new_commission }
+
+      assert_equal 33, Auctify::SalesPack.new.commission_in_percent
+
+      Auctify.configure { |config| config.auctioneer_commission_in_percent = original }
+    end
   end
 end
