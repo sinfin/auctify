@@ -37,6 +37,7 @@ cs:
         sales_interval: Časový rozestup mezi předměty v minutách
         sales_beginning_hour: Čas prvního předmětu (hodina)
         sales_beginning_minutes: Čas prvního předmětu (minuty)
+        commission_in_percent: Provize aukční síně (procenta)
       auctify/sale/base:
         buyer: Kupec
         seller: Prodejce
@@ -44,6 +45,7 @@ cs:
         aasm_state: Stav
         published: Zveřejněno
         number: Číslo
+        commission_in_percent: Provize aukční síně (procenta)
       auctify/sale/retail:
         created_at: Vytvořen
         updated_at: Změněn
