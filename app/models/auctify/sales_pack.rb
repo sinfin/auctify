@@ -30,7 +30,7 @@ module Auctify
 
     validate :validate_start_and_end_dates
 
-    scope :ordered, -> { order(id: :desc) }
+    scope :ordered, -> { order(start_date: :desc, id: :desc) }
 
     pg_search_scope :by_query,
                     against: %i[title],
