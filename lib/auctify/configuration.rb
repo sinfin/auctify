@@ -7,7 +7,8 @@ module Auctify
                   :auctioneer_commission_in_percent,
                   :autofinish_auction_after_bidding,
                   :when_to_notify_bidders_before_end_of_bidding,
-                  :default_bid_steps_ladder
+                  :default_bid_steps_ladder,
+                  :restrict_overbidding_yourself_to_max_price_increasing
 
 
     def initialize
@@ -18,6 +19,7 @@ module Auctify
       @autofinish_auction_after_bidding = false
       @when_to_notify_bidders_before_end_of_bidding = nil # no notifying
       @default_bid_steps_ladder = { 0.. => 1 }
+      @restrict_overbidding_yourself_to_max_price_increasing = true
     end
 
     def autoregistering_for?(instance)

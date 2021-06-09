@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 module Auctify
   class BidAppenderTest < ActiveSupport::TestCase
@@ -277,6 +278,8 @@ module Auctify
     end
 
     test "bidder cannot overbid itself by price-only bid" do
+      assert_equal true, Auctify.configuration.restrict_overbidding_yourself_to_max_price_increasing
+
       bids_and_expectations = [
         { bid: { price: 1_000, max_price: nil, bidder: lucifer },
           appender: { success: true, errors: {} },
@@ -304,6 +307,25 @@ module Auctify
       ]
 
       bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
+    end
+
+    test "bidder can overbid itself by any-type bid if configuration is set" do
+      assert_equal true, Auctify.configuration.restrict_overbidding_yourself_to_max_price_increasing
+
+      Auctify.configuration.stub(:restrict_overbidding_yourself_to_max_price_increasing, false) do
+        bids_and_expectations = [
+          { bid: { price: 1_000, max_price: nil, bidder: lucifer },
+            appender: { success: true, errors: {} },
+            auction_after: { current_price: 1_000, current_minimal_bid: 1_001, winner: lucifer, bids_count: 1 } },
+
+          # overbidding
+          { bid: { price: 1_001, max_price: nil, bidder: lucifer },
+            appender: { success: true, errors: {} },
+            auction_after: { current_price: 1_001, current_minimal_bid: 1_002, winner: lucifer, bids_count: 2 } }
+        ]
+
+        bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
+      end
     end
 
     test "two bids with same limit, first one wins" do

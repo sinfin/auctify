@@ -125,6 +125,7 @@ module Auctify
       end
 
       def check_same_bidder
+        return unless Auctify.configuration.restrict_overbidding_yourself_to_max_price_increasing
         return if increasing_own_bid?
 
         if winning_bid.present? && (winning_bid.bidder == bid.bidder)
