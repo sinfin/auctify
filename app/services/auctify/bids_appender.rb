@@ -44,7 +44,7 @@ module Auctify
       end
 
       def set_price_for_bid
-        if increasing_own_bid?
+        if increasing_own_limit?
           bid.price = winning_bid.price
         elsif bid.max_price <= new_current_minimal_bid
           bid.price = bid.max_price
@@ -59,7 +59,7 @@ module Auctify
 
       def approve_bid
         check_bidder
-        check_price_minimum unless increasing_own_bid?
+        check_price_minimum unless increasing_own_limit?
         check_same_bidder
         check_auction_state
 
@@ -125,10 +125,10 @@ module Auctify
       end
 
       def check_same_bidder
-        return unless Auctify.configuration.restrict_overbidding_yourself_to_max_price_increasing
-        return if increasing_own_bid?
+        return if overbidding_yourself_allowed?
+        return if increasing_own_limit?
 
-        if winning_bid.present? && (winning_bid.bidder == bid.bidder)
+        if winning_bid.present? && same_bidder?(winning_bid, bid)
           bid.errors.add(:bidder, :you_cannot_overbid_yourself)
         end
       end
@@ -150,7 +150,7 @@ module Auctify
       end
 
       def solve_winner(winning_bid, new_bid)
-        return if winning_bid.blank? || increasing_own_bid?
+        return if winning_bid.blank? || increasing_own_limit?
 
         solve_limits_fight(winning_bid, new_bid)          if  new_bid.with_limit? &&  winning_bid.with_limit?
         increase_bid_price(winning_bid, new_bid)          if  new_bid.with_limit? && !winning_bid.with_limit?
@@ -179,13 +179,16 @@ module Auctify
       def duplicate_increased_win_bid(winning_bid, new_bid)
         if winning_bid.max_price < new_bid.price
           update_winning_bid_to(winning_bid.max_price)
+        elsif overbidding_yourself_allowed? && same_bidder?(winning_bid, new_bid)
+          update_winning_bid_to(new_bid.price, force_if_equal: true)
         else
           update_winning_bid_to(increase_price_to(overcome: new_bid.price, ceil: winning_bid.max_price))
         end
       end
 
-      def update_winning_bid_to(price)
-        return if price <= winning_bid.price
+      def update_winning_bid_to(price, force_if_equal: false)
+        return if price < winning_bid.price
+        return if price == winning_bid.price && !force_if_equal
 
         @updated_win_bid = winning_bid.dup
         @updated_win_bid.price = [price, winning_bid.max_price].min
@@ -214,10 +217,18 @@ module Auctify
         @bid_steps_ladder ||= auction.bid_steps_ladder
       end
 
-      def increasing_own_bid?
+      def increasing_own_limit?
         return false unless winning_bid.present? && (winning_bid.bidder == bid.bidder)
 
         bid.max_price && (winning_bid.max_price.to_i < bid.max_price)
+      end
+
+      def overbidding_yourself_allowed?
+        Auctify.configuration.restrict_overbidding_yourself_to_max_price_increasing == false
+      end
+
+      def same_bidder?(winning_bid, new_bid)
+        winning_bid.bidder == new_bid.bidder
       end
   end
 end
