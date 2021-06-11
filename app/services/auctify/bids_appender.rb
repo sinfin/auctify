@@ -16,7 +16,7 @@ module Auctify
       @updated_win_bid = nil
 
       if bid
-        set_price_for_bid if bid.price.blank? && bid.with_limit?
+        set_price_for_limit_bid
 
         if approved_bid?
           solve_winner(winning_bid, bid)
@@ -43,8 +43,10 @@ module Auctify
         )
       end
 
-      def set_price_for_bid
-        if increasing_own_limit?
+      def set_price_for_limit_bid
+        return unless bid.price.blank? && bid.with_limit?
+
+        if changing_own_limit?
           bid.price = winning_bid.price
         elsif bid.max_price <= new_current_minimal_bid
           bid.price = bid.max_price
@@ -54,19 +56,16 @@ module Auctify
       end
 
       def approved_bid?
-        @approved_bid ||= approve_bid
-      end
+        @approved_bid ||= begin
+          check_bidder
+          changing_own_limit? ? check_max_price_increasing : check_price_minimum
+          check_same_bidder
+          check_auction_state
 
-      def approve_bid
-        check_bidder
-        check_price_minimum unless increasing_own_limit?
-        check_same_bidder
-        check_auction_state
+          errors.add_from_hash(bid.errors.to_hash)
 
-
-        errors.add_from_hash(bid.errors.to_hash)
-
-        errors.empty?
+          errors.empty?
+        end
       end
 
       def append_bids!
@@ -116,6 +115,19 @@ module Auctify
         @bids ||= auction.ordered_applied_bids
       end
 
+      def check_bidder
+        unless bid.registration&.auction == auction
+          bid.errors.add(:auction, :bidder_is_not_registered_for_this_auction)
+        end
+        unless auction.bidding_allowed_for?(bid.bidder)
+          bid.errors.add(:bidder, :you_are_not_allowed_to_bid)
+        end
+      end
+
+      def check_max_price_increasing
+        bid.errors.add(:bidder, :you_can_only_increase_your_max_price) if bid.max_price.present? && (bid.max_price.to_i <= winning_bid.max_price.to_i)
+      end
+
       def check_price_minimum
         if bid.price < new_current_minimal_bid
           bid.errors.add(:price,
@@ -125,8 +137,7 @@ module Auctify
       end
 
       def check_same_bidder
-        return if overbidding_yourself_allowed?
-        return if increasing_own_limit?
+        return if overbidding_yourself_allowed? || changing_own_limit?
 
         if winning_bid.present? && same_bidder?(winning_bid, bid)
           bid.errors.add(:bidder, :you_cannot_overbid_yourself)
@@ -140,17 +151,8 @@ module Auctify
         bid.errors.add(:auction, :auction_is_not_accepting_bids_now)
       end
 
-      def check_bidder
-        unless bid.registration&.auction == auction
-          bid.errors.add(:auction, :bidder_is_not_registered_for_this_auction)
-        end
-        unless auction.bidding_allowed_for?(bid.bidder)
-          bid.errors.add(:bidder, :you_are_not_allowed_to_bid)
-        end
-      end
-
       def solve_winner(winning_bid, new_bid)
-        return if winning_bid.blank? || increasing_own_limit?
+        return if winning_bid.blank? || changing_own_limit?
 
         solve_limits_fight(winning_bid, new_bid)          if  new_bid.with_limit? &&  winning_bid.with_limit?
         increase_bid_price(winning_bid, new_bid)          if  new_bid.with_limit? && !winning_bid.with_limit?
@@ -217,10 +219,8 @@ module Auctify
         @bid_steps_ladder ||= auction.bid_steps_ladder
       end
 
-      def increasing_own_limit?
-        return false unless winning_bid.present? && (winning_bid.bidder == bid.bidder)
-
-        bid.max_price && (winning_bid.max_price.to_i < bid.max_price)
+      def changing_own_limit?
+        bid.with_limit? && winning_bid.present? && (winning_bid.bidder == bid.bidder)
       end
 
       def overbidding_yourself_allowed?

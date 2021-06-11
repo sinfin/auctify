@@ -333,10 +333,20 @@ module Auctify
             appender: { success: true, errors: {} },
             auction_after: { current_price: 1_500, current_minimal_bid: 1_501, winner: lucifer, bids_count: 5 } },
 
+          # I forgot my limit, lets do it again! With lower limit (now is 3000)
+          { bid: { price: nil, max_price: 2000, bidder: lucifer },
+            appender: { success: false, errors: { bidder: ["Svůj limit můžete pouze zvyšovat"] } },
+            auction_after: { current_price: 1_500, current_minimal_bid: 1_501, winner: lucifer, bids_count: 5 } },
+
+          # I forgot my limit, lets do it again! With equal limit
+          { bid: { price: nil, max_price: 3000, bidder: lucifer },
+            appender: { success: false, errors: { bidder: ["Svůj limit můžete pouze zvyšovat"] } },
+            auction_after: { current_price: 1_500, current_minimal_bid: 1_501, winner: lucifer, bids_count: 5 } },
+
           # increasing by direct bid over limit
           { bid: { price: 3500, max_price: nil, bidder: lucifer },
           appender: { success: true, errors: {} },
-          auction_after: { current_price: 3_500, current_minimal_bid: 3_501, winner: lucifer, bids_count: 7 } }
+          auction_after: { current_price: 3_500, current_minimal_bid: 3_501, winner: lucifer, bids_count: 7 } },
         ]
 
         bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
