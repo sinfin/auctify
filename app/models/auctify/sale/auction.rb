@@ -26,10 +26,6 @@ module Auctify
       validates :ends_at,
                 presence: true
 
-      scope :open_for_bids, -> do
-        where(aasm_state: "in_sale").where("currently_ends_at > ?", Time.zone.now)
-      end
-
       aasm do
         state :offered, initial: true, color: "red"
         state :accepted, color: "red"

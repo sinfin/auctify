@@ -34,6 +34,15 @@ module Auctify
 
       scope :not_sold, -> { where(sold_price: nil) }
 
+      # need auction scopes here because of has_many :sales, class_name: "Auctify::Sale::Base"
+      scope :auctions_open_for_bids, -> do
+        where(aasm_state: "in_sale").where("currently_ends_at > ?", Time.current)
+      end
+
+      scope :auctions_finished, -> do
+        where.not(aasm_state: %w[offered accepted refused]).where("currently_ends_at < ?", Time.current)
+      end
+
       delegate :to_label,
                to: :item
 
