@@ -240,6 +240,11 @@ module Auctify
         applied_bids_count.positive?
       end
 
+      def set_bidding_closer_job
+        Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
+                                 .perform_later(auction_id: id)
+      end
+
       private
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?
@@ -304,11 +309,6 @@ module Auctify
         def extend_end_time(bid_time)
           new_end_time = bid_time + Auctify.configuration.auction_prolonging_limit
           self.currently_ends_at = [currently_ends_at, new_end_time].max
-        end
-
-        def set_bidding_closer_job
-          Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
-                                   .perform_later(auction_id: id)
         end
 
         def process_bidding_result!
