@@ -213,10 +213,9 @@ module Auctify
       end
 
       def current_max_price_for(bidder)
-        last_bidder_bid = ordered_applied_bids.ordered.detect { |bid| bid.bidder == bidder }
-        return 0 if last_bidder_bid.blank?
-
-        [last_bidder_bid.price, last_bidder_bid.max_price].compact.max
+        last_bidder_mx_bid = ordered_applied_bids.with_limit
+                                                 .detect { |bid| bid.bidder == bidder }
+        last_bidder_mx_bid.blank? ? 0 : last_bidder_mx_bid.max_price
       end
 
       def open_for_bids?

@@ -394,27 +394,27 @@ module Auctify
       bids_and_expectations = [
         { bid: { price: 1_000, max_price: nil, bidder: adam },
           auction_after: { current_price: 1_000, current_minimal_bid: 1_100, winner: adam, bids_count: 1 },
-          limits_after: { adam: 1_000, lucifer: 0 } },
+          limits_after: { adam: 0, lucifer: 0 } },
 
         { bid: { price: 2_000, max_price: nil, bidder: lucifer },
           auction_after: { current_price: 2_000, current_minimal_bid: 2_100, winner: lucifer, bids_count: 2 },
-          limits_after: { adam: 1_000, lucifer: 2_000 } },
+          limits_after: { adam: 0, lucifer: 0 } },
 
         { bid: { price: nil, max_price: 5_000, bidder: adam },
           auction_after: { current_price: 2_100, current_minimal_bid: 2_200, winner: adam, bids_count: 3 },
-          limits_after: { adam: 5_000, lucifer: 2_000 } },
+          limits_after: { adam: 5_000, lucifer: 0 } },
 
         { bid: { price: 3_000, max_price: 6_000, bidder: adam }, # increasing own limit immediatelly with also price change
           auction_after: { current_price: 3_000, current_minimal_bid: 3_100, winner: adam, bids_count: 4 },
-          limits_after: { adam: 6_000, lucifer: 2_000 } },
+          limits_after: { adam: 6_000, lucifer: 0 } },
 
         { bid: { price: 4_000, max_price: nil, bidder: lucifer },
           auction_after: { current_price: 4_100, current_minimal_bid: 4_200, winner: adam, bids_count: 6 },
-          limits_after: { adam: 6_000, lucifer: 4_000 } },
+          limits_after: { adam: 6_000, lucifer: 0 } },
 
         { bid: { price: nil, max_price: 7_000, bidder: adam }, # increasing own limit, when winning
           auction_after: { current_price: 4_100, current_minimal_bid: 4_200, winner: adam, bids_count: 7 },
-          limits_after: { adam: 7_000, lucifer: 4_000 } },
+          limits_after: { adam: 7_000, lucifer: 0 } },
 
         { bid: { price: nil, max_price: 5_000, bidder: lucifer }, # increasing own limit, when losing => too low
           auction_after: { current_price: 5_100, current_minimal_bid: 5_200, winner: adam, bids_count: 9 },
@@ -430,11 +430,11 @@ module Auctify
 
         { bid: { price: 8_000, max_price: nil, bidder: adam },  # price change, when losing => equal limits
           auction_after: { current_price: 8_000, current_minimal_bid: 8_100, winner: lucifer, bids_count: 14 },
-          limits_after: { adam: 8_000, lucifer: 8_000 } },
+          limits_after: { adam: 7_000, lucifer: 8_000 } },
 
         { bid: { price: 9_000, max_price: nil, bidder: adam }, # overcoming limit with simple price
           auction_after: { current_price: 9_000, current_minimal_bid: 9_100, winner: adam, bids_count: 15 },
-          limits_after: { adam: 9_000, lucifer: 8_000 } },
+          limits_after: { adam: 7_000, lucifer: 8_000 } },
 
         { bid: { price: nil, max_price: 10_000, bidder: adam }, # securing my own winning price with limit
           auction_after: { current_price: 9_000, current_minimal_bid: 9_100, winner: adam, bids_count: 16 },

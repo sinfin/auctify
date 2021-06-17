@@ -7,6 +7,7 @@ module Auctify
     scope :ordered, -> { order(price: :desc, id: :desc) }
     scope :applied, -> { where(cancelled: false) }
     scope :canceled, -> { where(cancelled: true) }
+    scope :with_limit, -> { where.not(max_price: nil) }
 
     validate :price_is_not_bigger_then_max_price
 
