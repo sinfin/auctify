@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_07_113440) do
+ActiveRecord::Schema.define(version: 2021_06_17_062509) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,6 +73,7 @@ ActiveRecord::Schema.define(version: 2021_06_07_113440) do
     t.integer "applied_bids_count", default: 0
     t.datetime "sold_at"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
+    t.index ["currently_ends_at"], name: "index_auctify_sales_on_currently_ends_at"
     t.index ["featured"], name: "index_auctify_sales_on_featured"
     t.index ["pack_id"], name: "index_auctify_sales_on_pack_id"
     t.index ["position"], name: "index_auctify_sales_on_position"
