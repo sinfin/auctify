@@ -20,7 +20,7 @@ module Auctify
                             .update_all(dont_confirm_bids: true)
               end
 
-              render_record @auction.reload
+              render_record @auction.reload, success: true
             else
               render_record @auction, bid: new_bid, status: 400
             end
@@ -50,9 +50,9 @@ module Auctify
             { bidder: current_user }
           end
 
-          def render_record(auction, bid: nil, status: 200)
+          def render_record(auction, bid: nil, status: 200, success: nil)
             render json: {
-              data: cell("#{global_namespace_path}/auctify/auctions/form", auction, bid: bid).show
+              data: cell("#{global_namespace_path}/auctify/auctions/form", auction, bid: bid, success: success).show
             }, status: status
           end
       end
