@@ -8,7 +8,6 @@ module Auctify
       attr_reader :sale
 
       setup do
-
         @sale = Auctify::Sale::Base.new(seller: users(:eve), item: things(:apple))
 
         assert @sale.valid?, "Valid_sale is not valid! : #{@sale.errors.full_messages}"
@@ -28,37 +27,22 @@ module Auctify
 
         assert sale.invalid?
         assert_equal ["musí existovat"], sale.errors[:seller]
-
-        non_auctified_user = CleanUser.first
-        assert non_auctified_user.present?
-
-        sale.seller = non_auctified_user
-
-        assert sale.invalid?
-        assert_equal ["objekt Prodejce nebyl Auctifikován pomocí `auctify_as: :seller`"], sale.errors[:seller]
       end
 
       test "validates item" do
-        assert sale.valid?
+         assert sale.valid?
 
-        sale.item = nil
-        assert sale.invalid?
+         sale.item = nil
+         assert sale.invalid?
 
-        assert_equal ["musí existovat"], sale.errors[:item]
+         assert_equal ["musí existovat"], sale.errors[:item]
 
-        item_not_in_db = Thing.new(id: (Thing.order(id: :desc).pick(:id) + 1))
-        sale.item = item_not_in_db
+         item_not_in_db = Thing.new(id: (Thing.order(id: :desc).pick(:id) + 1))
+         sale.item = item_not_in_db
 
-        assert sale.invalid?
-        assert_equal ["musí existovat"], sale.errors[:item]
-
-        non_auctified_item = CleanThing.first
-        assert non_auctified_item.present?
-
-        sale.item = non_auctified_item
-        assert sale.invalid?
-        assert_equal ["objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`", "musí existovat"], sale.errors[:item]
-      end
+         assert sale.invalid?
+         assert_equal ["musí existovat"], sale.errors[:item]
+       end
 
       test "validates buyer if present" do
         assert sale.valid?
@@ -72,14 +56,6 @@ module Auctify
 
         assert sale.invalid?
         assert_equal ["musí existovat"], sale.errors[:buyer]
-
-        non_auctified_user = CleanUser.first
-        assert non_auctified_user.present?
-
-        sale.buyer = non_auctified_user
-
-        assert sale.invalid?
-        assert_equal ["objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"], sale.errors[:buyer]
       end
 
       test "can be published immediatelly" do
@@ -171,6 +147,8 @@ module Auctify
                                                start_date: Date.new(2021, 1, 1),
                                                end_date: Date.new(2021, 1, 3))
         assert sales_pack.sales << sale
+
+        assert sale.valid?
 
         new_sale = Auctify::Sale::Base.new(seller: users(:adam), item: sale.item)
 

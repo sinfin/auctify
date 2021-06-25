@@ -108,11 +108,7 @@ module Auctify
 
           db_seller = db_presence_of(seller)
 
-          if db_seller.present?
-            errors.add(:seller, :not_auctified) unless db_seller.class.included_modules.include?(Auctify::Behavior::Seller) # rubocop:disable Layout/LineLength
-          else
-            errors.add(:seller, :required)
-          end
+          errors.add(:seller, :required) unless db_seller.present?
         end
 
         def valid_item
@@ -121,8 +117,10 @@ module Auctify
 
           db_item = db_presence_of(item)
           if db_item.present?
-            errors.add(:item, :not_auctified) unless db_item.class.included_modules.include?(Auctify::Behavior::Item)
-            errors.add(:item, :already_on_sale_in_sales_pack, sale_pack_title: pack.title) if pack && pack.sales.where(item: db_item).exists?
+            errors.add(:item, :already_on_sale_in_sales_pack, sale_pack_title: pack.title) if pack && pack.sales
+                                                                                                          .where(item: db_item)
+                                                                                                          .where.not(id: self.id)
+                                                                                                          .exists?
           else
             # Rails will add "required" on item.nil? automagically (and after this validation) but not for non-persisted item
             # we do not allow creating sale along with item, so this trying to cover that
@@ -132,11 +130,7 @@ module Auctify
 
         def valid_buyer
           db_buyer = db_presence_of(buyer)
-          if db_buyer.present?
-            errors.add(:buyer, :not_auctified) unless db_buyer.class.included_modules.include?(Auctify::Behavior::Buyer)
-          elsif buyer.present?
-            errors.add(:buyer, :required)
-          end
+          errors.add(:buyer, :required) if buyer.present? && db_buyer.blank?
         end
 
         def db_presence_of(record)
