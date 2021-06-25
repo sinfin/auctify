@@ -22,9 +22,12 @@ module Auctify
                                        dependent: :restrict_with_error # destroy them manually first
 
       belongs_to :winner, polymorphic: true, optional: true
+      belongs_to :current_winner, polymorphic: true, optional: true
 
       validates :ends_at,
                 presence: true
+
+      scope :where_current_winner_is, ->(bidder) { where(current_winner: bidder) }
 
       aasm do
         state :offered, initial: true, color: "red"
@@ -50,6 +53,7 @@ module Auctify
           before do
             self.current_price = self.offered_price
             self.currently_ends_at = self.ends_at
+            self.current_winner = nil
             self.buyer = nil
           end
 
@@ -164,10 +168,11 @@ module Auctify
       end
 
       # callback from bid_appender
-      def succesfull_bid!(price:, time:)
+      def succesfull_bid!(price:, winner:, time:)
         return false if price < current_price || time.blank?
 
         self.current_price = price
+        self.current_winner = winner
         self.applied_bids_count = ordered_applied_bids.size
         extend_end_time(time)
 
@@ -381,6 +386,9 @@ end
 #  winner_id             :bigint(8)
 #  applied_bids_count    :integer          default(0)
 #  sold_at               :datetime
+#  current_winner_type   :string
+#  current_winner_id     :bigint(8)
+
 #
 # Indexes
 #

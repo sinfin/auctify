@@ -38,7 +38,7 @@ module Auctify
           current_price: current_price,
           current_minimal_bid: new_current_minimal_bid,
           winning_bid: winning_bid,
-          winner: (overcame_reserve_price? ? winning_bid.bidder : nil),
+          winner: winner,
           won_price: (overcame_reserve_price? ? current_price : nil)
         )
       end
@@ -82,7 +82,9 @@ module Auctify
         @bids = bids.reload
 
 
-        fail! unless auction.succesfull_bid!(price: new_current_price, time: bid.reload.created_at)
+        fail! unless auction.succesfull_bid!(price: new_current_price,
+                                             winner: winner,
+                                             time: bid.reload.created_at)
         self.current_price = auction.current_price
       end
 
@@ -98,6 +100,10 @@ module Auctify
 
       def winning_bid
         @winning_bid ||= bids.first
+      end
+
+      def winner
+        (overcame_reserve_price? ? winning_bid.bidder : nil)
       end
 
       def overcame_reserve_price?

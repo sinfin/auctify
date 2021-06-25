@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_17_062509) do
+ActiveRecord::Schema.define(version: 2021_06_25_125732) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,6 +72,8 @@ ActiveRecord::Schema.define(version: 2021_06_17_062509) do
     t.bigint "winner_id"
     t.integer "applied_bids_count", default: 0
     t.datetime "sold_at"
+    t.string "current_winner_type"
+    t.bigint "current_winner_id"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["currently_ends_at"], name: "index_auctify_sales_on_currently_ends_at"
     t.index ["featured"], name: "index_auctify_sales_on_featured"

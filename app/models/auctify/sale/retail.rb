@@ -80,6 +80,8 @@ end
 #  winner_id             :bigint(8)
 #  applied_bids_count    :integer          default(0)
 #  sold_at               :datetime
+#  current_winner_type   :string
+#  current_winner_id     :bigint(8)
 #
 # Indexes
 #

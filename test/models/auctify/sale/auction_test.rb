@@ -38,8 +38,6 @@ module Auctify
         assert_equal 5_000, auction.auctioneer_commission
       end
 
-
-
       test "current_price adapts according to offered_price until first bid" do
         offered_price = 1_000
         new_offered_price = offered_price + 2_000
@@ -140,6 +138,31 @@ module Auctify
         assert_difference("Auctify::BidderRegistration.count", (-1 * auction.bidder_registrations.size)) do
           assert auction.destroy
         end
+      end
+
+      test "have .with_current_winner scope" do
+        auction = auctify_sales(:auction_in_progress)
+        adam = users(:adam)
+        lucifer = users(:lucifer)
+        allow_bids_for([adam, lucifer], auction)
+
+        assert auction.bid!(bid_for(lucifer, 2_000))
+        assert_equal lucifer, auction.current_winner
+
+        luci_auctions = Auctify::Sale::Auction.in_sale.where_current_winner_is(lucifer)
+        assert_equal [auction], luci_auctions.to_a
+
+        adam_auctions = Auctify::Sale::Auction.in_sale.where_current_winner_is(adam)
+        assert_equal [], adam_auctions.to_a
+
+        assert auction.bid!(bid_for(adam, 3_000))
+        assert_equal adam, auction.current_winner
+
+        luci_auctions = Auctify::Sale::Auction.in_sale.where_current_winner_is(lucifer)
+        assert_equal [], luci_auctions.to_a
+
+        adam_auctions = Auctify::Sale::Auction.in_sale.where_current_winner_is(adam)
+        assert_equal [auction], adam_auctions.to_a
       end
     end
   end

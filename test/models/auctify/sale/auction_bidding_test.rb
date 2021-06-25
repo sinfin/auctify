@@ -26,6 +26,7 @@ module Auctify
         auction.offered_price = 1_000
 
         assert_nil auction.current_price
+        assert_nil auction.current_winner
 
         auction.start_sale
         assert_equal 1, auction.callback_runs[:after_start_sale]

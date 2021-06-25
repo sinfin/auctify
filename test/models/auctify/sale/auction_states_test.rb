@@ -88,6 +88,7 @@ module Auctify
 
         offered_price = auction.offered_price
         assert_nil auction.current_price
+        assert_nil auction.current_winner
         assert_nil auction.currently_ends_at
 
         auction.start_sale
@@ -95,6 +96,7 @@ module Auctify
         assert auction.in_sale?
         assert_equal offered_price, auction.offered_price
         assert_equal offered_price, auction.current_price
+        assert_nil auction.current_winner
         assert_equal auction.ends_at, auction.currently_ends_at
         assert_equal 1, auction.callback_runs[:after_start_sale]
 
