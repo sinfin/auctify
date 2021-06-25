@@ -122,6 +122,7 @@ module Auctify
           db_item = db_presence_of(item)
           if db_item.present?
             errors.add(:item, :not_auctified) unless db_item.class.included_modules.include?(Auctify::Behavior::Item)
+            errors.add(:item, :already_on_sale_in_sales_pack, sale_pack_title: pack.title) if pack && pack.sales.where(item: db_item).exists?
           else
             # Rails will add "required" on item.nil? automagically (and after this validation) but not for non-persisted item
             # we do not allow creating sale along with item, so this trying to cover that

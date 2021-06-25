@@ -8,6 +8,7 @@ module Auctify
       attr_reader :sale
 
       setup do
+
         @sale = Auctify::Sale::Base.new(seller: users(:eve), item: things(:apple))
 
         assert @sale.valid?, "Valid_sale is not valid! : #{@sale.errors.full_messages}"
@@ -163,6 +164,22 @@ module Auctify
 
         assert_not_includes lpbi_sales, fixture_sale
         assert_includes lpbi_sales, latest_sale
+      end
+
+      test "allows only one sale  of item in sales pack" do
+        sales_pack = Auctify::SalesPack.create(title: "test",
+                                               start_date: Date.new(2021, 1, 1),
+                                               end_date: Date.new(2021, 1, 3))
+        assert sales_pack.sales << sale
+
+        new_sale = Auctify::Sale::Base.new(seller: users(:adam), item: sale.item)
+
+        assert new_sale.valid? # no pack yet
+
+        new_sale.pack = sales_pack
+
+        assert new_sale.invalid?
+        assert_equal ["předmět je již jednou nabízen v rámci Aukce `#{sales_pack.title}`"], new_sale.errors[:item]
       end
     end
   end

@@ -77,8 +77,10 @@ cs:
               not_auctified: "objekt Kupce nebyl Auctifikován pomocí `auctify_as: :buyer`"
             item:
               not_auctified: "objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`"
+              already_on_sale_in_sales_pack: "předmět je již jednou nabízen v rámci Aukce `%{sale_pack_title}`"
             offered_price:
               required_for_published: "musí být vyplněna před publikováním"
+
         auctify/sale/auction:
           attributes:
             ends_at:
