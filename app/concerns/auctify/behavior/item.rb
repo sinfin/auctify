@@ -16,6 +16,11 @@ module Auctify
         Auctify::Sale::Base.class_eval do
           belongs_to :item, class_name: c_name, counter_cache: :sales_count
         end
+
+        has_one :last_published_sale, -> { merge(Auctify::Sale::Base.latest_published_by_item) },
+                class_name: "Auctify::Sale::Base",
+                foreign_key: :item_id,
+                inverse_of: :item
       end
     end
   end

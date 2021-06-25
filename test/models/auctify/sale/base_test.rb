@@ -140,6 +140,30 @@ module Auctify
 
         Auctify.configure { |c| c.default_bid_steps_ladder = default_ladder }
       end
+
+      test "have scope .latest_published_by_item" do
+        apple = things(:apple)
+        assert_equal 1, apple.sales.reload.size
+        fixture_sale = apple.sales.first
+        assert fixture_sale.auctioned_successfully?
+
+        assert_includes Auctify::Sale::Base.latest_published_by_item, fixture_sale
+
+        latest_sale = Auctify::Sale::Base.create!(seller: users(:adam), item: apple, offered_price: 555)
+
+        lpbi_sales = Auctify::Sale::Base.latest_published_by_item
+
+        # latest is not yet published!
+        assert_includes lpbi_sales, fixture_sale
+        assert_not_includes lpbi_sales, latest_sale
+
+        assert latest_sale.publish!
+
+        lpbi_sales = Auctify::Sale::Base.latest_published_by_item
+
+        assert_not_includes lpbi_sales, fixture_sale
+        assert_includes lpbi_sales, latest_sale
+      end
     end
   end
 end

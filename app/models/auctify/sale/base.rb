@@ -43,8 +43,25 @@ module Auctify
         where.not(aasm_state: %w[offered accepted refused]).where("currently_ends_at < ?", Time.current)
       end
 
+      scope :latest_published_by_item, -> { joins(latest_published_sales_by_item_subtable.join_sources) }
+
       delegate :to_label,
                to: :item
+
+      def self.latest_published_sales_by_item_subtable
+        # see https://www.salsify.com/blog/engineering/most-recent-by-group-in-rails
+        sales_table = self.arel_table
+
+        latest_sales_query = sales_table.project(sales_table[:item_id],
+                                                 sales_table[:id].maximum.as("latest_sale_id"))
+                                        .where(sales_table[:published].eq(true))
+                                        .group(sales_table[:item_id])
+
+        latest_sales_table = Arel::Table.new(latest_sales_query).alias(:latest_sales)  # need to perform join
+
+        sales_table.join(latest_sales_query.as(latest_sales_table.name.to_s), Arel::Nodes::InnerJoin)
+                   .on(sales_table[:id].eq(latest_sales_table[:latest_sale_id]))
+      end
 
       def initialize(*args)
         super
