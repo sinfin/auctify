@@ -130,9 +130,10 @@ module Auctify
 
       def check_price_minimum
         if bid.price < new_current_minimal_bid
-          bid.errors.add(:price,
-                        :price_is_bellow_minimal_bid,
-                        minimal_bid: ActionController::Base.helpers.number_to_currency(new_current_minimal_bid, precision: 0))
+          att = bid.with_limit? ? :max_price : :price
+          bid.errors.add(att,
+                         :price_is_bellow_minimal_bid,
+                         minimal_bid: ActionController::Base.helpers.number_to_currency(new_current_minimal_bid, precision: 0))
         end
       end
 

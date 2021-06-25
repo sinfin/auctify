@@ -213,7 +213,7 @@ module Auctify
 
         # too low bid
         { bid: { price: 1_099, max_price: nil, bidder: adam },
-          appender: { success: false, errors: { price: ["je nižší než aktuální minimální příhoz 1 100 Kč"] } },
+          appender: { success: false, errors: { price: ["je nižší než aktuální minimální příhoz 1 100 Kč"], max_price: []  } },
           auction_after: { current_price: 1_000, current_minimal_bid: 1_100, winner: lucifer, bids_count: 1 } },
 
         # exact bid
@@ -226,7 +226,12 @@ module Auctify
           appender: { success: true, errors: {} },
           auction_after: { current_price: 1_999, current_minimal_bid: 2_099, winner: lucifer, bids_count: 3 } },
 
-        # first bid with limit
+        # first bid with limit, but limit is too low
+        { bid: { price: nil, max_price: 2_098, bidder: adam },
+          appender: { success: false, errors: { max_price: ["je nižší než aktuální minimální příhoz 2 099 Kč"], price: [] } },
+          auction_after: { current_price: 1_999, current_minimal_bid: 2_099, winner: lucifer, bids_count: 3 } },
+
+        # first successfull bid with limit
         { bid: { price: nil, max_price: 2_500, bidder: adam },
           appender: { success: true, errors: {} },
           auction_after: { current_price: 2_099, current_minimal_bid: 2_199, winner: adam, bids_count: 4 } },
@@ -486,16 +491,23 @@ module Auctify
                    " \n=> #{auction.bids.ordered.reverse.collect(&:to_json).join("\n")}"
 
       if appender.failed?
-        assert_equal hash[:appender][:errors],
-                     appender.errors.to_h,
-                     "expected appender errors #{hash[:appender][:errors]}," \
-                     " but have #{appender.errors.to_h} for #{hash}"
-
         bid_error_always_in_arrays = bid.errors.to_h.transform_values { |value| [value].flatten }
-        assert_equal hash[:appender][:errors],
-                     bid_error_always_in_arrays,
-                     "expected bid errors #{hash[:appender][:errors]}," \
-                     " but have #{bid_error_always_in_arrays} for #{hash}"
+
+        hash[:appender][:errors].each_pair do |att, value|
+          if value.present?
+            assert_equal value,
+                         appender.errors[att],
+                         "expected appender errors #{hash[:appender][:errors]}," \
+                         " but have #{appender.errors.to_h} for #{hash}"
+            assert_equal value,
+                         bid_error_always_in_arrays[att],
+                         "expected BID errors #{hash[:appender][:errors]}," \
+                         " but have #{bid_error_always_in_arrays} for #{hash}"
+          else
+            assert appender.errors[att].blank?, "no appender errors exepected on `#{att}`, but got #{appender.errors[att]}"
+            assert bid_error_always_in_arrays[att].blank?, "no bid errors exepected on `#{att}`, but got #{appender.errors[att]}"
+          end
+        end
       end
 
       if hash[:limits_after]
