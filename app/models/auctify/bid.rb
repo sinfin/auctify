@@ -10,6 +10,7 @@ module Auctify
     scope :with_limit, -> { where.not(max_price: nil) }
 
     validate :price_is_not_bigger_then_max_price
+    validate :price_is_rounded
 
     def cancel!
       update!(cancelled: true)
@@ -29,6 +30,12 @@ module Auctify
       errors.add(:price, :must_be_lower_or_equal_max_price) if max_price && max_price < price
     end
 
+    def price_is_rounded
+      round_to = configuration.require_bids_to_be_rounded_to
+      errors.add(:price, :must_be_rounded_to, { round_to: round_to }) if price && (price != round_it_to(price, round_to))
+      errors.add(:max_price, :must_be_rounded_to, { round_to: round_to }) if max_price && (max_price != round_it_to(max_price, round_to))
+    end
+
     def bidder=(auctified_model)
       errors.add(:bidder, :not_auctified) unless auctified_model.class.included_modules.include?(Auctify::Behavior::Buyer)
       raise "There is already registration for this bid!"  if registration.present?
@@ -46,6 +53,12 @@ module Auctify
     def configuration
       Auctify.configuration
     end
+
+    private
+      def round_it_to(amount, smallest_amount)
+        smallest_amount = smallest_amount.to_i
+        (smallest_amount * ((amount + (smallest_amount / 2)).to_i / smallest_amount))
+      end
   end
 end
 

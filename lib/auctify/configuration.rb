@@ -8,7 +8,8 @@ module Auctify
                   :autofinish_auction_after_bidding,
                   :when_to_notify_bidders_before_end_of_bidding,
                   :default_bid_steps_ladder,
-                  :restrict_overbidding_yourself_to_max_price_increasing
+                  :restrict_overbidding_yourself_to_max_price_increasing,
+                  :require_bids_to_be_rounded_to
 
 
     def initialize
@@ -20,6 +21,7 @@ module Auctify
       @when_to_notify_bidders_before_end_of_bidding = nil # no notifying
       @default_bid_steps_ladder = { 0.. => 1 }
       @restrict_overbidding_yourself_to_max_price_increasing = true
+      @require_bids_to_be_rounded_to = 1
     end
 
     def autoregistering_for?(instance)
