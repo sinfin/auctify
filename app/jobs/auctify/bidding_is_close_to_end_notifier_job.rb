@@ -14,7 +14,7 @@ module Auctify
         return
       end
 
-      notify_time = auction.ends_at - Auctify.configuration.when_to_notify_bidders_before_end_of_bidding
+      notify_time = auction.bidding_is_close_to_end_notification_time
 
       return unless auction.open_for_bids?
 

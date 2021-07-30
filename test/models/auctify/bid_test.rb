@@ -15,7 +15,7 @@ module Auctify
         bid.price = 123
 
         assert_not bid.valid?
-        assert_includes bid.errors[:price], "Je nutné zadat částku zaokrouhlenou na celé 100 Kč"
+        assert_includes bid.errors[:price], "musí být zaokrouhlená na celé 100 Kč"
 
         bid.price = 1100
         bid.max_price = 1200
@@ -25,7 +25,7 @@ module Auctify
         bid.max_price = 1230
 
         assert_not bid.valid?
-        assert_includes bid.errors[:max_price], "Je nutné zadat částku zaokrouhlenou na celé 100 Kč"
+        assert_includes bid.errors[:max_price], "musí být zaokrouhlená na celé 100 Kč"
       end
 
       Auctify.configuration.stub(:require_bids_to_be_rounded_to, 10) do

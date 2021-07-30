@@ -60,8 +60,6 @@ module Auctify
           transitions from: :accepted, to: :in_sale
 
           after do
-            set_bidding_closer_job
-            set_bidding_is_close_to_end_job
             after_start_sale
           end
         end
@@ -119,6 +117,7 @@ module Auctify
       validate :forbidden_changes
 
       after_create :autoregister_bidders
+      after_save :create_jobs
       before_destroy :forbid_destroy_if_there_are_bids, prepend: true
 
       def bidders
@@ -244,11 +243,6 @@ module Auctify
         applied_bids_count.positive?
       end
 
-      def set_bidding_closer_job
-        Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
-                                 .perform_later(auction_id: id)
-      end
-
       private
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?
@@ -326,16 +320,17 @@ module Auctify
           end
         end
 
-        def set_bidding_is_close_to_end_job
+        def bidding_is_close_to_end_notification_time
           configured_period = Auctify.configuration.when_to_notify_bidders_before_end_of_bidding
-          return if configured_period.blank?
-          notify_time = ends_at - configured_period
-          Auctify::BiddingIsCloseToEndNotifierJob.set(wait_until: notify_time)
-                                                 .perform_later(auction_id: id)
+          return nil if configured_period.blank?
+
+          ends_at - configured_period
         end
 
         def forbidden_changes
           ATTRIBUTES_UNMUTABLE_AT_SOME_STATE.each do |att|
+            next if configuration.allow_changes_on_auction_with_bids_for_attributes.include?(att.to_sym)
+
             if changes[att].present? && locked_for_modifications?
               errors.add(att, :no_modification_allowed_now)
               write_attribute(att, changes[att].first)
@@ -348,6 +343,24 @@ module Auctify
 
         def forbid_destroy_if_there_are_bids
           errors.add(:base, :you_cannot_delete_auction_with_bids) if bids.any?
+        end
+
+        def create_jobs(force = false)
+          return unless in_sale?
+
+          currently_ends_at_changes = saved_changes["currently_ends_at"]
+
+          if force || currently_ends_at_changes.present?
+            # remove_old job is unsupported in ActiveJob
+            Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
+                                     .perform_later(auction_id: id)
+
+            if (notify_time = bidding_is_close_to_end_notification_time).present?
+              # remove_old job is unsupported in ActiveJob
+              Auctify::BiddingIsCloseToEndNotifierJob.set(wait_until: notify_time)
+                                                     .perform_later(auction_id: id)
+            end
+          end
         end
     end
   end

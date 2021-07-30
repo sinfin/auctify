@@ -46,7 +46,7 @@ module Auctify
       end
     end
 
-    test "enqueue itself again if otify time did not pass yet" do
+    test "enqueue itself again if notify time did not pass yet" do
       assert_enqueued_jobs 1, only: job_class do
         auction.start_sale!
       end

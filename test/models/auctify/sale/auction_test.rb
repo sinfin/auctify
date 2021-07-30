@@ -7,6 +7,7 @@ module Auctify
     class AuctionTest < ActiveSupport::TestCase
       attr_reader :auction
       include Auctify::AuctionHelpers
+      include ActiveJob::TestHelper
 
       test "take auctioneer_commission from itself, sale_pack or config" do
         auction = Auctify::Sale::Auction.new(sold_price: 10_000)
@@ -109,6 +110,21 @@ module Auctify
         assert_includes auction.errors[:ends_at], "Již není možné měnit čas konce aukce"
         assert_equal ends_at_new.to_i, auction.ends_at.to_i
         assert_equal ends_at_new.to_i, auction.currently_ends_at.to_i
+
+        Auctify.configuration.stub(:allow_changes_on_auction_with_bids_for_attributes, [:ends_at]) do
+          Auctify.configuration.stub(:when_to_notify_bidders_before_end_of_bidding, 1.minute) do
+            ends_at_new = ends_at_new + 2.days
+
+            assert_enqueued_jobs 1, only: ::Auctify::BiddingCloserJob do
+              assert_enqueued_jobs 1, only: ::Auctify::BiddingIsCloseToEndNotifierJob do
+                assert auction.update(ends_at: ends_at_new)
+              end
+            end
+
+            assert_equal ends_at_new.to_i, auction.ends_at.to_i
+            assert_equal ends_at_new.to_i, auction.currently_ends_at.to_i
+          end
+        end
       end
 
       test "recalculating can handle 'no_bids_left'" do
