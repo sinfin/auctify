@@ -243,6 +243,11 @@ module Auctify
         applied_bids_count.positive?
       end
 
+      def set_bidding_closer_job
+        Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
+                                 .perform_later(auction_id: id)
+      end
+
       private
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?
@@ -352,8 +357,7 @@ module Auctify
 
           if force || currently_ends_at_changes.present?
             # remove_old job is unsupported in ActiveJob
-            Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
-                                     .perform_later(auction_id: id)
+            set_bidding_closer_job
 
             if (notify_time = bidding_is_close_to_end_notification_time).present?
               # remove_old job is unsupported in ActiveJob
