@@ -189,6 +189,53 @@ module Auctify
           end
         end
       end
+
+      test "do not append invalid bid" do
+        Auctify.configuration.stub(:require_bids_to_be_rounded_to, 100) do
+          auction.offered_price = 1_000
+          auction.start_sale
+          auction.save! # just for sure
+
+          assert_equal 1_000, auction.reload.current_price
+
+          bid1 = bid_for(lucifer, 1_000)
+
+          assert auction.bid!(bid1)
+
+          assert_equal 1_000, auction.current_price
+          assert_equal lucifer, auction.current_winner
+
+          bid2 = bid_for(adam, nil, 5_000)
+
+          assert auction.bid!(bid2), bid2.errors.full_messages
+
+          assert_equal 1_100, auction.reload.current_price
+          assert_equal adam, auction.current_winner
+          assert_equal bid2, auction.current_winning_bid
+
+          bid3 = bid_for(lucifer, 2_222)
+
+          assert_equal false, auction.bid!(bid3)
+
+          assert_includes bid3.errors[:price], "musí být zaokrouhlená na celé 100 Kč"
+
+          assert_equal 1_100, auction.current_price
+          assert_equal adam, auction.current_winner
+          assert_equal bid2, auction.current_winning_bid
+          assert_equal 2, auction.bids.count
+
+          bid4 = bid_for(lucifer, nil, 2_222)
+
+          assert_equal false, auction.bid!(bid4)
+
+          assert_includes bid4.errors[:max_price], "musí být zaokrouhlená na celé 100 Kč"
+
+          assert_equal 1_100, auction.current_price
+          assert_equal adam, auction.current_winner
+          assert_equal bid2, auction.current_winning_bid
+          assert_equal 2, auction.bids.count
+        end
+      end
     end
   end
 end

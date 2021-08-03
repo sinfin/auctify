@@ -57,6 +57,7 @@ module Auctify
 
       def approved_bid?
         @approved_bid ||= begin
+          bid.valid?
           check_bidder
           changing_own_limit? ? check_max_price_increasing : check_price_minimum
           check_same_bidder
@@ -204,7 +205,7 @@ module Auctify
       end
 
       def increase_price(price)
-        return price + 1 if bid_steps_ladder.blank?
+        return price + Auctify.configuration.require_bids_to_be_rounded_to if bid_steps_ladder.blank?
 
         _range, increase_step = bid_steps_ladder.detect { |range, step| range.cover?(price) }
         price + increase_step
