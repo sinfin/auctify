@@ -491,7 +491,8 @@ module Auctify
                    " \n=> #{auction.bids.ordered.reverse.collect(&:to_json).join("\n")}"
 
       if appender.failed?
-        bid_error_always_in_arrays = bid.errors.to_h.transform_values { |value| [value].flatten }
+
+        bid_error_always_in_arrays = bid.errors.to_hash
 
         hash[:appender][:errors].each_pair do |att, value|
           if value.present?
