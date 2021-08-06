@@ -44,5 +44,35 @@ module Auctify
 
       Auctify.configure { |config| config.auctioneer_commission_in_percent = original }
     end
+
+    test "moves all sales according to start_date change" do
+      original_start_date = Date.tomorrow
+      new_start_date = Date.tomorrow + 1.week
+
+      pack = Auctify::SalesPack.create!(title: "Ready to launch",
+                                        start_date: original_start_date,
+                                        end_date: original_start_date + 7.days)
+      firts_sale = Auctify::Sale::Auction.create!(seller: users(:eve),
+                                                  item: things(:apple),
+                                                  offered_price: 100.0,
+                                                  pack: pack,
+                                                  ends_at: pack.start_date.to_time + 1.hour)
+
+      last_sale = Auctify::Sale::Auction.create!(seller: users(:adam),
+                                                 item: things(:innocence),
+                                                 offered_price: 100.0,
+                                                 pack: pack,
+                                                 ends_at: pack.end_date.to_time + 1.day - 1.minute)
+
+      assert_equal 2, pack.sales.reload.size
+
+      pack.update(start_date: new_start_date, end_date: new_start_date + 7.days)
+
+      assert_equal new_start_date, pack.reload.start_date
+      assert_equal new_start_date + 7.days, pack.end_date
+
+      assert_equal pack.start_date.to_time + 1.hour, firts_sale.reload.ends_at
+      assert_equal pack.end_date.to_time + 1.day - 1.minute, last_sale.reload.ends_at
+    end
   end
 end

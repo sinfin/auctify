@@ -38,6 +38,7 @@ module Auctify
                     using: { tsearch: { prefix: true } }
 
     after_initialize :set_commission
+    after_save :shift_sales_if_neccessary
 
     def to_label
       title
@@ -68,6 +69,20 @@ module Auctify
         return if self.commission_in_percent.present?
 
         self.commission_in_percent = Auctify.configuration.auctioneer_commission_in_percent
+      end
+
+      def shift_sales_if_neccessary
+        # some checks ?
+
+        if (start_date_changes = saved_changes["start_date"]).present?
+          return if start_date_changes.first.nil? # creation of pack
+
+          time_shift = start_date_changes.last.to_time - start_date_changes.first.to_time
+
+          sales.each do |sale|
+            sale.update!(ends_at:  sale.ends_at + time_shift)
+          end
+        end
       end
   end
 end
