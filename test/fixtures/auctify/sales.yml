@@ -14,17 +14,21 @@ eve_apple:
   ends_at: <%= Date.new(1,1,2) %>
   currently_ends_at: <%= Date.new(1,1,2) %>
   winner: adam (User)
+  slug: eve_apple
+  applied_bids_count: 1
 
 adam_innocence:
   seller: adam (User)
   buyer:
   item: innocence
   type: Auctify::Sale::Auction
+  offered_price: 100.0
   published: true
   pack: things_from_eden
   ends_at: <%= Date.new(1,1,2) %>
   aasm_state: bidding_ended
   winner: eve (User)
+  slug: adam_innoncence
 
 unpublished_sale:
   seller: adam (User)
@@ -32,6 +36,7 @@ unpublished_sale:
   item: leaf
   type: Auctify::Sale::Retail
   ends_at: <%= Date.new(1,1,2) %>
+  slug: unpublished_sale
 
 auction_in_progress:
   seller: eve (User)
@@ -40,12 +45,13 @@ auction_in_progress:
   type: Auctify::Sale::Auction
   aasm_state: in_sale
   published: true
-  pack: things_from_eden
+  pack: published_pack
   offered_price: 10
   current_price: 101
   ends_at: <%= etime = Time.current + 1.day %>
   currently_ends_at: <%= etime %>
   applied_bids_count: 2
+  slug: auction_in_progress
 
 future_auction:
   seller: eve (User)
@@ -53,8 +59,9 @@ future_auction:
   item: flaming_sword
   type: Auctify::Sale::Auction
   published: false
-  pack: things_from_eden
+  pack: published_pack
   ends_at: <%= Time.current + 1.day %>
+  slug: future_auction
 
 accepted_auction:
   seller: eve (User)
@@ -66,6 +73,7 @@ accepted_auction:
   pack:
   offered_price: 102
   ends_at: <%= Time.current + 1.day %>
+  slug: accepted_auction
 
 sale_without_seller:
   seller_id:
@@ -78,3 +86,4 @@ sale_without_seller:
   pack:
   offered_price: 103
   ends_at: <%= Time.current + 1.day %>
+  slug: sale_without_seller

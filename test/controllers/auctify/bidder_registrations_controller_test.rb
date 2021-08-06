@@ -51,7 +51,16 @@ module Auctify
       assert_redirected_to auctify_bidder_registration_url(@bidder_registration)
     end
 
-    test "should destroy bidder_registration" do
+    test "should destroy bidder_registration if it have no bids" do
+      assert @bidder_registration.bids.size.positive?
+
+      assert_no_difference("Auctify::BidderRegistration.count") do
+        delete auctify_bidder_registration_url(@bidder_registration)
+      end
+      assert_equal "{\"errors\":{\"base\":[\"Nemůžu smazat položku protože existuje závislé/ý bids\"]}}", response.body
+
+      @bidder_registration.bids.each { |b| b.destroy! }
+
       assert_difference("Auctify::BidderRegistration.count", -1) do
         delete auctify_bidder_registration_url(@bidder_registration)
       end

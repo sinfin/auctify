@@ -10,7 +10,14 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal 7, Auctify::Sale::Base.count # details bellow
     assert_equal 8, Auctify::BidderRegistration.count
     assert_equal 3, Auctify::SalesPack.count
-    assert_equal 4, auctify_sales_packs(:things_from_eden).sales.count
+    assert_equal 2, auctify_sales_packs(:things_from_eden).sales.count
+    assert_equal 2, auctify_sales_packs(:published_pack).sales.count
+  end
+
+  test "all records are valid" do
+    [Auctify::SalesPack, Auctify::Sale::Base, Auctify::Bid, Auctify::BidderRegistration].each do |klass|
+      klass.all.each { |record| assert record.valid?, "NOT VALID: #{klass} #{record.to_json} => #{record.errors.full_messages}" }
+    end
   end
 
   test "Eve's apple" do
@@ -63,7 +70,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal auction.winning_bid.price, auction.current_price
     assert_not_nil auction.ends_at
     assert_equal auction.ends_at, auction.currently_ends_at
-    assert_equal auctify_sales_packs(:things_from_eden), auction.pack
+    assert_equal auctify_sales_packs(:published_pack), auction.pack
     assert_equal auction.ordered_applied_bids.count, auction.applied_bids_count
 
     assert_equal %w[Adam Lucifer], auction.bidders.pluck(:name)
@@ -79,7 +86,7 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert sale.is_a?(Auctify::Sale::Auction)
     assert_not sale.in_sale?
     assert_not sale.published?
-    assert_equal auctify_sales_packs(:things_from_eden), sale.pack
+    assert_equal auctify_sales_packs(:published_pack), sale.pack
 
     # assert %w[Adam Lucifer], sale.bidders.pluck(:name)
   end

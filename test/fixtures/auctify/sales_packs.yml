@@ -15,8 +15,8 @@ published_pack:
   description: You never know what is lurking there
   position: 1
   slug: garbage
-  start_date: <%= Date.new(2020, 01, 01) %>
-  end_date: <%= Date.new(2020, 02, 01) %>
+  start_date: <%= Date.yesterday %>
+  end_date: <%= Date.today + 1.month %>
   place: garage at Downing Street 10, London, UK
   published: true
 

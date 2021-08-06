@@ -18,7 +18,7 @@ module Auctify
     test "forbid deleting if there are any sales" do
       pack = auctify_sales_packs(:things_from_eden)
       sales = pack.sales.reload
-      assert_equal 4, sales.size
+      assert_equal 2, sales.size
 
       assert_not pack.destroy
       assert_includes pack.errors[:base], "Nemůžu smazat položku protože existuje závislé/ý položky", pack.errors.to_json
@@ -73,6 +73,30 @@ module Auctify
 
       assert_equal pack.start_date.to_time + 1.hour, firts_sale.reload.ends_at
       assert_equal pack.end_date.to_time + 1.day - 1.minute, last_sale.reload.ends_at
+    end
+
+    test "validates ends_at times of all sales" do
+      original_start_date = Date.tomorrow
+      pack = Auctify::SalesPack.create!(title: "Ready to launch",
+                                        start_date: original_start_date,
+                                        end_date: original_start_date + 7.days)
+      assert pack.valid? # no sales
+
+      pack = auctify_sales_packs(:things_from_eden)
+      sales = pack.sales.reload
+      assert_equal 2, sales.size
+
+      assert pack.valid?
+
+      sales.last.update!(ends_at: pack.end_date.to_time + 1.day - 1.minute)
+      pack.sales.reload
+
+      assert pack.reload.valid?
+
+      sales.last.update!(ends_at: pack.end_date.to_time + 1.day)
+      pack.sales.reload
+      skip
+      assert_not pack.reload.valid?
     end
   end
 end

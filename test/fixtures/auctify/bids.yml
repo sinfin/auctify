@@ -10,3 +10,7 @@ adam_1:
   price: 101
   max_price:
 
+adam_apple_winner:
+  registration: adam_on_apple
+  price: 100
+  max_price:
