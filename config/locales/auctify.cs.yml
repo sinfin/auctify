@@ -98,6 +98,8 @@ cs:
           attributes:
             end_date:
               smaller_than_start_date: "musí být později než začátek"
+            sales:
+              sale_is_out_of_time_frame: "Položka '%{slug}' má čas konce (%{ends_at_time}) mimo rámec aukce"
         auctify/bid:
           not_confirmed: "Příhoz je potřeba potvrdit"
           attributes:

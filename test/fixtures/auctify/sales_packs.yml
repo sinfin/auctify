@@ -5,8 +5,8 @@ things_from_eden:
   description: Some heaven stuff, very rare
   position: 0
   slug: things-from-eden
-  start_date: <%= Date.new(2020, 01, 01) %>
-  end_date: <%= Date.new(2020, 02, 01) %>
+  start_date: <%= Date.new(0001, 01, 01) %>
+  end_date: <%= Date.new(0001, 02, 01) %>
   place: online
   published: true
 

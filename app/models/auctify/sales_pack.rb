@@ -29,6 +29,7 @@ module Auctify
               numericality: { greater_than_or_equal: 0, less_than: 60 }
 
     validate :validate_start_and_end_dates
+    validate :sales_ends_in_pack_time_frame
 
     scope :ordered, -> { order(start_date: :desc, id: :desc) }
 
@@ -65,6 +66,23 @@ module Auctify
         end
       end
 
+      def sales_ends_in_pack_time_frame
+        return if changes["start_date"].present? || changes["end_date"]
+
+        sales.select(:id, :slug, :ends_at).each do |sale|
+          unless time_frame.cover?(sale.ends_at)
+            errors.add(:sales,
+                      :sale_is_out_of_time_frame,
+                      slug: sale.slug.blank? ? "##{sale.id}" : sale.slug,
+                      ends_at_time: I18n.l(sale.ends_at))
+          end
+        end
+      end
+
+      def time_frame
+        (start_date.to_time..(end_date.to_time + 1.day))
+      end
+
       def set_commission
         return if self.commission_in_percent.present?
 
@@ -82,6 +100,9 @@ module Auctify
           sales.each do |sale|
             sale.update!(ends_at:  sale.ends_at + time_shift)
           end
+          sales.reload
+
+          raise "Error when shifting sales: #{errors.full_messages.join(";")}" unless valid?
         end
       end
   end

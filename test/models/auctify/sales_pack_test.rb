@@ -66,7 +66,7 @@ module Auctify
 
       assert_equal 2, pack.sales.reload.size
 
-      pack.update(start_date: new_start_date, end_date: new_start_date + 7.days)
+      pack.update!(start_date: new_start_date, end_date: new_start_date + 7.days)
 
       assert_equal new_start_date, pack.reload.start_date
       assert_equal new_start_date + 7.days, pack.end_date
@@ -86,16 +86,16 @@ module Auctify
       sales = pack.sales.reload
       assert_equal 2, sales.size
 
-      assert pack.valid?
+      assert pack.valid?, pack.errors.full_messages
 
-      sales.last.update!(ends_at: pack.end_date.to_time + 1.day - 1.minute)
+      sales.last.update!(ends_at: pack.end_date.to_time + 1.day)
       pack.sales.reload
 
       assert pack.reload.valid?
 
-      sales.last.update!(ends_at: pack.end_date.to_time + 1.day)
+      sales.last.update!(ends_at: pack.end_date.to_time + 1.day + 1.minute)
       pack.sales.reload
-      skip
+
       assert_not pack.reload.valid?
     end
   end
