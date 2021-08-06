@@ -41,7 +41,7 @@ module Auctify
          sale.item = item_not_in_db
 
          assert sale.invalid?
-         assert_equal ["musí existovat"], sale.errors[:item]
+         assert_equal ["musí existovat", "musí existovat"], sale.errors[:item]
        end
 
       test "validates buyer if present" do

@@ -491,14 +491,14 @@ module Auctify
                    " \n=> #{auction.bids.ordered.reverse.collect(&:to_json).join("\n")}"
 
       if appender.failed?
-        bid_error_always_in_arrays = bid.errors.to_h.transform_values { |value| [value].flatten }
+        bid_error_always_in_arrays = bid.errors.to_hash.transform_values { |value| [value].flatten }
 
         hash[:appender][:errors].each_pair do |att, value|
           if value.present?
             assert_equal value,
                          appender.errors[att],
                          "expected appender errors #{hash[:appender][:errors]}," \
-                         " but have #{appender.errors.to_h} for #{hash}"
+                         " but have #{appender.errors.to_hash} for #{hash}"
             assert_equal value,
                          bid_error_always_in_arrays[att],
                          "expected BID errors #{hash[:appender][:errors]}," \
