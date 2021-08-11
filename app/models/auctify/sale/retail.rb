@@ -23,6 +23,12 @@ module Auctify
         end
 
         event :start_sale do
+          before do
+            self.current_price = self.offered_price
+            self.currently_ends_at = self.ends_at
+            self.buyer = nil
+          end
+
           transitions from: :accepted, to: :in_sale
         end
 

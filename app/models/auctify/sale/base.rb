@@ -4,7 +4,6 @@ module Auctify
   module Sale
     class Base < ApplicationRecord
       include Folio::FriendlyId
-      include Folio::Positionable
       include Folio::Featurable::Basic
       include Folio::Publishable::Basic
 
@@ -33,6 +32,7 @@ module Auctify
       validate :validate_offered_price_when_published
 
       scope :not_sold, -> { where(sold_price: nil) }
+      scope :ordered, -> { order(currently_ends_at: :asc, id: :asc) }
 
       # need auction scopes here because of has_many :sales, class_name: "Auctify::Sale::Base"
       scope :auctions_open_for_bids, -> do
