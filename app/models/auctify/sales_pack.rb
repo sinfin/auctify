@@ -39,7 +39,6 @@ module Auctify
                     using: { tsearch: { prefix: true } }
 
     after_initialize :set_commission
-    after_save :shift_sales_if_neccessary
 
     def to_label
       title
@@ -59,6 +58,22 @@ module Auctify
       end
     end
 
+    def shift_sales_by_minutes!(shift_in_minutes)
+      self.transaction do
+        sales.each do |sale|
+          sale.update!(ends_at: sale.ends_at + shift_in_minutes.minutes)
+
+          validate_sale_ends_in_time_frame(sale)
+          raise ActiveRecord::RecordInvalid if errors[:sales].present?
+        end
+      end
+      sales.reload
+    end
+
+    def time_frame
+      (start_date.to_time..(end_date.to_time + 1.day))
+    end
+
     private
       def validate_start_and_end_dates
         if start_date.present? && end_date.present? && start_date > end_date
@@ -70,17 +85,8 @@ module Auctify
         return if changes["start_date"].present? || changes["end_date"]
 
         sales.select(:id, :slug, :ends_at).each do |sale|
-          unless time_frame.cover?(sale.ends_at)
-            errors.add(:sales,
-                      :sale_is_out_of_time_frame,
-                      slug: sale.slug.blank? ? "##{sale.id}" : sale.slug,
-                      ends_at_time: I18n.l(sale.ends_at))
-          end
+          validate_sale_ends_in_time_frame(sale)
         end
-      end
-
-      def time_frame
-        (start_date.to_time..(end_date.to_time + 1.day))
       end
 
       def set_commission
@@ -89,20 +95,12 @@ module Auctify
         self.commission_in_percent = Auctify.configuration.auctioneer_commission_in_percent
       end
 
-      def shift_sales_if_neccessary
-        # some checks ?
-
-        if (start_date_changes = saved_changes["start_date"]).present?
-          return if start_date_changes.first.nil? # creation of pack
-
-          time_shift = start_date_changes.last.to_time - start_date_changes.first.to_time
-
-          sales.each do |sale|
-            sale.update!(ends_at:  sale.ends_at + time_shift)
-          end
-          sales.reload
-
-          raise "Error when shifting sales: #{errors.full_messages.join(";")}" unless valid?
+      def validate_sale_ends_in_time_frame(sale)
+        unless time_frame.cover?(sale.ends_at)
+          errors.add(:sales,
+                    :sale_is_out_of_time_frame,
+                    slug: sale.slug.blank? ? "##{sale.id}" : sale.slug,
+                    ends_at_time: I18n.l(sale.ends_at))
         end
       end
   end

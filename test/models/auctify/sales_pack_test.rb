@@ -45,34 +45,45 @@ module Auctify
       Auctify.configure { |config| config.auctioneer_commission_in_percent = original }
     end
 
-    test "moves all sales according to start_date change" do
+    test "#shift_sales_by_minutes moves all sales in transaction" do
       original_start_date = Date.tomorrow
-      new_start_date = Date.tomorrow + 1.week
+      shift_in_minutes = 7 * 24 * 60 # one week
+
 
       pack = Auctify::SalesPack.create!(title: "Ready to launch",
                                         start_date: original_start_date,
                                         end_date: original_start_date + 7.days)
+      firts_sale_ends_at = pack.start_date.to_time + 1.hour
+      last_sale_ends_at = pack.end_date.to_time + 1.day - 1.minute
+
       firts_sale = Auctify::Sale::Auction.create!(seller: users(:eve),
                                                   item: things(:apple),
                                                   offered_price: 100.0,
                                                   pack: pack,
-                                                  ends_at: pack.start_date.to_time + 1.hour)
+                                                  ends_at: firts_sale_ends_at)
 
       last_sale = Auctify::Sale::Auction.create!(seller: users(:adam),
                                                  item: things(:innocence),
                                                  offered_price: 100.0,
                                                  pack: pack,
-                                                 ends_at: pack.end_date.to_time + 1.day - 1.minute)
+                                                 ends_at: last_sale_ends_at)
 
       assert_equal 2, pack.sales.reload.size
 
-      pack.update!(start_date: new_start_date, end_date: new_start_date + 7.days)
+      assert_raises(ActiveRecord::RecordInvalid) { pack.shift_sales_by_minutes!(shift_in_minutes) }
 
-      assert_equal new_start_date, pack.reload.start_date
-      assert_equal new_start_date + 7.days, pack.end_date
+      assert_includes pack.errors[:sales], "Položka '#{last_sale.slug}' má čas konce (#{I18n.l(last_sale.ends_at + shift_in_minutes.minutes)}) mimo rámec aukce"
+      assert_equal firts_sale_ends_at, firts_sale.reload.ends_at # Rollback should happened, so no change here too
+      assert_equal last_sale_ends_at, last_sale.reload.ends_at
 
-      assert_equal pack.start_date.to_time + 1.hour, firts_sale.reload.ends_at
-      assert_equal pack.end_date.to_time + 1.day - 1.minute, last_sale.reload.ends_at
+      pack.errors.clear
+      pack.sales.reload
+      pack.end_date = (last_sale_ends_at + shift_in_minutes.minutes).to_date
+
+      pack.shift_sales_by_minutes!(shift_in_minutes)
+
+      assert_equal firts_sale_ends_at + shift_in_minutes.minutes, firts_sale.reload.ends_at
+      assert_equal last_sale_ends_at + shift_in_minutes.minutes, last_sale.reload.ends_at
     end
 
     test "validates ends_at times of all sales" do
@@ -88,7 +99,9 @@ module Auctify
 
       assert pack.valid?, pack.errors.full_messages
 
-      sales.last.update!(ends_at: pack.end_date.to_time + 1.day)
+      sale = sales.last
+      sale.ends_at = pack.end_date.to_time + 1.day
+      sale.save(validation: false)
       pack.sales.reload
 
       assert pack.reload.valid?
@@ -97,6 +110,7 @@ module Auctify
       pack.sales.reload
 
       assert_not pack.reload.valid?
+      assert_includes pack.errors[:sales], "Položka 'adam_innoncence' má čas konce (Čt 01. únor 0001 23:03 +0000) mimo rámec aukce"
     end
   end
 end
