@@ -65,7 +65,7 @@ If `item.owner` exists, it is used as `auction.seller` (or Select from all aucit
 - item can have category and user can select auction by categories.
 - SalePack can be `(un)published /public`
 - SalePack can be `open (adding items , bidding)/ closed(bidding ended)`
-- auctioneer_commission is in % and adds to sold_price in checkout
+- auctioneer_commision_from_buyer is in % and adds to sold_price in checkout
 - auction have `start_time` and `end_time`
 - auction can be `highlighted` for cover pages
 - auction stores all bids history even those cancelled by admin

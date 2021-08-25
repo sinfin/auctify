@@ -2,15 +2,15 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_25_125732) do
+ActiveRecord::Schema.define(version: 2021_08_25_155543) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -67,13 +67,14 @@ ActiveRecord::Schema.define(version: 2021_06_25_125732) do
     t.boolean "featured", default: false
     t.string "slug"
     t.string "contract_number"
-    t.integer "commission_in_percent"
+    t.integer "seller_commission_in_percent"
     t.string "winner_type"
     t.bigint "winner_id"
     t.integer "applied_bids_count", default: 0
     t.datetime "sold_at"
     t.string "current_winner_type"
     t.bigint "current_winner_id"
+    t.integer "buyer_commission_in_percent"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["currently_ends_at"], name: "index_auctify_sales_on_currently_ends_at"
     t.index ["featured"], name: "index_auctify_sales_on_featured"
@@ -363,6 +364,7 @@ ActiveRecord::Schema.define(version: 2021_06_25_125732) do
     t.string "locale", limit: 6
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "ancestry_slug"
     t.index ["ancestry"], name: "index_folio_pages_on_ancestry"
     t.index ["featured"], name: "index_folio_pages_on_featured"
     t.index ["locale"], name: "index_folio_pages_on_locale"
@@ -433,6 +435,11 @@ ActiveRecord::Schema.define(version: 2021_06_25_125732) do
     t.string "system_email"
     t.string "system_email_copy"
     t.string "email_from"
+    t.string "google_analytics_tracking_code_v4"
+    t.text "header_message"
+    t.boolean "header_message_published", default: false
+    t.datetime "header_message_published_from"
+    t.datetime "header_message_published_until"
     t.index ["domain"], name: "index_folio_sites_on_domain"
   end
 
@@ -469,6 +476,7 @@ ActiveRecord::Schema.define(version: 2021_06_25_125732) do
     t.bigint "primary_address_id"
     t.bigint "secondary_address_id"
     t.boolean "subscribed_to_newsletter", default: false
+    t.boolean "has_generated_password", default: false
     t.index ["confirmation_token"], name: "index_folio_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_folio_users_on_email"
     t.index ["invitation_token"], name: "index_folio_users_on_invitation_token", unique: true

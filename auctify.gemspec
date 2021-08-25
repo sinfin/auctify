@@ -47,6 +47,6 @@ Gem::Specification.new do |spec|
   # system tests
   spec.add_development_dependency "puma"
   spec.add_development_dependency "selenium"
-  spec.add_development_dependency "selenium-webdriver"
+  spec.add_development_dependency "selenium-webdriver", "~> 3.142.7"
   spec.add_development_dependency "webdrivers"
 end

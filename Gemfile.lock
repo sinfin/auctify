@@ -60,7 +60,7 @@ GIT
 PATH
   remote: .
   specs:
-    auctify (1.0.0)
+    auctify (1.0.1)
       aasm (~> 5.1.1)
       fast_jsonapi
       rails (~> 6.1.4)
@@ -562,7 +562,7 @@ DEPENDENCIES
   rubocop-rails_config
   rubocop-rake
   selenium
-  selenium-webdriver
+  selenium-webdriver (~> 3.142.7)
   webdrivers
 
 BUNDLED WITH

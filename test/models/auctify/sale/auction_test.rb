@@ -9,34 +9,45 @@ module Auctify
       include Auctify::AuctionHelpers
       include ActiveJob::TestHelper
 
-      test "take auctioneer_commission from itself, sale_pack or config" do
+      test "take auctioneer_commision_from_buyer from itself, sale_pack or config" do
         auction = Auctify::Sale::Auction.new(sold_price: 10_000)
-        assert auction.commission_in_percent.blank?
+        assert auction.buyer_commission_in_percent.blank?
         assert auction.pack.blank?
 
         assert_equal 1, Auctify.configuration.auctioneer_commission_in_percent
 
-        assert_equal auction.sold_price * 0.01, auction.auctioneer_commission
+        assert_equal auction.sold_price * 0.01, auction.auctioneer_commision_from_buyer
 
         auction.pack = Auctify::SalesPack.new(commission_in_percent: 5)
 
-        assert_equal auction.sold_price * 0.05, auction.auctioneer_commission
+        assert_equal auction.sold_price * 0.05, auction.auctioneer_commision_from_buyer
 
-        assert auction.commission_in_percent = 33
+        assert auction.buyer_commission_in_percent = 33
 
-        assert_equal auction.sold_price * 0.33, auction.auctioneer_commission
+        assert_equal auction.sold_price * 0.33, auction.auctioneer_commision_from_buyer
       end
 
-      test "no commision when not sold" do
-        auction = Auctify::Sale::Auction.new(commission_in_percent: 50)
+      test "no commission from buyer, when not sold" do
+        auction = Auctify::Sale::Auction.new(buyer_commission_in_percent: 50)
 
         assert_nil auction.sold_price
 
-        assert_nil auction.auctioneer_commission
+        assert_nil auction.auctioneer_commision_from_buyer
 
         auction.sold_price = 10_000
 
-        assert_equal 5_000, auction.auctioneer_commission
+        assert_equal 5_000, auction.auctioneer_commision_from_buyer
+      end
+
+      test "commission from seller" do
+        auction = Auctify::Sale::Auction.new(offered_price: 10_000)
+        assert_equal 10_000, auction.offered_price
+
+        assert_equal 0, auction.auctioneer_commision_from_seller
+
+        auction.seller_commission_in_percent = 10
+
+        assert_equal 1_000, auction.auctioneer_commision_from_seller
       end
 
       test "current_price adapts according to offered_price until first bid" do

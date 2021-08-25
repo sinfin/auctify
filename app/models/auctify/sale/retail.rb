@@ -57,37 +57,38 @@ end
 #
 # Table name: auctify_sales
 #
-#  id                    :bigint(8)        not null, primary key
-#  seller_type           :string
-#  seller_id             :integer
-#  buyer_type            :string
-#  buyer_id              :integer
-#  item_id               :integer          not null
-#  created_at            :datetime         not null
-#  updated_at            :datetime         not null
-#  type                  :string           default("Auctify::Sale::Base")
-#  aasm_state            :string           default("offered"), not null
-#  offered_price         :decimal(, )
-#  current_price         :decimal(, )
-#  sold_price            :decimal(, )
-#  bid_steps_ladder      :json
-#  reserve_price         :decimal(, )
-#  pack_id               :bigint(8)
-#  ends_at               :datetime
-#  position              :integer
-#  number                :string
-#  currently_ends_at     :datetime
-#  published             :boolean          default(FALSE)
-#  featured              :boolean          default(FALSE)
-#  slug                  :string
-#  contract_number       :string
-#  commission_in_percent :integer
-#  winner_type           :string
-#  winner_id             :bigint(8)
-#  applied_bids_count    :integer          default(0)
-#  sold_at               :datetime
-#  current_winner_type   :string
-#  current_winner_id     :bigint(8)
+#  id                           :bigint(8)        not null, primary key
+#  seller_type                  :string
+#  seller_id                    :integer
+#  buyer_type                   :string
+#  buyer_id                     :integer
+#  item_id                      :integer          not null
+#  created_at                   :datetime         not null
+#  updated_at                   :datetime         not null
+#  type                         :string           default("Auctify::Sale::Base")
+#  aasm_state                   :string           default("offered"), not null
+#  offered_price                :decimal(, )
+#  current_price                :decimal(, )
+#  sold_price                   :decimal(, )
+#  bid_steps_ladder             :json
+#  reserve_price                :decimal(, )
+#  pack_id                      :bigint(8)
+#  ends_at                      :datetime
+#  position                     :integer
+#  number                       :string
+#  currently_ends_at            :datetime
+#  published                    :boolean          default(FALSE)
+#  featured                     :boolean          default(FALSE)
+#  slug                         :string
+#  contract_number              :string
+#  seller_commission_in_percent :integer
+#  winner_type                  :string
+#  winner_id                    :bigint(8)
+#  applied_bids_count           :integer          default(0)
+#  sold_at                      :datetime
+#  current_winner_type          :string
+#  current_winner_id            :bigint(8)
+#  buyer_commission_in_percent  :integer
 #
 # Indexes
 #
