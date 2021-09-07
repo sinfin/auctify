@@ -76,6 +76,24 @@ module Auctify
           assert_equal lucifer, bid.bidder
         end
 
+        test "POST /api/auctions/:id/bids will create bid for current_user, warning about not winning due to other bidder's limit" do
+          sign_in lucifer
+
+          assert auction.bid!(bid_for(adam, nil, 5000))
+
+          assert_difference("Auctify::Bid.count", +2) do
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_500.0 } }
+
+            assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
+          end
+
+          auction.reload
+          assert_auction_json_response(success: true, overbid_by_limit: true)
+
+          assert_equal 1_501, auction.current_price.to_f
+          assert_equal adam, auction.current_winner
+        end
+
         test "POST /api/auctions/:id/bids will create bid and registration for current_user" do
           Auctify.configure do |config|
             config.autoregister_as_bidders_all_instances_of_classes = ["User"]
@@ -134,7 +152,7 @@ module Auctify
         end
 
         private
-          def assert_auction_json_response
+          def assert_auction_json_response(success: nil, overbid_by_limit: nil)
             assert_equal auction.id, response_json["data"]["id"].to_i
             assert_equal "auction", response_json["data"]["type"]
 
@@ -148,6 +166,9 @@ module Auctify
             assert_equal auction.ends_at, json_attributes["ends_at"]
             assert_equal auction.currently_ends_at, json_attributes["currently_ends_at"]
             assert_equal auction.open_for_bids?, json_attributes["open_for_bids?"]
+
+            assert_equal 1, response_json["success"] if success
+            assert_equal 1, response_json["overbid_by_limit"] if overbid_by_limit
           end
 
           def api_path_for(resource_path)
