@@ -20,7 +20,12 @@ module Auctify
                             .update_all(dont_confirm_bids: true)
               end
 
-              render_record @auction.reload, success: true
+              @auction.reload
+
+              winning_bid_id = @auction.winning_bid.try(:id)
+              overbid_by_limit = winning_bid_id && new_bid.id && winning_bid_id != new_bid.id
+
+              render_record @auction, success: true, overbid_by_limit: overbid_by_limit
             else
               render_record @auction, bid: new_bid, status: 400
             end
@@ -50,9 +55,13 @@ module Auctify
             { bidder: current_user }
           end
 
-          def render_record(auction, bid: nil, status: 200, success: nil)
+          def render_record(auction, bid: nil, status: 200, success: nil, overbid_by_limit: nil)
             render json: {
-              data: cell("#{global_namespace_path}/auctify/auctions/form", auction, bid: bid, success: success).show
+              data: cell("#{global_namespace_path}/auctify/auctions/form",
+                         auction,
+                         bid: bid,
+                         success: success,
+                         overbid_by_limit: overbid_by_limit).show
             }, status: status
           end
       end

@@ -13,7 +13,10 @@ class Dummy::Auctify::Auctions::FormCell < ApplicationCell
         end
       }.to_json
     else
-      Auctify::Sale::AuctionSerializer.new(model).serializable_hash.to_json
+      {
+        success: options[:success] ? 1 : 0,
+        overbid_by_limit: options[:overbid_by_limit] ? 1 : 0,
+      }.merge(Auctify::Sale::AuctionSerializer.new(model).serializable_hash).to_json
     end
   end
 end
