@@ -27,7 +27,7 @@ module Auctify
       exc = assert_raises(ActiveRecord::RecordInvalid) do
         users(:adam).offer_to_sale!(CleanThing.first, in: :auction, price: 1_000)
       end
-      assert_equal("Validace je neúspešná: Zboží objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`",
+      assert_equal("Validace je neúspešná: Předmět objekt Předmětu nebyl Auctifikován pomocí `auctify_as: :item`",
                    exc.message)
     end
 

@@ -135,7 +135,7 @@ module Auctify
 
           assert_includes response_json["errors"], { "status" => 400,
                                                      "title" => "ActiveRecord::RecordInvalid",
-                                                     "detail" => "Auction dražitel není registrován k této aukci" }
+                                                     "detail" => "Položka aukce dražitel není registrován k této aukci" }
 
           @response_json = nil
           sign_in adam # current winner
@@ -148,7 +148,7 @@ module Auctify
 
           assert_includes response_json["errors"], { "status" => 400,
                                                      "title" => "ActiveRecord::RecordInvalid",
-                                                     "detail" => "Bidder Není možné přehazovat své příhozy" }
+                                                     "detail" => "Dražitel Není možné přehazovat své příhozy" }
         end
 
         private

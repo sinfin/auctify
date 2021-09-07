@@ -87,7 +87,7 @@ module Auctify
       assert b_reg.bids.count.positive?
 
       assert_not b_reg.destroy
-      assert_includes b_reg.errors[:base], "Nemůžu smazat položku protože existuje závislé/ý bids", b_reg.errors.to_json
+      assert_includes b_reg.errors[:base], "Nemůžu smazat položku protože existuje závislé/ý příhozy", b_reg.errors.to_json
 
       b_reg.bids.destroy_all
       assert b_reg.bids.count.zero?

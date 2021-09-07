@@ -34,6 +34,7 @@ cs:
         published: Zveřejněno
         sales_count: Počet položek
         sales: Položky
+        items: Předměty
         sales_interval: Časový rozestup mezi předměty v minutách
         sales_beginning_hour: Čas prvního předmětu (hodina)
         sales_beginning_minutes: Čas prvního předmětu (minuty)
@@ -41,7 +42,8 @@ cs:
       auctify/sale/base:
         buyer: Kupec
         seller: Prodejce
-        item: Zboží
+        item: Předmět
+        pack: Prodejní balík
         aasm_state: Stav
         published: Zveřejněno
         number: Číslo
@@ -58,14 +60,25 @@ cs:
         updated_at: Změněna
         reserve_price: Rezervovaná cena
         ends_at: Předpokládaný konec
-        pack_id: Aukce+
-        pack: Aukce-
+        pack_id: Aukce
+        pack: Aukce
+        bidder_registrations: Registrace do aukce položky
+        bidders: Dražitelé
+        bids: Příhozy
+        winner: Vítěz dražby
+        current_winner: Aktuální výherce
       auctify/bid:
         price: Výše příhozu
-        max_price: Maximální výše příhozu
+        max_price: Limit příhozů
         created_at: Přihozeno
         updated_at:
         registration: Registrace do aukce položky
+        auction: Položka aukce
+        bidder: Dražitel
+      auctify/bidder_registration:
+        bidder: Dražitel
+        auction: Položka aukce
+        bids: Příhozy
 
     errors:
       models:

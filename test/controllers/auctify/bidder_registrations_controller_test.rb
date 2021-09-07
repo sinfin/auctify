@@ -57,7 +57,7 @@ module Auctify
       assert_no_difference("Auctify::BidderRegistration.count") do
         delete auctify_bidder_registration_url(@bidder_registration)
       end
-      assert_equal "{\"errors\":{\"base\":[\"Nemůžu smazat položku protože existuje závislé/ý bids\"]}}", response.body
+      assert_equal "{\"errors\":{\"base\":[\"Nemůžu smazat položku protože existuje závislé/ý příhozy\"]}}", response.body
 
       @bidder_registration.bids.each { |b| b.destroy! }
 
