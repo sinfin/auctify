@@ -33,5 +33,17 @@ module Auctify
         assert bid.valid?
       end
     end
+
+    test "sorting" do
+      t = Time.current - 10.minutes
+      bid3 = Auctify::Bid.new(price: 100, max_price: nil, id: 5, created_at: t + 1.second)
+      bid2 = Auctify::Bid.new(price: 100, max_price: nil, id: 3, created_at: t + 1.second)
+      bid4 = Auctify::Bid.new(price: 100, max_price: nil, id: 4, created_at: t + 2.second)
+      bid1 = Auctify::Bid.new(price: 100, max_price: nil, id: 2, created_at: t + 1.second)
+      bid5 = Auctify::Bid.new(price: 200, max_price: nil, id: 10, created_at: t + 1.second)
+      expected_ordered_bids = [bid1, bid2, bid3, bid4, bid5]
+      # sorting order price ASC, created_at ASC, id ASC
+      assert_equal expected_ordered_bids, expected_ordered_bids.reverse.shuffle.sort
+    end
   end
 end

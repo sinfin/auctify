@@ -12,6 +12,13 @@ module Auctify
     validate :price_is_not_bigger_then_max_price
     validate :price_is_rounded
 
+    def <=>(other)
+      r = (self.price <=> other.price)
+      r = (self.created_at <=> other.created_at) if r.zero?
+      r = (self.id <=> other.id) if r.zero?
+      r
+    end
+
     def cancel!
       update!(cancelled: true)
 
