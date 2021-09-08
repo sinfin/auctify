@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "aasm"
+require "with_advisory_lock"
 require_relative "../../app/models/auctify/behaviors"
 
 module Auctify

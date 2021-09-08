@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", "~> 6.1.4"
   spec.add_dependency "aasm", "~> 5.1.1"
   spec.add_dependency "fast_jsonapi"
+  spec.add_dependency "with_advisory_lock"
 
   spec.add_development_dependency "pg"
   spec.add_development_dependency "pry-rails"
