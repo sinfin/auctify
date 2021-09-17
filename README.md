@@ -125,7 +125,7 @@ end
       ```ruby
         Auctify.configure do |config|
           config.autoregister_as_bidders_all_instances_of_classes = ["User"] # default is []
-          config.auction_prolonging_limit = 10.minutes # default is 1.minute
+          config.auction_prolonging_limit = 10.minutes # default is 1.minute, can be overriden in `SalePack#auction_prolonging_limit` attribute
           config.auctioneer_commission_in_percent = 10 # so buyer will pay: auction.current_price * ((100 + 10)/100)
           config.autofinish_auction_after_bidding = true # after `auction.close_bidding!` immediatelly proces result to `auction.sold_in_auction!` or `auction.not_sold_in_auction!`; default false
           config.when_to_notify_bidders_before_end_of_bidding = 30.minutes # default `nil` => no notifying
