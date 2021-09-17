@@ -39,7 +39,7 @@ cs:
         sales_beginning_hour: Čas prvního předmětu (hodina)
         sales_beginning_minutes: Čas prvního předmětu (minuty)
         commission_in_percent: Provize aukční síně (procenta)
-        auction_prolonging_limit_in_seconds: Časový limit pro prodloužení aukce (minuty)
+        auction_prolonging_limit_in_seconds: Časový limit pro prodloužení aukce (sekundy)
       auctify/sale/base:
         buyer: Kupec
         seller: Prodejce
