@@ -110,23 +110,23 @@ end
 #
 # Table name: auctify_sales_packs
 #
-#  id                       :bigint(8)        not null, primary key
-#  title                    :string
-#  description              :text
-#  position                 :integer          default(0)
-#  slug                     :string
-#  place                    :string
-#  published                :boolean          default(FALSE)
-#  created_at               :datetime         not null
-#  updated_at               :datetime         not null
-#  sales_count              :integer          default(0)
-#  start_date               :date
-#  end_date                 :date
-#  sales_interval           :integer          default(3)
-#  sales_beginning_hour     :integer          default(20)
-#  sales_beginning_minutes  :integer          default(0)
-#  commission_in_percent    :integer
-#  auction_prolonging_limit :integer
+#  id                                  :bigint(8)        not null, primary key
+#  title                               :string
+#  description                         :text
+#  position                            :integer          default(0)
+#  slug                                :string
+#  place                               :string
+#  published                           :boolean          default(FALSE)
+#  created_at                          :datetime         not null
+#  updated_at                          :datetime         not null
+#  sales_count                         :integer          default(0)
+#  start_date                          :date
+#  end_date                            :date
+#  sales_interval                      :integer          default(3)
+#  sales_beginning_hour                :integer          default(20)
+#  sales_beginning_minutes             :integer          default(0)
+#  commission_in_percent               :integer
+#  auction_prolonging_limit_in_seconds :integer
 #
 # Indexes
 #

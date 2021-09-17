@@ -3,7 +3,7 @@
 module Auctify
   class Configuration
     attr_accessor :autoregister_as_bidders_all_instances_of_classes,
-                  :auction_prolonging_limit,
+                  :auction_prolonging_limit_in_seconds,
                   :auctioneer_commission_in_percent,
                   :autofinish_auction_after_bidding,
                   :when_to_notify_bidders_before_end_of_bidding,
@@ -16,7 +16,7 @@ module Auctify
     def initialize
       # set defaults here
       @autoregister_as_bidders_all_instances_of_classes = []
-      @auction_prolonging_limit = 2.minutes
+      @auction_prolonging_limit_in_seconds = 2.minutes
       @auctioneer_commission_in_percent = 1 # %
       @autofinish_auction_after_bidding = false
       @when_to_notify_bidders_before_end_of_bidding = nil # no notifying

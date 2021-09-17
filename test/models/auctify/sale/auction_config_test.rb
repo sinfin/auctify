@@ -71,7 +71,7 @@ module Auctify
         auction.start_sale!
 
         assert_equal original_end_time, auction.currently_ends_at
-        assert_equal limit, Auctify.configuration.auction_prolonging_limit
+        assert_equal limit.to_i, Auctify.configuration.auction_prolonging_limit_in_seconds
 
         assert auction.bid!(bid_for(lucifer, 1_001))
 
@@ -105,7 +105,7 @@ module Auctify
         assert_equal end_time.to_i, auction.currently_ends_at.to_i
       end
 
-      test "respects sale.auction_prolonging_limit change" do
+      test "respects sale.auction_prolonging_limit_in_seconds change" do
         auction = auctify_sales(:accepted_auction)
         lucifer = users(:lucifer)
         adam = users(:adam)
@@ -120,7 +120,7 @@ module Auctify
 
         limit = 2.minutes # default
         assert_equal original_end_time, auction.currently_ends_at
-        assert_equal limit, auction.auction_prolonging_limit
+        assert_equal limit.to_i, auction.auction_prolonging_limit_in_seconds
 
         bid_time = original_end_time - limit - 1.second
         Time.stub(:current, bid_time) { assert auction.bid!(bid_for(lucifer, 1_002)) }
@@ -128,26 +128,26 @@ module Auctify
         assert_equal original_end_time.to_i, auction.currently_ends_at.to_i
 
         # lets enlarge limit without changing bid_time
-        auction.stub(:auction_prolonging_limit, 10.minutes) do
+        auction.stub(:auction_prolonging_limit_in_seconds, 10.minutes) do
           Time.stub(:current, bid_time) { assert auction.bid!(bid_for(adam, 1_003)) }
         end
 
         assert_equal (bid_time + 10.minutes).to_i, auction.currently_ends_at.to_i
       end
 
-      test "preffers SalesPack#auction_prolonging_limit over config.auction_prolonging_limit" do
+      test "preffers SalesPack#auction_prolonging_limit_in_seconds over config.auction_prolonging_limit_in_seconds" do
         auction = auctify_sales(:accepted_auction)
         assert_nil auction.pack
-        assert_equal Auctify.configuration.auction_prolonging_limit, auction.auction_prolonging_limit
+        assert_equal Auctify.configuration.auction_prolonging_limit_in_seconds, auction.auction_prolonging_limit_in_seconds
 
         auction = auctify_sales(:adam_innocence)
 
         assert auction.pack.present?
-        assert_nil auction.pack.auction_prolonging_limit
-        assert_equal Auctify.configuration.auction_prolonging_limit, auction.auction_prolonging_limit
+        assert_nil auction.pack.auction_prolonging_limit_in_seconds
+        assert_equal Auctify.configuration.auction_prolonging_limit_in_seconds, auction.auction_prolonging_limit_in_seconds
 
-        auction.pack.auction_prolonging_limit = 33.minutes
-        assert_equal 33.minutes, auction.auction_prolonging_limit
+        auction.pack.auction_prolonging_limit_in_seconds = 33.minutes
+        assert_equal 33.minutes, auction.auction_prolonging_limit_in_seconds
       end
 
       test "stays on :bidding_closed whe config.autofinish_auction_after_bidding = false" do

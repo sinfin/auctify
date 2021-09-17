@@ -248,8 +248,8 @@ module Auctify
                                  .perform_later(auction_id: id)
       end
 
-      def auction_prolonging_limit
-        pack&.auction_prolonging_limit || Auctify.configuration.auction_prolonging_limit
+      def auction_prolonging_limit_in_seconds
+        pack&.auction_prolonging_limit_in_seconds || Auctify.configuration.auction_prolonging_limit_in_seconds
       end
 
       private
@@ -314,7 +314,7 @@ module Auctify
         end
 
         def extend_end_time(bid_time)
-          new_end_time = bid_time + auction_prolonging_limit
+          new_end_time = bid_time + auction_prolonging_limit_in_seconds
           self.currently_ends_at = [currently_ends_at, new_end_time].max
         end
 

@@ -102,7 +102,7 @@ ActiveRecord::Schema.define(version: 2021_09_17_082313) do
     t.integer "sales_beginning_hour", default: 20
     t.integer "sales_beginning_minutes", default: 0
     t.integer "commission_in_percent"
-    t.integer "auction_prolonging_limit"
+    t.integer "auction_prolonging_limit_in_seconds"
     t.index ["position"], name: "index_auctify_sales_packs_on_position"
     t.index ["published"], name: "index_auctify_sales_packs_on_published"
     t.index ["slug"], name: "index_auctify_sales_packs_on_slug", unique: true
