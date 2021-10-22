@@ -6,7 +6,7 @@ module Auctify
 
     def perform
       reg_ids = Auctify::Bid.pluck(:registration_id).uniq
-      registrations_with_bids = Auctfy::BidderRegistration.where(id: reg_ids)
+      registrations_with_bids = Auctify::BidderRegistration.where(id: reg_ids)
 
       registrations_with_bids.find_each { |reg| reg.fillup_autobid_flags! }
     end
