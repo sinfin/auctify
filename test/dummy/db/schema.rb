@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_17_082313) do
+ActiveRecord::Schema.define(version: 2021_10_22_133253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 2021_09_17_082313) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "cancelled", default: false
+    t.boolean "autobid", default: false
     t.index ["cancelled"], name: "index_auctify_bids_on_cancelled"
     t.index ["registration_id"], name: "index_auctify_bids_on_registration_id"
   end
@@ -413,6 +414,7 @@ ActiveRecord::Schema.define(version: 2021_09_17_082313) do
     t.datetime "updated_at", precision: 6, null: false
     t.integer "file_width"
     t.integer "file_height"
+    t.json "thumbnail_sizes", default: {}
     t.index ["hash_id"], name: "index_folio_session_attachments_on_hash_id"
     t.index ["placement_type", "placement_id"], name: "index_folio_session_attachments_on_placement"
     t.index ["type"], name: "index_folio_session_attachments_on_type"
@@ -478,6 +480,7 @@ ActiveRecord::Schema.define(version: 2021_09_17_082313) do
     t.bigint "secondary_address_id"
     t.boolean "subscribed_to_newsletter", default: false
     t.boolean "has_generated_password", default: false
+    t.string "phone"
     t.index ["confirmation_token"], name: "index_folio_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_folio_users_on_email"
     t.index ["invitation_token"], name: "index_folio_users_on_invitation_token", unique: true

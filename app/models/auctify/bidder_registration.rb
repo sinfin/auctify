@@ -49,6 +49,24 @@ module Auctify
 
     validate :auction_is_in_allowed_state, on: :create
 
+    def fillup_autobid_flags!
+      current_limit = 0
+      ordered_applied_bids.reverse_each do |bid|
+        if bid.with_limit?
+          if current_limit < bid.limit
+            # increase of limit
+            bid.update!(autobid: false)
+            current_limit = bid.limit
+          else
+            # same limit, same registration, younger bid => autobid
+            bid.update!(autobid: true)
+          end
+        else
+          bid.update!(autobid: false)
+        end
+      end
+    end
+
     private
       def auction_is_in_allowed_state
         unless auction && auction.allows_new_bidder_registrations?

@@ -96,5 +96,77 @@ module Auctify
 
       assert_not_includes auction.bidder_registrations.reload, b_reg
     end
+
+    test "fillup autobids" do
+      # if two following bids have same visualisation, keep the newest one (with exceptions)
+      b_reg1 = auction.bidder_registrations.first
+      b_reg2 = auction.bidder_registrations.last
+      assert_not_equal b_reg1, b_reg2
+
+      b_reg1.bids.destroy_all
+      b_reg2.bids.destroy_all
+      assert_equal 0, auction.bids.reload.size
+
+      user_bids = [
+        Auctify::Bid.new(max_price: 15_000, registration: b_reg1),
+        Auctify::Bid.new(max_price: 17_000, registration: b_reg1),
+        # price is still 10_000
+        Auctify::Bid.new(price: 11_000, registration: b_reg2),
+        # AUTOBID(11_500,17_000) INSERTED! price is now 11_500 (automatic overbidding) for b_reg1
+        Auctify::Bid.new(price: 15_000, registration: b_reg1), # b_reg1 is winning by limit but adds direct bid (under own limit)
+        # AUTOBID(15_000,17_000) INSERTED!
+        Auctify::Bid.new(max_price: 17_000, registration: b_reg2), # same limit as b_reg1, but different bidder
+        # AUTOBID(17_000,17_000) INSERTED!
+        # b_reg1 is winning with 17_000 (same price , but bid was older then reg2)
+        Auctify::Bid.new(price: 18_000, registration: b_reg2),
+        # price is now 18_000 for b_reg2
+        Auctify::Bid.new(price: 19_000, registration: b_reg1),
+        Auctify::Bid.new(max_price: 21_000, registration: b_reg1), # no change in auction.current_price, but setting own limit
+        Auctify::Bid.new(max_price: 23_000, registration: b_reg1), # no change in auction.current_price, but increasing own limit
+        # price is now 19_000 for b_reg1
+        Auctify::Bid.new(price: 25_000, registration: b_reg1), # b_reg1 is winning by limit, but adds direct bid (over limit)
+        # AUTOBID(23_000,23_000) INSERTED!
+        Auctify::Bid.new(price: 27_000, registration: b_reg1), # b_reg1 is winning, but still adds another direct bid
+        Auctify::Bid.new(price: 28_000, registration: b_reg2),
+        Auctify::Bid.new(max_price: 36_000, registration: b_reg2),
+
+        Auctify::Bid.new(max_price: 31_000, registration: b_reg1),
+        # AUTOBID(32_000,36_000) INSERTED! b_reg2 winning with 32_000
+        Auctify::Bid.new(price: 33_000, registration: b_reg1),
+        # AUTOBID(34_000,36_000) INSERTED! b_reg2 winning with 34_000
+        Auctify::Bid.new(price: 37_000, registration: b_reg1),
+        # AUTOBID(36_000,36_000) INSERTED! b_reg1 winning with 37_000
+      ]
+
+      applied_user_bids = []
+      Auctify.configuration.stub(:restrict_overbidding_yourself_to_max_price_increasing, false) do
+        user_bids.each do |bid|
+          assert auction.bid!(bid), "Bid was not appended! #{bid.to_json}, \n errors: #{bid.errors.to_json}"
+          applied_user_bids << bid.reload
+        end
+      end
+
+      assert_equal 37_000, auction.current_price
+
+      autobids = auction.ordered_applied_bids.reload - applied_user_bids
+
+      assert_equal 7, autobids.size # 7 autobids, see comments above
+      assert autobids.all? { |b| b.autobid == true }
+      assert applied_user_bids.all? { |b| b.autobid == false }
+
+      # now test backward fillup
+      Auctify::Bid.where(registration_id: [b_reg1.id, b_reg2.id]).update_all(autobid: false)
+      assert auction.ordered_applied_bids.reload.none?(&:autobid)
+
+      b_reg1.fillup_autobid_flags!
+      b_reg2.fillup_autobid_flags!
+
+      autobid_ids = auction.ordered_applied_bids.where(autobid: true).pluck(:id)
+      non_autobid_ids = auction.ordered_applied_bids.where(autobid: false).pluck(:id)
+
+      assert_not autobid_ids.blank?
+      assert_equal autobids.collect(&:id).sort, autobid_ids.sort
+      assert_equal applied_user_bids.collect(&:id).sort, non_autobid_ids.sort
+    end
   end
 end

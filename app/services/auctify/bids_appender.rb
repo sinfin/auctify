@@ -202,6 +202,7 @@ module Auctify
 
         @updated_win_bid = winning_bid.dup
         @updated_win_bid.price = [price, winning_bid.max_price].min
+        @updated_win_bid.autobid = true
       end
 
       def increase_price(price)

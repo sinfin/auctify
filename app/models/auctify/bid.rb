@@ -26,7 +26,11 @@ module Auctify
     end
 
     def with_limit?
-      max_price.present?
+      limit.present?
+    end
+
+    def limit
+      max_price
     end
 
     def bade_at
@@ -80,6 +84,7 @@ end
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  cancelled       :boolean          default(FALSE)
+#  autobid         :boolean          default(FALSE)
 #
 # Indexes
 #
