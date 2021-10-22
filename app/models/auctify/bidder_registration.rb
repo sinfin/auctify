@@ -55,15 +55,16 @@ module Auctify
         if bid.with_limit?
           if current_limit < bid.limit
             # increase of limit
-            bid.update!(autobid: false)
+            bid.autobid = false
             current_limit = bid.limit
           else
             # same limit, same registration, younger bid => autobid
-            bid.update!(autobid: true)
+            bid.autobid = true
           end
         else
-          bid.update!(autobid: false)
+          bid.autobid = false
         end
+        bid.save!(validate: false)
       end
     end
 

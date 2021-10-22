@@ -3,7 +3,7 @@
 class AddAutobidToAuctifyBids < ActiveRecord::Migration[6.1]
   def up
     add_column :auctify_bids, :autobid, :boolean, default: false
-    Auctify::AutobidFillerJob.perform_later
+    puts("RUN `Auctify::AutobidFillerJob.perform_later`")
   end
 
   def down
