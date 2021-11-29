@@ -7,7 +7,11 @@ module Auctify
         before_action :find_auction, except: [:index]
 
         def show
-          render_record @auction
+          if params[:updated_at].present? && params[:updated_at].match?(/\A\d+\z/) && params[:updated_at].to_i == @auction.updated_at.to_i
+            render json: { current: true }, status: 200
+          else
+            render_record @auction
+          end
         end
 
         def bids

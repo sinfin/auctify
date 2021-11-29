@@ -32,6 +32,25 @@ module Auctify
           assert_auction_json_response
         end
 
+        test "GET #show respects updated_at - invalid" do
+          get "/auctify/api/v1/auctions/#{auction.id}?updated_at=foo"
+          assert_response :success
+          assert_auction_json_response
+        end
+
+        test "GET #show respects updated_at - other" do
+          get "/auctify/api/v1/auctions/#{auction.id}?updated_at=1606632994"
+          assert_response :success
+          assert_auction_json_response
+        end
+
+        test "GET #show respects updated_at - exact" do
+          get "/auctify/api/v1/auctions/#{auction.id}?updated_at=#{auction.updated_at.to_i}"
+          assert_response :success
+          assert_nil response.parsed_body["data"]
+          assert_equal true, response.parsed_body["current"]
+        end
+
         test "GET #SHOW returns 404 if no auction found" do
           get "/auctify/api/v1/auctions/#{Auctify::Sale::Base.maximum(:id) + 1}"
 
