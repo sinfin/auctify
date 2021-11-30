@@ -115,7 +115,7 @@ module Auctify
       end
 
       def first_bid?
-        bids.empty?
+        winning_bid.nil?
       end
 
       def bids
