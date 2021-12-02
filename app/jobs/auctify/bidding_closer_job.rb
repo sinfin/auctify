@@ -14,7 +14,8 @@ module Auctify
 
       if auction.currently_ends_at <= Time.current
         Auctify::Sale::Auction.with_advisory_lock("closing_auction_#{auction_id}") do
-          auction.close_bidding! if auction.in_sale?
+          # can wait unitl other BCJob release lock and than continue!
+          auction.close_bidding! if auction.reload.in_sale?
         end
       else
         self.class.set(wait_until: auction.currently_ends_at)
