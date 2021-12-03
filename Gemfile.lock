@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/sinfin/folio.git
-  revision: da86ed45d65e95d9230d18d71ff7ac7f0c3a2659
+  revision: e42b110a903b431fa6a70c99fd0c8962ae21105c
   branch: master
   specs:
     folio (0.1.0)
@@ -574,4 +574,4 @@ DEPENDENCIES
   webdrivers
 
 BUNDLED WITH
-   2.2.24
+   2.2.32

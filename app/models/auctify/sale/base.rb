@@ -4,7 +4,7 @@ module Auctify
   module Sale
     class Base < ApplicationRecord
       include Folio::FriendlyId
-      include Folio::Featurable::Basic
+      include Folio::Featurable::WithPosition
       include Folio::Publishable::Basic
 
       self.table_name = "auctify_sales"
@@ -189,7 +189,6 @@ end
 #  number                       :string
 #  currently_ends_at            :datetime
 #  published                    :boolean          default(FALSE)
-#  featured                     :boolean          default(FALSE)
 #  slug                         :string
 #  contract_number              :string
 #  seller_commission_in_percent :integer
@@ -200,6 +199,7 @@ end
 #  current_winner_type          :string
 #  current_winner_id            :bigint(8)
 #  buyer_commission_in_percent  :integer
+#  featured                     :integer
 #
 # Indexes
 #

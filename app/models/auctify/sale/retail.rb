@@ -78,7 +78,6 @@ end
 #  number                       :string
 #  currently_ends_at            :datetime
 #  published                    :boolean          default(FALSE)
-#  featured                     :boolean          default(FALSE)
 #  slug                         :string
 #  contract_number              :string
 #  seller_commission_in_percent :integer
@@ -89,6 +88,7 @@ end
 #  current_winner_type          :string
 #  current_winner_id            :bigint(8)
 #  buyer_commission_in_percent  :integer
+#  featured                     :integer
 #
 # Indexes
 #

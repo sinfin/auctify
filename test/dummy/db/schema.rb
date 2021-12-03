@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_22_133253) do
+ActiveRecord::Schema.define(version: 2021_12_03_064934) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,7 +65,6 @@ ActiveRecord::Schema.define(version: 2021_10_22_133253) do
     t.string "number"
     t.datetime "currently_ends_at"
     t.boolean "published", default: false
-    t.boolean "featured", default: false
     t.string "slug"
     t.string "contract_number"
     t.integer "seller_commission_in_percent"
@@ -76,6 +75,7 @@ ActiveRecord::Schema.define(version: 2021_10_22_133253) do
     t.string "current_winner_type"
     t.bigint "current_winner_id"
     t.integer "buyer_commission_in_percent"
+    t.integer "featured"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["currently_ends_at"], name: "index_auctify_sales_on_currently_ends_at"
     t.index ["featured"], name: "index_auctify_sales_on_featured"
@@ -217,6 +217,7 @@ ActiveRecord::Schema.define(version: 2021_10_22_133253) do
     t.string "type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title"
     t.index ["position"], name: "index_folio_content_templates_on_position"
     t.index ["type"], name: "index_folio_content_templates_on_type"
   end
