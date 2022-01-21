@@ -245,11 +245,6 @@ module Auctify
         applied_bids_count.positive?
       end
 
-      def set_bidding_closer_job
-        Auctify::BiddingCloserJob.set(wait_until: currently_ends_at)
-                                 .perform_later(auction_id: id)
-      end
-
       def auction_prolonging_limit_in_seconds
         pack&.auction_prolonging_limit_in_seconds || Auctify.configuration.auction_prolonging_limit_in_seconds
       end
@@ -362,9 +357,6 @@ module Auctify
           currently_ends_at_changes = saved_changes["currently_ends_at"]
 
           if force || currently_ends_at_changes.present?
-            # remove_old job is unsupported in ActiveJob
-            set_bidding_closer_job
-
             if (notify_time = bidding_is_close_to_end_notification_time).present?
               # remove_old job is unsupported in ActiveJob
               Auctify::BiddingIsCloseToEndNotifierJob.set(wait_until: notify_time)
