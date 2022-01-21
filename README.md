@@ -121,6 +121,9 @@ end
       ```
 
   3. ### Configure
+      Enqueuing of `BiddingCloserJob` (for each auction) is done by peridically performed `Auctify::EnsureAuctionsClosingJob`.
+      This is up to You how you run it, but interval between runs must be shorter than `Auctify.configuration.auction_prolonging_limit_in_seconds`.
+
       - optional
       ```ruby
         Auctify.configure do |config|
