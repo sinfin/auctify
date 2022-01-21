@@ -126,10 +126,8 @@ module Auctify
           Auctify.configuration.stub(:when_to_notify_bidders_before_end_of_bidding, 1.minute) do
             ends_at_new = ends_at_new + 2.days
 
-            assert_enqueued_jobs 1, only: ::Auctify::BiddingCloserJob do
-              assert_enqueued_jobs 1, only: ::Auctify::BiddingIsCloseToEndNotifierJob do
-                assert auction.update(ends_at: ends_at_new)
-              end
+            assert_enqueued_jobs 1, only: ::Auctify::BiddingIsCloseToEndNotifierJob do
+              assert auction.update(ends_at: ends_at_new)
             end
 
             assert_equal ends_at_new.to_i, auction.ends_at.to_i

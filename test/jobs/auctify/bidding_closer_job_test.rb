@@ -13,19 +13,6 @@ module Auctify
       @auction = auctify_sales(:accepted_auction)
     end
 
-    test "is started on auction.start_sale event" do
-      assert_enqueued_jobs 1, only: job_class do
-        auction.start_sale!
-      end
-
-      # should be set to run at auction.currently_ends_at
-      enq_job = (ActiveJob::Base.queue_adapter.enqueued_jobs.select { |jb_h| jb_h["job_class"] == job_class.name }).last
-
-      assert_equal auction.id, enq_job["arguments"].first["auction_id"]
-      assert_equal auction.id, enq_job[:args].first["auction_id"]
-      assert_equal auction.currently_ends_at.to_i, enq_job[:at].to_i
-    end
-
     test "closes bidding when auction.currently_ends_at passed" do
       assert_enqueued_jobs 1, only: job_class do
         auction.start_sale!
@@ -38,33 +25,24 @@ module Auctify
       end
     end
 
-    test "enqueue itself again if currently_ends_at was changed" do
-      assert_enqueued_jobs 1, only: job_class do
-        auction.start_sale!
-      end
+    test "do not enqueue itself again if currently_ends_at was changed" do
+      # this is leaved on EnsureSalesClosingJob
+      assert_enqueued_jobs 0, only: job_class
+
+      auction.start_sale!
+
+      assert_enqueued_jobs 1, only: job_class
       enqueued_at = auction.currently_ends_at
-
       auction.update!(currently_ends_at: enqueued_at + 1.second)
-
-      skip "Code bellow works but creates new job again and immediatelly performs it, "\
-           "because it is the same job class as in `perform_enqueued_jobs(only: job_class)`" \
-           "Rails 6.1 add option :at which should help"
-      # see https://blog.saeloun.com/2020/02/17/rails-6-1-adds-at-option-to-perform_enqueued_jobs-test-helper.html
 
       Time.stub(:current, enqueued_at) do
         assert auction.reload.in_sale?
-        assert_enqueued_jobs 1, only: job_class do
-          perform_enqueued_jobs(only: job_class)
-        end
+
+        perform_enqueued_jobs(only: job_class)
+
         assert auction.reload.in_sale?
+        assert_enqueued_jobs 0, only: job_class
       end
-
-      new_enq_job = ActiveJob::Base.queue_adapter.enqueued_jobs.last
-      assert_equal auction.currently_ends_at.to_i, new_enq_job[:at].to_i
-    end
-
-    test "takes queue name from config" do
-      skip "TODO"
     end
 
     def job_class
