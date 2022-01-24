@@ -58,6 +58,7 @@ module Auctify
       Time.stub(:current, time_now) do
         job_class.perform_now
 
+        perform_enqueued_jobs
         assert_performed_closing_jobs_for(expected_immediatelly_performed_auctions)
       end
     end
@@ -80,6 +81,8 @@ module Auctify
         assert_enqueued_closing_jobs_for(expected_enqueued_auctions)
       end
 
+
+      old_prolonging_limit = Auctify.configuration.auction_prolonging_limit_in_seconds
       Auctify.configure { |conf|  conf.auction_prolonging_limit_in_seconds += 10.seconds }
 
       lookup_end_time = time_now + Auctify.configuration.auction_prolonging_limit_in_seconds
@@ -96,6 +99,8 @@ module Auctify
 
         assert_enqueued_closing_jobs_for(expected_enqueued_auctions)
       end
+
+      Auctify.configure { |conf|  conf.auction_prolonging_limit_in_seconds = old_prolonging_limit }
     end
 
     private

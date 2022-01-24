@@ -9,7 +9,7 @@ module Auctify
                                       .where("currently_ends_at <= ?", Time.current + checking_period_to_future)
       auctions.each do |auction|
         if auction.currently_ends_at <= Time.current
-          Auctify::BiddingCloserJob.perform_now(auction_id: auction.id)
+          Auctify::BiddingCloserJob.perform_later(auction_id: auction.id)
         else
           Auctify::BiddingCloserJob.set(wait_until: auction.currently_ends_at).perform_later(auction_id: auction.id)
         end
