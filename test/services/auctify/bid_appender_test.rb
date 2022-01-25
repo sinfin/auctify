@@ -329,27 +329,27 @@ module Auctify
             auction_after: { current_price: 1_001, current_minimal_bid: 1_002, winner: lucifer, bids_count: 2 } },
 
           # overbidding with limit
-          { bid: { price: nil, max_price: 3000, bidder: lucifer },
+          { bid: { price: nil, max_price: 3_000, bidder: lucifer },
             appender: { success: true, errors: {} },
             auction_after: { current_price: 1_001, current_minimal_bid: 1_002, winner: lucifer, bids_count: 3 } },
 
           # increasing by direct bid below limit
-          { bid: { price: 1500, max_price: nil, bidder: lucifer },
+          { bid: { price: 1_500, max_price: nil, bidder: lucifer },
             appender: { success: true, errors: {} },
             auction_after: { current_price: 1_500, current_minimal_bid: 1_501, winner: lucifer, bids_count: 5 } },
 
           # I forgot my limit, lets do it again! With lower limit (now is 3000)
-          { bid: { price: nil, max_price: 2000, bidder: lucifer },
+          { bid: { price: nil, max_price: 2_000, bidder: lucifer },
             appender: { success: false, errors: { bidder: ["Svůj limit můžete pouze zvyšovat"] } },
             auction_after: { current_price: 1_500, current_minimal_bid: 1_501, winner: lucifer, bids_count: 5 } },
 
           # I forgot my limit, lets do it again! With equal limit
-          { bid: { price: nil, max_price: 3000, bidder: lucifer },
+          { bid: { price: nil, max_price: 3_000, bidder: lucifer },
             appender: { success: false, errors: { bidder: ["Svůj limit můžete pouze zvyšovat"] } },
             auction_after: { current_price: 1_500, current_minimal_bid: 1_501, winner: lucifer, bids_count: 5 } },
 
           # increasing by direct bid over limit
-          { bid: { price: 3500, max_price: nil, bidder: lucifer },
+          { bid: { price: 3_500, max_price: nil, bidder: lucifer },
           appender: { success: true, errors: {} },
           auction_after: { current_price: 3_500, current_minimal_bid: 3_501, winner: lucifer, bids_count: 7 } },
         ]
@@ -460,61 +460,112 @@ module Auctify
       end
     end
 
-    def place_bid_and_verfify_results(hash)
-      bid = bid_for(hash[:bid][:bidder], hash[:bid][:price], hash[:bid][:max_price])
-      appender = Auctify::BidsAppender.call(auction: auction, bid: bid)
+    test "do not set price above limit" do
+      bids_and_expectations = [
+        { bid: { price: 1_000, max_price: nil, bidder: adam },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_000, current_minimal_bid: 1_001, winner: adam, bids_count: 1 },
+          limits_after: { adam: 0, lucifer: 0 } },
 
-      assert_equal hash[:appender][:success],
-                   appender.success?,
-                   "result was not #{hash[:appender][:success] ? "successfull" : "failure"} for #{hash} \nERR:#{appender.errors}"
-      assert_equal hash[:auction_after][:current_price],
-                   appender.result.current_price,
-                   "current price #{appender.result.current_price} do not match #{hash}"
-      assert_equal hash[:auction_after][:current_minimal_bid],
-                   appender.result.current_minimal_bid,
-                   "min bid #{appender.result.current_minimal_bid} do not match #{hash}"
-      if hash[:auction_after][:winner].nil?
-        assert_nil appender.result.winner,
-                   "winner #{appender.result.winner} should be nil"
-      else
-        assert_equal hash[:auction_after][:winner],
-                     appender.result.winner,
-                     "winner #{appender.result.winner} do not match #{hash}"
+        { bid: { price: nil, max_price: 2_000, bidder: lucifer },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_001, current_minimal_bid: 1_002, winner: lucifer, bids_count: 2 },
+          limits_after: { adam: 0, lucifer: 2_000 } },
+
+        # low limit but above the minimum
+        { bid: { price: nil, max_price: 1_900, bidder: lucifer },
+          appender: { success: false, errors: { bidder: ["Svůj limit můžete pouze zvyšovat"] } },
+          auction_after: { current_price: 1_001, current_minimal_bid: 1_002, winner: lucifer, bids_count: 2 },
+          limits_after: { adam: 0, lucifer: 2_000 } },
+
+        # very low limit bellow minimum
+        { bid: { price: nil, max_price: 1_000, bidder: lucifer },
+          appender: { success: false, errors: { bidder: ["Svůj limit můžete pouze zvyšovat"] } },
+          auction_after: { current_price: 1_001, current_minimal_bid: 1_002, winner: lucifer, bids_count: 2 },
+          limits_after: { adam: 0, lucifer: 2_000 } },
+
+        # let Adam to win by direct bid
+        { bid: { price: 3_000, max_price: nil, bidder: adam },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 3_000, current_minimal_bid: 3_001, winner: adam, bids_count: 4 },
+          limits_after: { adam: 0, lucifer: 2_000 } },
+
+        # adam tries to set low limit (he does not have one right now)
+        { bid: { price: nil, max_price: 2_500, bidder: adam },
+          appender: { success: false, errors: { max_price: ["je nižší než aktuální minimální příhoz 3 001 Kč"], price: [] } },
+          auction_after: { current_price: 3_000, current_minimal_bid: 3_001, winner: adam, bids_count: 4 },
+          limits_after: { adam: 0, lucifer: 2_000 } }
+      ]
+
+      bids_and_expectations.each do |hash|
+        place_bid_and_verfify_results(hash)
       end
 
-      assert_equal hash[:auction_after][:current_price],
-                   auction.reload.current_price,
-                   "auction.current_price #{auction.current_price} do not match #{hash}"
-      assert_equal hash[:auction_after][:bids_count],
-                   auction.bids.count,
-                   "auction.bids.count #{auction.bids.count} do not match #{hash}" \
-                   " \n=> #{auction.bids.ordered.reverse.collect(&:to_json).join("\n")}"
 
-      if appender.failed?
-        bid_error_always_in_arrays = bid.errors.to_hash.transform_values { |value| [value].flatten }
 
-        hash[:appender][:errors].each_pair do |att, value|
-          if value.present?
-            assert_equal value,
-                         appender.errors[att],
-                         "expected appender errors #{hash[:appender][:errors]}," \
-                         " but have #{appender.errors.to_hash} for #{hash}"
-            assert_equal value,
-                         bid_error_always_in_arrays[att],
-                         "expected BID errors #{hash[:appender][:errors]}," \
-                         " but have #{bid_error_always_in_arrays} for #{hash}"
-          else
-            assert appender.errors[att].blank?, "no appender errors exepected on `#{att}`, but got #{appender.errors[att]}"
-            assert bid_error_always_in_arrays[att].blank?, "no bid errors exepected on `#{att}`, but got #{appender.errors[att]}"
+      # appender = Auctify::BidsAppender.call(auction: auction, bid: nil)
+
+      # assert_equal auction.current_price, appender.result.current_minimal_bid
+      # assert_equal auction.current_price, appender.result.current_price
+      # assert_nil appender.result.winning_bid
+    end
+
+    private
+      def place_bid_and_verfify_results(hash)
+        bid = bid_for(hash[:bid][:bidder], hash[:bid][:price], hash[:bid][:max_price])
+        appender = Auctify::BidsAppender.call(auction: auction, bid: bid)
+
+        assert_equal hash[:appender][:success],
+                     appender.success?,
+                     "result was not #{hash[:appender][:success] ? "successfull" : "failure"} for #{hash} \nERR:#{appender.errors}"
+        assert_equal hash[:auction_after][:current_price],
+                     appender.result.current_price,
+                     "current price #{appender.result.current_price} do not match #{hash}"
+        assert_equal hash[:auction_after][:current_minimal_bid],
+                     appender.result.current_minimal_bid,
+                     "min bid #{appender.result.current_minimal_bid} do not match #{hash}"
+        if hash[:auction_after][:winner].nil?
+          assert_nil appender.result.winner,
+                     "winner #{appender.result.winner} should be nil"
+        else
+          assert_equal hash[:auction_after][:winner],
+                       appender.result.winner,
+                       "winner #{appender.result.winner} do not match #{hash}"
+        end
+
+        assert_equal hash[:auction_after][:current_price],
+                     auction.reload.current_price,
+                     "auction.current_price #{auction.current_price} do not match #{hash}"
+        assert_equal hash[:auction_after][:bids_count],
+                     auction.bids.count,
+                     "auction.bids.count #{auction.bids.count} do not match #{hash}" \
+                     " \n=> #{auction.bids.ordered.reverse.collect(&:to_json).join("\n")}"
+
+        if appender.failed?
+          bid_error_always_in_arrays = bid.errors.to_hash.transform_values { |value| [value].flatten }
+
+          hash[:appender][:errors].each_pair do |att, value|
+            if value.present?
+              assert_equal value,
+                           appender.errors[att],
+                           "expected appender errors #{hash[:appender][:errors]}," \
+                           " but have #{appender.errors.to_hash} for #{hash}"
+              assert_equal value,
+                           bid_error_always_in_arrays[att],
+                           "expected BID errors #{hash[:appender][:errors]}," \
+                           " but have #{bid_error_always_in_arrays} for #{hash}"
+            else
+              assert appender.errors[att].blank?, "no appender errors exepected on `#{att}`, but got #{appender.errors[att]}"
+              assert bid_error_always_in_arrays[att].blank?, "no bid errors exepected on `#{att}`, but got #{appender.errors[att]}"
+            end
+          end
+        end
+
+        if hash[:limits_after]
+          hash[:limits_after].each_pair do |bidder_sym, limit|
+            assert_equal limit, auction.current_max_price_for(send(bidder_sym))
           end
         end
       end
-
-      if hash[:limits_after]
-        hash[:limits_after].each_pair do |bidder_sym, limit|
-          assert_equal limit, auction.current_max_price_for(send(bidder_sym))
-        end
-      end
-    end
   end
 end
