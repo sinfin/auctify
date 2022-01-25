@@ -17,20 +17,17 @@ module Auctify
         def bids
           if params[:confirmation] == "1"
             if @auction.bid!(new_bid)
-              if params[:dont_confirm_bids] == "1"
-                # use SQL update in case of some obscure invalid attributes
-                current_user.bidder_registrations
-                            .where(auction: @auction)
-                            .update_all(dont_confirm_bids: true)
-              end
-
               @auction.reload
 
               winning_bid_id = @auction.winning_bid.try(:id)
               overbid_by_limit = winning_bid_id && new_bid.id && winning_bid_id != new_bid.id
 
+              store_dont_confirm_bids
+
               render_record @auction, success: true, overbid_by_limit: overbid_by_limit
             else
+              store_dont_confirm_bids
+
               render_record @auction, bid: new_bid, status: 400
             end
           else
@@ -67,6 +64,14 @@ module Auctify
                          success: success,
                          overbid_by_limit: overbid_by_limit).show
             }, status: status
+          end
+
+          def store_dont_confirm_bids
+            if params[:dont_confirm_bids] == "1"
+              # use SQL update in case of some obscure invalid attributes
+              bidder_regs = current_user.bidder_registrations.where(auction: @auction)
+              bidder_regs.update_all(dont_confirm_bids: true) if bidder_regs.present?
+            end
           end
       end
     end

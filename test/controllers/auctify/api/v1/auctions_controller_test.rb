@@ -75,6 +75,9 @@ module Auctify
 
             post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "0", bid: { price: 1_200.0, max_price: 2_000.0 } }
             assert_response 400, "Bid was created, response.body is:\n #{response.body}"
+
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "0", dont_confirm_bids: "1",  bid: { price: 1_200.0, max_price: 2_000.0 } }
+            assert_response 400, "Bid was created, response.body is:\n #{response.body}"
           end
 
           assert_difference("Auctify::Bid.count", +1) do
@@ -159,12 +162,17 @@ module Auctify
           @response_json = nil
           sign_in adam # current winner
 
+          adam_registration = auction.bidder_registrations.find_by(bidder: adam)
+          assert_not adam_registration.dont_confirm_bids
+
           assert_no_difference("Auctify::Bid.count") do
-            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_200.0 } }
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", dont_confirm_bids: "1", bid: { price: 1_200.0 } }
 
             assert_response 400, "Bid should not be created, response.body is:\n #{response.body}"
           end
 
+
+          assert adam_registration.reload.dont_confirm_bids # stored, even for failed bid
           assert_includes response_json["errors"], { "status" => 400,
                                                      "title" => "ActiveRecord::RecordInvalid",
                                                      "detail" => "Dražitel Není možné přehazovat své příhozy" }
