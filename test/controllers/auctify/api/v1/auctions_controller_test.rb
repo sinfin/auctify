@@ -116,6 +116,27 @@ module Auctify
           assert_equal adam, auction.current_winner
         end
 
+        test "POST /api/auctions/:id/bids, direct bid when winning by limit, will create bid for current_user, without any warning" do
+          # adam is winning
+          assert auction.bid!(bid_for(lucifer, nil, 5000))
+          # lucifer is winning with 1_101,-
+          Auctify.configuration.stub(:restrict_overbidding_yourself_to_max_price_increasing, false) do # allowing overbiddin itself
+            assert_difference("Auctify::Bid.count", +2) do
+              sign_in lucifer
+
+              post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_500.0 } }
+
+              assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
+            end
+          end
+
+          auction.reload
+          assert_auction_json_response(success: true, overbid_by_limit: false)
+
+          assert_equal 1_500, auction.current_price.to_f
+          assert_equal lucifer, auction.current_winner
+        end
+
         test "POST /api/auctions/:id/bids will create bid and registration for current_user" do
           Auctify.configure do |config|
             config.autoregister_as_bidders_all_instances_of_classes = ["User"]
@@ -195,7 +216,11 @@ module Auctify
             assert_equal auction.open_for_bids?, json_attributes["open_for_bids?"]
 
             assert_equal 1, response_json["success"] if success
-            assert_equal 1, response_json["overbid_by_limit"] if overbid_by_limit
+            if overbid_by_limit
+              assert_equal 1, response_json["overbid_by_limit"]
+            else
+              assert_equal 0, response_json["overbid_by_limit"]
+            end
           end
 
           def api_path_for(resource_path)

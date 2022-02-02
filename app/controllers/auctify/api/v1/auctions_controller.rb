@@ -19,12 +19,9 @@ module Auctify
             if @auction.bid!(new_bid)
               @auction.reload
 
-              winning_bid_id = @auction.winning_bid.try(:id)
-              overbid_by_limit = winning_bid_id && new_bid.id && winning_bid_id != new_bid.id
-
               store_dont_confirm_bids
 
-              render_record @auction, success: true, overbid_by_limit: overbid_by_limit
+              render_record @auction, success: true, overbid_by_limit: overbid_by_limit?(new_bid)
             else
               store_dont_confirm_bids
 
@@ -72,6 +69,15 @@ module Auctify
               bidder_regs = current_user.bidder_registrations.where(auction: @auction)
               bidder_regs.update_all(dont_confirm_bids: true) if bidder_regs.present?
             end
+          end
+
+          def overbid_by_limit?(new_bid)
+            winning_bid = @auction&.winning_bid
+            return false unless winning_bid
+            return false if new_bid.id.blank? || winning_bid.id.blank?
+            return false if winning_bid.registration_id == new_bid.registration_id # do not notify bidder about overbidding itself
+
+            winning_bid != new_bid
           end
       end
     end
