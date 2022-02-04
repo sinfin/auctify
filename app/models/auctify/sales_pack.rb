@@ -45,17 +45,24 @@ module Auctify
     end
 
     def dates_to_label
-      if start_date && end_date
-        if start_date.year == end_date.year
-          if start_date.month == end_date.month
-            "#{start_date.strftime('%-d.')}–#{end_date.strftime('%-d. %-m. %y')}"
-          else
-            "#{start_date.strftime('%-d. %-m.')} – #{end_date.strftime('%-d. %-m. %y')}"
-          end
+      return "" unless start_date && end_date
+
+      date_strings = []
+      if start_date.year == end_date.year
+        if start_date.month == end_date.month
+          # all inside same month
+          date_strings << start_date.strftime("%-d.")
         else
-          "#{start_date.strftime('%-d. %-m. %y')} – #{end_date.strftime('%-d. %-m. %y')}"
+          # all inside same year
+          date_strings << start_date.strftime("%-d. %-m.")
         end
+      else
+        # crossing years border
+        date_strings << start_date.strftime("%-d. %-m. %Y")
       end
+
+      date_strings << end_date.strftime("%-d. %-m. %Y")
+      date_strings.join(" – ")
     end
 
     def shift_sales_by_minutes!(shift_in_minutes)
