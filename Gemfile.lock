@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/sinfin/folio.git
-  revision: d79b66e39cdd6bf0efe91a524c07af664bf86df6
+  revision: 7e2877a09264310740a5ea8c2511f11687a0fa02
   branch: master
   specs:
     folio (0.1.0)
@@ -52,6 +52,7 @@ GIT
       sass-rails
       show_for
       sidekiq
+      sidekiq-cron
       simple_form
       sitemap_generator
       slim
@@ -226,7 +227,9 @@ GEM
     dropzonejs-rails (0.8.5)
       rails (> 3.1)
     erubi (1.10.0)
-    excon (0.90.0)
+    et-orbi (1.2.6)
+      tzinfo
+    excon (0.91.0)
     execjs (2.8.1)
     faraday (1.9.3)
       faraday-em_http (~> 1.0)
@@ -273,6 +276,9 @@ GEM
     formatador (0.3.0)
     friendly_id (5.3.0)
       activerecord (>= 4.0.0)
+    fugit (1.5.2)
+      et-orbi (~> 1.1, >= 1.1.8)
+      raabro (~> 1.4)
     gibbon (3.4.3)
       faraday (>= 1.0)
       multi_json (>= 1.11.0)
@@ -298,7 +304,7 @@ GEM
       slim_lint (~> 0.15)
     hashie (5.0.0)
     htmlentities (4.3.4)
-    i18n (1.8.11)
+    i18n (1.9.1)
       concurrent-ruby (~> 1.0)
     i18n_data (0.15.0)
       simple_po_parser (~> 1.1)
@@ -400,6 +406,7 @@ GEM
     public_suffix (4.0.6)
     puma (5.5.2)
       nio4r (~> 2.0)
+    raabro (1.4.0)
     racc (1.6.0)
     rack (2.2.3)
     rack-test (1.1.0)
@@ -440,7 +447,7 @@ GEM
       ffi (~> 1.0)
     recaptcha (4.13.1)
       json
-    redis (4.5.1)
+    redis (4.6.0)
     regexp_parser (2.1.1)
     responders (3.0.1)
       actionpack (>= 5.0)
@@ -503,6 +510,9 @@ GEM
       connection_pool (>= 2.2.2)
       rack (~> 2.0)
       redis (>= 4.2.0)
+    sidekiq-cron (1.2.0)
+      fugit (~> 1.1)
+      sidekiq (>= 4.2.1)
     simple_form (5.1.0)
       actionpack (>= 5.2)
       activemodel (>= 5.2)
@@ -552,7 +562,7 @@ GEM
       activerecord (>= 4.2)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.5.3)
+    zeitwerk (2.5.4)
     zip (2.0.2)
 
 PLATFORMS
