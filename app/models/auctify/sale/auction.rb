@@ -23,6 +23,7 @@ module Auctify
 
       belongs_to :winner, polymorphic: true, optional: true
       belongs_to :current_winner, polymorphic: true, optional: true
+      belongs_to :manually_closed_by, polymorphic: true, optional: true
 
       validates :ends_at,
                 presence: true
@@ -256,6 +257,15 @@ module Auctify
 
       def auction_prolonging_limit_in_seconds
         pack&.auction_prolonging_limit_in_seconds || Auctify.configuration.auction_prolonging_limit_in_seconds
+      end
+
+      def close_manually!(by:)
+        if pack && pack.sales_closed_manually?
+          update!(manually_closed_at: Time.current, manually_closed_by: by)
+          Auctify::BiddingCloserJob.perform_later(auction_id: id)
+        else
+          fail "Cannot close manually!"
+        end
       end
 
       private

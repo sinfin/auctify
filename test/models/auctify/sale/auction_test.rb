@@ -199,6 +199,32 @@ module Auctify
 
         assert_not Auctify::Sale::Auction.from_automatically_closed_pack.exists?(id: auction.id)
       end
+
+      test "close_manually!" do
+        auction = auctify_sales(:auction_in_progress)
+        adam = users(:adam)
+        lucifer = users(:lucifer)
+
+        allow_bids_for([lucifer], auction)
+
+        assert auction.bid!(bid_for(lucifer, 2_000))
+
+        perform_enqueued_jobs do
+          assert_raises(StandardError) do
+            auction.close_manually!(by: adam)
+          end
+
+          assert_equal "in_sale", auction.aasm_state
+
+          auction.pack.update!(sales_closed_manually: true)
+
+          assert auction.close_manually!(by: adam)
+
+          auction.reload
+
+          assert_equal "bidding_ended", auction.aasm_state
+        end
+      end
     end
   end
 end
