@@ -38,6 +38,7 @@ cs:
         sales_interval: Časový rozestup mezi předměty v minutách
         sales_beginning_hour: Čas prvního předmětu (hodina)
         sales_beginning_minutes: Čas prvního předmětu (minuty)
+        sales_closed_manually: Ruční uzavírání aukcí
         commission_in_percent: Provize aukční síně (procenta)
         auction_prolonging_limit_in_seconds: Časový limit pro prodloužení aukce (sekundy)
       auctify/sale/base:
