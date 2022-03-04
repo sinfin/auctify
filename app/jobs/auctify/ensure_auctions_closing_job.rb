@@ -6,7 +6,9 @@ module Auctify
 
     def perform
       auctions = ::Auctify::Sale::Auction.in_sale
-                                      .where("currently_ends_at <= ?", Time.current + checking_period_to_future)
+                                         .from_automatically_closed_pack
+                                         .where("currently_ends_at <= ?", Time.current + checking_period_to_future)
+
       auctions.each do |auction|
         if auction.currently_ends_at <= Time.current
           Auctify::BiddingCloserJob.perform_later(auction_id: auction.id)

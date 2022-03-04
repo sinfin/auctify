@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_03_064934) do
+ActiveRecord::Schema.define(version: 2022_03_04_111030) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,8 +20,8 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
 
   create_table "auctify_bidder_registrations", force: :cascade do |t|
     t.string "bidder_type", null: false
-    t.integer "bidder_id", null: false
-    t.integer "auction_id", null: false
+    t.bigint "bidder_id", null: false
+    t.bigint "auction_id", null: false
     t.string "aasm_state", default: "pending", null: false
     t.datetime "handled_at"
     t.datetime "created_at", precision: 6, null: false
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
   end
 
   create_table "auctify_bids", force: :cascade do |t|
-    t.integer "registration_id", null: false
+    t.bigint "registration_id", null: false
     t.decimal "price", precision: 12, scale: 2, null: false
     t.decimal "max_price", precision: 12, scale: 2
     t.datetime "created_at", precision: 6, null: false
@@ -48,16 +48,16 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.string "seller_type"
     t.integer "seller_id"
     t.string "buyer_type"
-    t.integer "buyer_id"
-    t.integer "item_id", null: false
+    t.bigint "buyer_id"
+    t.bigint "item_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "type", default: "Auctify::Sale::Base"
     t.string "aasm_state", default: "offered", null: false
-    t.decimal "offered_price"
-    t.decimal "current_price"
-    t.decimal "sold_price"
-    t.json "bid_steps_ladder"
+    t.decimal "offered_price", precision: 12, scale: 2
+    t.decimal "current_price", precision: 12, scale: 2
+    t.decimal "sold_price", precision: 12, scale: 2
+    t.jsonb "bid_steps_ladder"
     t.decimal "reserve_price"
     t.bigint "pack_id"
     t.datetime "ends_at"
@@ -76,9 +76,13 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.bigint "current_winner_id"
     t.integer "buyer_commission_in_percent"
     t.integer "featured"
+    t.datetime "manually_closed_at"
+    t.string "manually_closed_by_type"
+    t.bigint "manually_closed_by_id"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["currently_ends_at"], name: "index_auctify_sales_on_currently_ends_at"
     t.index ["featured"], name: "index_auctify_sales_on_featured"
+    t.index ["manually_closed_by_type", "manually_closed_by_id"], name: "index_auctify_sales_on_manually_closed_by"
     t.index ["pack_id"], name: "index_auctify_sales_on_pack_id"
     t.index ["position"], name: "index_auctify_sales_on_position"
     t.index ["published"], name: "index_auctify_sales_on_published"
@@ -104,6 +108,7 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.integer "sales_beginning_minutes", default: 0
     t.integer "commission_in_percent"
     t.integer "auction_prolonging_limit_in_seconds"
+    t.boolean "sales_closed_manually", default: false
     t.index ["position"], name: "index_auctify_sales_packs_on_position"
     t.index ["published"], name: "index_auctify_sales_packs_on_published"
     t.index ["slug"], name: "index_auctify_sales_packs_on_slug", unique: true

@@ -28,6 +28,11 @@ module Auctify
                 presence: true
 
       scope :where_current_winner_is, ->(bidder) { where(current_winner: bidder) }
+      scope :from_automatically_closed_pack, -> do
+        # have to do left_joins as there are a lot of tests with nil pack
+        # once pack is required, we can swap left_joins to joins and [nil, false] to false
+        left_joins(:pack).where(auctify_sales_packs: { sales_closed_manually: [nil, false] })
+      end
 
       aasm do
         state :offered, initial: true, color: "red"
@@ -225,7 +230,11 @@ module Auctify
       end
 
       def open_for_bids?
-        in_sale? && Time.current <= currently_ends_at
+        if pack && pack.sales_closed_manually?
+          !manually_closed_at && in_sale?
+        else
+          in_sale? && Time.current <= currently_ends_at
+        end
       end
 
       def opening_price
@@ -376,16 +385,16 @@ end
 #  seller_type                  :string
 #  seller_id                    :integer
 #  buyer_type                   :string
-#  buyer_id                     :integer
-#  item_id                      :integer          not null
+#  buyer_id                     :bigint(8)
+#  item_id                      :bigint(8)        not null
 #  created_at                   :datetime         not null
 #  updated_at                   :datetime         not null
 #  type                         :string           default("Auctify::Sale::Base")
 #  aasm_state                   :string           default("offered"), not null
-#  offered_price                :decimal(, )
-#  current_price                :decimal(, )
-#  sold_price                   :decimal(, )
-#  bid_steps_ladder             :json
+#  offered_price                :decimal(12, 2)
+#  current_price                :decimal(12, 2)
+#  sold_price                   :decimal(12, 2)
+#  bid_steps_ladder             :jsonb
 #  reserve_price                :decimal(, )
 #  pack_id                      :bigint(8)
 #  ends_at                      :datetime
@@ -404,12 +413,16 @@ end
 #  current_winner_id            :bigint(8)
 #  buyer_commission_in_percent  :integer
 #  featured                     :integer
+#  manually_closed_at           :datetime
+#  manually_closed_by_type      :string
+#  manually_closed_by_id        :bigint(8)
 #
 # Indexes
 #
 #  index_auctify_sales_on_buyer_type_and_buyer_id    (buyer_type,buyer_id)
 #  index_auctify_sales_on_currently_ends_at          (currently_ends_at)
 #  index_auctify_sales_on_featured                   (featured)
+#  index_auctify_sales_on_manually_closed_by         (manually_closed_by_type,manually_closed_by_id)
 #  index_auctify_sales_on_pack_id                    (pack_id)
 #  index_auctify_sales_on_position                   (position)
 #  index_auctify_sales_on_published                  (published)

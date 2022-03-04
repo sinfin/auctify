@@ -189,6 +189,16 @@ module Auctify
         adam_auctions = Auctify::Sale::Auction.in_sale.where_current_winner_is(adam)
         assert_equal [auction], adam_auctions.to_a
       end
+
+      test "from_automatically_closed_pack" do
+        auction = auctify_sales(:auction_in_progress)
+
+        assert Auctify::Sale::Auction.from_automatically_closed_pack.exists?(id: auction.id)
+
+        auction.pack.update!(sales_closed_manually: true)
+
+        assert_not Auctify::Sale::Auction.from_automatically_closed_pack.exists?(id: auction.id)
+      end
     end
   end
 end
