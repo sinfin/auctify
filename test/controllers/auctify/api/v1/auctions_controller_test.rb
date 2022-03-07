@@ -8,6 +8,7 @@ module Auctify
       class AuctionsControllerTest < ActionDispatch::IntegrationTest
         include Engine.routes.url_helpers
         include Auctify::AuctionHelpers
+        include ActiveJob::TestHelper
 
         attr_reader :auction, :adam, :lucifer
 
@@ -197,6 +198,74 @@ module Auctify
           assert_includes response_json["errors"], { "status" => 400,
                                                      "title" => "ActiveRecord::RecordInvalid",
                                                      "detail" => "Dražitel Není možné přehazovat své příhozy" }
+        end
+
+        test "POST /api/auctions/:id/close_manually will return an error when not signed in as a Folio::Account" do
+          perform_enqueued_jobs do
+            sign_in lucifer
+
+            assert_equal "in_sale", auction.aasm_state
+
+            auction.pack.update!(sales_closed_manually: false)
+
+            post api_path_for("/auctions/#{auction.id}/close_manually")
+            assert_response 400
+
+            error_messages = response_json["errors"].map { |h| h["detail"] }.sort
+            expected_messages = [
+              "Aukce nelze uzavírat ručně",
+              "Uzavíratel není oprávněn uzavřít tuto aukci",
+            ].sort
+
+            assert_equal expected_messages, error_messages
+
+            auction.reload
+            assert_equal "in_sale", auction.aasm_state
+
+            auction.pack.update!(sales_closed_manually: true)
+
+            @response_json = nil
+
+            post api_path_for("/auctions/#{auction.id}/close_manually")
+            assert_response 400
+
+            error_messages = response_json["errors"].map { |h| h["detail"] }.sort
+            expected_messages = [
+              "Uzavíratel není oprávněn uzavřít tuto aukci",
+            ].sort
+
+            assert_equal expected_messages, error_messages
+
+            auction.reload
+            assert_equal "in_sale", auction.aasm_state
+          end
+        end
+
+        test "POST /api/auctions/:id/close_manually will work when signed in as a Folio::Account" do
+          perform_enqueued_jobs do
+            sign_in lucifer
+
+            assert_equal "in_sale", auction.aasm_state
+
+            auction.pack.update!(sales_closed_manually: true)
+
+            account = Folio::Account.create!(email: "close@manually.com",
+                                             first_name: "close",
+                                             last_name: "manually",
+                                             role: "superuser",
+                                             password: "Password123.")
+
+            sign_in(account)
+
+            assert_nil auction.manually_closed_at
+
+            post api_path_for("/auctions/#{auction.id}/close_manually")
+            assert_response 200
+
+            auction.reload
+            assert auction.manually_closed_at
+            assert_equal "bidding_ended", auction.aasm_state
+          end
         end
 
         private

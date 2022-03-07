@@ -121,6 +121,7 @@ module Auctify
 
       validate :buyer_vs_bidding_consistence
       validate :forbidden_changes
+      validate :validate_manually_closed
 
       after_create :autoregister_bidders
       after_save :create_jobs
@@ -259,20 +260,12 @@ module Auctify
         pack&.auction_prolonging_limit_in_seconds || Auctify.configuration.auction_prolonging_limit_in_seconds
       end
 
-      def close_manually!(by:)
-        ensure_can_be_closed_manually!(by: by)
-
-        update!(manually_closed_at: Time.current, manually_closed_by: by)
-        Auctify::BiddingCloserJob.perform_later(auction_id: id)
-      end
-
-      def ensure_can_be_closed_manually!(by:)
-        unless pack && pack.sales_closed_manually?
-          fail "Cannot close manually for pack without sales_closed_manually!"
-        end
-
-        unless by.is_a?(Folio::Account)
-          fail "Cannot close manually by #{by}!"
+      def close_manually(by:)
+        if update(manually_closed_at: Time.current, manually_closed_by: by)
+          Auctify::BiddingCloserJob.perform_later(auction_id: id)
+          true
+        else
+          false
         end
       end
 
@@ -388,6 +381,20 @@ module Auctify
               # remove_old job is unsupported in ActiveJob
               Auctify::BiddingIsCloseToEndNotifierJob.set(wait_until: notify_time)
                                                      .perform_later(auction_id: id)
+            end
+          end
+        end
+
+        def validate_manually_closed
+          return unless will_save_change_to_manually_closed_at?
+
+          if manually_closed_at
+            unless pack && pack.sales_closed_manually?
+              errors.add(:pack, :sales_not_closed_manually)
+            end
+
+            unless manually_closed_by.is_a?(Folio::Account)
+              errors.add(:manually_closed_by, :not_allowed)
             end
           end
         end

@@ -33,6 +33,14 @@ module Auctify
           end
         end
 
+        def close_manually
+          if @auction.close_manually(by: current_account)
+            render_record @auction
+          else
+            render_record @auction, status: 400
+          end
+        end
+
         private
           def find_auction
             @auction = Auctify::Sale::Auction.find(params[:id])

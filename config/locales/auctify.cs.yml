@@ -69,6 +69,8 @@ cs:
         bids: Příhozy
         winner: Vítěz dražby
         current_winner: Aktuální výherce
+        manually_closed_at: Ruční uzavírání aukcí
+        manually_closed_by: Uzavíratel
       auctify/bid:
         price: Výše příhozu
         max_price: Limit příhozů
@@ -108,6 +110,11 @@ cs:
               there_is_a_buyer_for_not_sold_auction: "Aukci nelze označit za neprodanou, neboť má kupce (%{winner})"
             sold_price:
               sold_price_is_not_from_bidding: "Prodejní cena %{sold_price} neodpovídá výherní ceně z aukce %{won_price}"
+            pack:
+              sales_not_closed_manually: "nelze uzavírat ručně"
+            manually_closed_by:
+              not_allowed: "není oprávněn uzavřít tuto aukci"
+
           you_cannot_delete_auction_with_bids: "Není možné mazat aukční položku, která má příhozy"
         auctify/sales_pack:
           attributes:
