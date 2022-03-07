@@ -261,7 +261,7 @@ module Auctify
       end
 
       def close_manually(by:)
-        if update(manually_closed_at: Time.current, manually_closed_by: by)
+        if manually_closed_at.nil? && update(manually_closed_at: Time.current, manually_closed_by: by)
           Auctify::BiddingCloserJob.perform_later(auction_id: id)
           true
         else
