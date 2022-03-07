@@ -200,6 +200,25 @@ module Auctify
                                                      "detail" => "Dražitel Není možné přehazovat své příhozy" }
         end
 
+        test "POST /api/auctions/:id/bids, works correctly when time has passed based on sales_closed_manually" do
+          auction.update!(currently_ends_at: 1.minute.ago)
+
+          # adam is winning
+          sign_in lucifer
+          post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_500.0 } }
+          assert_response 400
+          assert_equal "Položka aukce je momentálně uzavřena pro přihazování", response_json["errors"][0]["detail"]
+          assert_not_equal 1_500, auction.reload.current_price
+
+          auction.pack.update!(sales_closed_manually: true)
+
+          sign_in lucifer
+          post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_500.0 } }
+          assert_response :ok
+
+          assert_equal 1_500, auction.reload.current_price
+        end
+
         test "POST /api/auctions/:id/close_manually will return an error when not signed in as a Folio::Account" do
           perform_enqueued_jobs do
             sign_in lucifer
