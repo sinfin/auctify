@@ -269,6 +269,10 @@ module Auctify
         end
       end
 
+      def has_to_be_closed_manually?
+        pack.present? && pack.sales_closed_manually?
+      end
+
       private
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?
