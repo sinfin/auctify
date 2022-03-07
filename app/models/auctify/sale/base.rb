@@ -43,6 +43,16 @@ module Auctify
         where.not(aasm_state: %w[offered accepted refused]).where("currently_ends_at < ?", Time.current)
       end
 
+      scope :auctions_open_for_bids_when_closing_manually, -> do
+        # mirror auctions_open_for_bids but without checking currently_ends_at
+        where(aasm_state: "in_sale")
+      end
+
+      scope :auctions_finished_when_closing_manually, -> do
+        # mirror auctions_finished but without checking currently_ends_at
+        where.not(aasm_state: %w[offered accepted refused])
+      end
+
       scope :latest_published_by_item, -> { joins(latest_published_sales_by_item_subtable.join_sources) }
 
       delegate :to_label,
