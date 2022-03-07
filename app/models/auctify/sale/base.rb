@@ -49,8 +49,8 @@ module Auctify
       end
 
       scope :auctions_finished_when_closing_manually, -> do
-        # mirror auctions_finished but without checking currently_ends_at
-        where.not(aasm_state: %w[offered accepted refused])
+        # should be "mirror auctions_finished but without checking currently_ends_at" but that doesn't work as it shows in_sale as well; made a whitelist instead
+        where(aasm_state: %w[bidding_ended auctioned_successfully auctioned_unsuccessfully sold not_sold])
       end
 
       scope :latest_published_by_item, -> { joins(latest_published_sales_by_item_subtable.join_sources) }
