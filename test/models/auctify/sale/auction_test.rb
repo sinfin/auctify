@@ -218,10 +218,22 @@ module Auctify
 
           auction.pack.update!(sales_closed_manually: true)
 
-          assert auction.close_manually!(by: adam)
+          assert_raises(StandardError) do
+            assert auction.close_manually!(by: adam)
+          end
 
           auction.reload
+          assert_equal "in_sale", auction.aasm_state
 
+          account = Folio::Account.create!(email: "close@manually.com",
+                                           first_name: "close",
+                                           last_name: "manually",
+                                           role: "superuser",
+                                           password: "Password123.")
+
+          assert auction.close_manually!(by: account)
+
+          auction.reload
           assert_equal "bidding_ended", auction.aasm_state
         end
       end

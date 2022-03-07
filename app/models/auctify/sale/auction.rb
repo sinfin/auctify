@@ -260,11 +260,19 @@ module Auctify
       end
 
       def close_manually!(by:)
-        if pack && pack.sales_closed_manually?
-          update!(manually_closed_at: Time.current, manually_closed_by: by)
-          Auctify::BiddingCloserJob.perform_later(auction_id: id)
-        else
-          fail "Cannot close manually!"
+        ensure_can_be_closed_manually!(by: by)
+
+        update!(manually_closed_at: Time.current, manually_closed_by: by)
+        Auctify::BiddingCloserJob.perform_later(auction_id: id)
+      end
+
+      def ensure_can_be_closed_manually!(by:)
+        unless pack && pack.sales_closed_manually?
+          fail "Cannot close manually for pack without sales_closed_manually!"
+        end
+
+        unless by.is_a?(Folio::Account)
+          fail "Cannot close manually by #{by}!"
         end
       end
 
