@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_04_111030) do
+ActiveRecord::Schema.define(version: 2022_03_08_101021) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -79,10 +79,12 @@ ActiveRecord::Schema.define(version: 2022_03_04_111030) do
     t.datetime "manually_closed_at"
     t.string "manually_closed_by_type"
     t.bigint "manually_closed_by_id"
+    t.boolean "must_be_closed_manually", default: false
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["currently_ends_at"], name: "index_auctify_sales_on_currently_ends_at"
     t.index ["featured"], name: "index_auctify_sales_on_featured"
     t.index ["manually_closed_by_type", "manually_closed_by_id"], name: "index_auctify_sales_on_manually_closed_by"
+    t.index ["must_be_closed_manually"], name: "index_auctify_sales_on_must_be_closed_manually"
     t.index ["pack_id"], name: "index_auctify_sales_on_pack_id"
     t.index ["position"], name: "index_auctify_sales_on_position"
     t.index ["published"], name: "index_auctify_sales_on_published"
@@ -108,7 +110,6 @@ ActiveRecord::Schema.define(version: 2022_03_04_111030) do
     t.integer "sales_beginning_minutes", default: 0
     t.integer "commission_in_percent"
     t.integer "auction_prolonging_limit_in_seconds"
-    t.boolean "sales_closed_manually", default: false
     t.index ["position"], name: "index_auctify_sales_packs_on_position"
     t.index ["published"], name: "index_auctify_sales_packs_on_published"
     t.index ["slug"], name: "index_auctify_sales_packs_on_slug", unique: true

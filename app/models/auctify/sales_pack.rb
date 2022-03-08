@@ -134,7 +134,6 @@ end
 #  sales_beginning_minutes             :integer          default(0)
 #  commission_in_percent               :integer
 #  auction_prolonging_limit_in_seconds :integer
-#  sales_closed_manually               :boolean          default(FALSE)
 #
 # Indexes
 #

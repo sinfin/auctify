@@ -161,7 +161,7 @@ module Auctify
           # comparing time with seconds precision, use `.to_i`
           if bid.created_at.to_i <= auction.currently_ends_at.to_i
             return
-          elsif auction.pack && auction.pack.sales_closed_manually?
+          elsif auction.must_be_closed_manually?
             return
           end
         end

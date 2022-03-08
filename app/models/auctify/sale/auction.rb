@@ -29,10 +29,8 @@ module Auctify
                 presence: true
 
       scope :where_current_winner_is, ->(bidder) { where(current_winner: bidder) }
-      scope :from_automatically_closed_pack, -> do
-        # have to do left_joins as there are a lot of tests with nil pack
-        # once pack is required, we can swap left_joins to joins and [nil, false] to false
-        left_joins(:pack).where(auctify_sales_packs: { sales_closed_manually: [nil, false] })
+      scope :closable_automatically, -> do
+        where(must_be_closed_manually: false)
       end
 
       aasm do
@@ -232,7 +230,7 @@ module Auctify
       end
 
       def open_for_bids?
-        if pack && pack.sales_closed_manually?
+        if must_be_closed_manually?
           !manually_closed_at && in_sale?
         else
           in_sale? && Time.current <= currently_ends_at
@@ -267,10 +265,6 @@ module Auctify
         else
           false
         end
-      end
-
-      def has_to_be_closed_manually?
-        pack.present? && pack.sales_closed_manually?
       end
 
       private
@@ -393,8 +387,8 @@ module Auctify
           return unless will_save_change_to_manually_closed_at?
 
           if manually_closed_at
-            unless pack && pack.sales_closed_manually?
-              errors.add(:pack, :sales_not_closed_manually)
+            unless must_be_closed_manually?
+              errors.add(:base, :sales_not_closed_manually)
             end
 
             unless manually_closed_by.is_a?(Folio::Account)
@@ -445,6 +439,7 @@ end
 #  manually_closed_at           :datetime
 #  manually_closed_by_type      :string
 #  manually_closed_by_id        :bigint(8)
+#  must_be_closed_manually      :boolean          default(FALSE)
 #
 # Indexes
 #
@@ -452,6 +447,7 @@ end
 #  index_auctify_sales_on_currently_ends_at          (currently_ends_at)
 #  index_auctify_sales_on_featured                   (featured)
 #  index_auctify_sales_on_manually_closed_by         (manually_closed_by_type,manually_closed_by_id)
+#  index_auctify_sales_on_must_be_closed_manually    (must_be_closed_manually)
 #  index_auctify_sales_on_pack_id                    (pack_id)
 #  index_auctify_sales_on_position                   (position)
 #  index_auctify_sales_on_published                  (published)

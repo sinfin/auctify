@@ -38,7 +38,6 @@ cs:
         sales_interval: Časový rozestup mezi předměty v minutách
         sales_beginning_hour: Čas prvního předmětu (hodina)
         sales_beginning_minutes: Čas prvního předmětu (minuty)
-        sales_closed_manually: Ruční uzavírání aukcí
         commission_in_percent: Provize aukční síně (procenta)
         auction_prolonging_limit_in_seconds: Časový limit pro prodloužení aukce (sekundy)
       auctify/sale/base:
@@ -71,6 +70,7 @@ cs:
         current_winner: Aktuální výherce
         manually_closed_at: Ruční uzavírání aukcí
         manually_closed_by: Uzavíratel
+        must_be_closed_manually: Uzavírat ručně
       auctify/bid:
         price: Výše příhozu
         max_price: Limit příhozů
@@ -110,8 +110,8 @@ cs:
               there_is_a_buyer_for_not_sold_auction: "Aukci nelze označit za neprodanou, neboť má kupce (%{winner})"
             sold_price:
               sold_price_is_not_from_bidding: "Prodejní cena %{sold_price} neodpovídá výherní ceně z aukce %{won_price}"
-            pack:
-              sales_not_closed_manually: "nelze uzavírat ručně"
+            base:
+              sales_not_closed_manually: "Aukci nelze uzavřít ručně"
             manually_closed_by:
               not_allowed: "není oprávněn uzavřít tuto aukci"
 

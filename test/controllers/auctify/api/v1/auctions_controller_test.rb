@@ -200,7 +200,7 @@ module Auctify
                                                      "detail" => "Dražitel Není možné přehazovat své příhozy" }
         end
 
-        test "POST /api/auctions/:id/bids, works correctly when time has passed based on sales_closed_manually" do
+        test "POST /api/auctions/:id/bids, works correctly when time has passed based on must_be_closed_manually" do
           auction.update!(currently_ends_at: 1.minute.ago)
 
           # adam is winning
@@ -210,7 +210,7 @@ module Auctify
           assert_equal "Položka aukce je momentálně uzavřena pro přihazování", response_json["errors"][0]["detail"]
           assert_not_equal 1_500, auction.reload.current_price
 
-          auction.pack.update!(sales_closed_manually: true)
+          auction.update!(must_be_closed_manually: true)
 
           sign_in lucifer
           post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_500.0 } }
@@ -225,14 +225,14 @@ module Auctify
 
             assert_equal "in_sale", auction.aasm_state
 
-            auction.pack.update!(sales_closed_manually: false)
+            auction.update!(must_be_closed_manually: false)
 
             post api_path_for("/auctions/#{auction.id}/close_manually")
             assert_response 400
 
             error_messages = response_json["errors"].map { |h| h["detail"] }.sort
             expected_messages = [
-              "Aukce nelze uzavírat ručně",
+              "Aukci nelze uzavřít ručně",
               "Uzavíratel není oprávněn uzavřít tuto aukci",
             ].sort
 
@@ -241,7 +241,7 @@ module Auctify
             auction.reload
             assert_equal "in_sale", auction.aasm_state
 
-            auction.pack.update!(sales_closed_manually: true)
+            auction.update!(must_be_closed_manually: true)
 
             @response_json = nil
 
@@ -266,7 +266,7 @@ module Auctify
 
             assert_equal "in_sale", auction.aasm_state
 
-            auction.pack.update!(sales_closed_manually: true)
+            auction.update!(must_be_closed_manually: true)
 
             account = Folio::Account.create!(email: "close@manually.com",
                                              first_name: "close",

@@ -92,6 +92,7 @@ end
 #  manually_closed_at           :datetime
 #  manually_closed_by_type      :string
 #  manually_closed_by_id        :bigint(8)
+#  must_be_closed_manually      :boolean          default(FALSE)
 #
 # Indexes
 #
@@ -99,6 +100,7 @@ end
 #  index_auctify_sales_on_currently_ends_at          (currently_ends_at)
 #  index_auctify_sales_on_featured                   (featured)
 #  index_auctify_sales_on_manually_closed_by         (manually_closed_by_type,manually_closed_by_id)
+#  index_auctify_sales_on_must_be_closed_manually    (must_be_closed_manually)
 #  index_auctify_sales_on_pack_id                    (pack_id)
 #  index_auctify_sales_on_position                   (position)
 #  index_auctify_sales_on_published                  (published)

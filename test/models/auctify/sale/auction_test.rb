@@ -190,14 +190,14 @@ module Auctify
         assert_equal [auction], adam_auctions.to_a
       end
 
-      test "from_automatically_closed_pack" do
+      test "closable_automatically" do
         auction = auctify_sales(:auction_in_progress)
 
-        assert Auctify::Sale::Auction.from_automatically_closed_pack.exists?(id: auction.id)
+        assert Auctify::Sale::Auction.closable_automatically.exists?(id: auction.id)
 
-        auction.pack.update!(sales_closed_manually: true)
+        auction.update!(must_be_closed_manually: true)
 
-        assert_not Auctify::Sale::Auction.from_automatically_closed_pack.exists?(id: auction.id)
+        assert_not Auctify::Sale::Auction.closable_automatically.exists?(id: auction.id)
       end
 
       test "close_manually" do
@@ -214,7 +214,7 @@ module Auctify
 
           assert_equal "in_sale", auction.aasm_state
 
-          auction.pack.update!(sales_closed_manually: true)
+          auction.reload.update!(must_be_closed_manually: true)
 
           assert_not auction.close_manually(by: adam)
 

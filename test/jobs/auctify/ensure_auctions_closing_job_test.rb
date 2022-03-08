@@ -56,7 +56,7 @@ module Auctify
     test "skips BiddingCloserJobs for manually-closed future close-to-end auctions" do
       assert_enqueued_jobs 0, only: job_class
 
-      pack.update!(sales_closed_manually: true)
+      pack.sales.update_all(must_be_closed_manually: true)
 
       Time.stub(:current, time_now) do
         job_class.perform_now

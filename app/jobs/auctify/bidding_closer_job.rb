@@ -13,7 +13,7 @@ module Auctify
       end
 
       # lots of tests with nil pack so we have to check if it exists as well
-      if auction.pack && auction.pack.sales_closed_manually?
+      if auction.must_be_closed_manually?
         return unless auction.manually_closed_at?
       else
         return if Time.current < auction.currently_ends_at
