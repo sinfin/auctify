@@ -244,6 +244,7 @@ end
 #
 # Indexes
 #
+#  index_auctify_sales_on_aasm_state                 (aasm_state)
 #  index_auctify_sales_on_buyer_type_and_buyer_id    (buyer_type,buyer_id)
 #  index_auctify_sales_on_currently_ends_at          (currently_ends_at)
 #  index_auctify_sales_on_featured                   (featured)
