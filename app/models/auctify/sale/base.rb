@@ -34,23 +34,50 @@ module Auctify
       scope :not_sold, -> { where(sold_price: nil) }
       scope :ordered, -> { order(currently_ends_at: :asc, id: :asc) }
 
-      # need auction scopes here because of has_many :sales, class_name: "Auctify::Sale::Base"
       scope :auctions_open_for_bids, -> do
-        where(aasm_state: "in_sale").where("currently_ends_at > ?", Time.current)
+        sql = <<~SQL
+          (
+            auctify_sales.must_be_closed_manually = ?
+            AND
+            auctify_sales.aasm_state = ?
+          ) OR (
+            auctify_sales.must_be_closed_manually = ?
+            AND
+            auctify_sales.aasm_state = ?
+            AND
+            auctify_sales.currently_ends_at > ?
+          )
+        SQL
+
+        where(sql,
+              true,
+              "in_sale",
+              false,
+              "in_sale",
+              Time.current)
       end
 
       scope :auctions_finished, -> do
-        where.not(aasm_state: %w[offered accepted refused]).where("currently_ends_at < ?", Time.current)
-      end
+        sql = <<~SQL
+          (
+            auctify_sales.must_be_closed_manually = ?
+            AND
+            auctify_sales.aasm_state IN (?)
+          ) OR (
+            auctify_sales.must_be_closed_manually = ?
+            AND
+            auctify_sales.aasm_state NOT IN (?)
+            AND
+            auctify_sales.currently_ends_at < ?
+          )
+        SQL
 
-      scope :auctions_open_for_bids_when_closing_manually, -> do
-        # mirror auctions_open_for_bids but without checking currently_ends_at
-        where(aasm_state: "in_sale")
-      end
-
-      scope :auctions_finished_when_closing_manually, -> do
-        # should be "mirror auctions_finished but without checking currently_ends_at" but that doesn't work as it shows in_sale as well; made a whitelist instead
-        where(aasm_state: %w[bidding_ended auctioned_successfully auctioned_unsuccessfully sold not_sold])
+        where(sql,
+              true,
+              %w[bidding_ended auctioned_successfully auctioned_unsuccessfully sold not_sold],
+              false,
+              %w[offered accepted refused],
+              Time.current)
       end
 
       scope :latest_published_by_item, -> { joins(latest_published_sales_by_item_subtable.join_sources) }

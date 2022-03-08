@@ -159,6 +159,26 @@ module Auctify
         assert new_sale.invalid?
         assert_equal ["předmět je již jednou nabízen v rámci Aukce `#{sales_pack.title}`"], new_sale.errors[:item]
       end
+
+      test "auctions_open_for_bids / auctions_finished" do
+        sale = auctify_sales(:auction_in_progress)
+
+        sale.update!(must_be_closed_manually: true, currently_ends_at: 1.day.from_now)
+        assert Auctify::Sale::Base.auctions_open_for_bids.exists?(id: sale.id)
+        assert_not Auctify::Sale::Base.auctions_finished.exists?(id: sale.id)
+
+        sale.update!(must_be_closed_manually: false, currently_ends_at: 1.day.from_now)
+        assert Auctify::Sale::Base.auctions_open_for_bids.exists?(id: sale.id)
+        assert_not Auctify::Sale::Base.auctions_finished.exists?(id: sale.id)
+
+        sale.update!(must_be_closed_manually: false, currently_ends_at: 1.day.ago)
+        assert_not Auctify::Sale::Base.auctions_open_for_bids.exists?(id: sale.id)
+        assert Auctify::Sale::Base.auctions_finished.exists?(id: sale.id)
+
+        sale.update!(must_be_closed_manually: true, currently_ends_at: 1.day.ago)
+        assert Auctify::Sale::Base.auctions_open_for_bids.exists?(id: sale.id)
+        assert_not Auctify::Sale::Base.auctions_finished.exists?(id: sale.id)
+      end
     end
   end
 end
