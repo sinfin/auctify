@@ -12,7 +12,6 @@ module Auctify
         return
       end
 
-      # lots of tests with nil pack so we have to check if it exists as well
       if auction.must_be_closed_manually?
         return unless auction.manually_closed_at?
       else
