@@ -112,7 +112,7 @@ cs:
               sold_price_is_not_from_bidding: "Prodejní cena %{sold_price} neodpovídá výherní ceně z aukce %{won_price}"
             base:
               sales_not_closed_manually: "Aukci nelze uzavřít ručně"
-              current_price_doesnt_match_closing: "Aukce nebyla uzavřena, protože byla před uzavřením přihozena vyšší částka."
+              current_price_doesnt_match_closing: "Aukce nebyla uzavřena, protože byla před uzavřením přihozena vyšší částka"
             manually_closed_by:
               not_allowed: "není oprávněn uzavřít tuto aukci"
 
