@@ -263,6 +263,32 @@ module Auctify
           assert_equal "bidding_ended", auction.aasm_state
         end
       end
+
+      test "disallow bids when manually closed and job is still pending" do
+        auction = auctify_sales(:auction_in_progress)
+        lucifer = users(:lucifer)
+        adam = users(:adam)
+
+        auction.update!(must_be_closed_manually: true)
+
+        allow_bids_for([lucifer, adam], auction)
+
+        assert auction.bid!(bid_for(lucifer, 2_000))
+
+        account = Folio::Account.create!(email: "close@manually.com",
+                                         first_name: "close",
+                                         last_name: "manually",
+                                         role: "superuser",
+                                         password: "Password123.")
+
+        auction.close_manually(by: account, price_check: 2_000)
+        # job didn't run yet
+        assert_equal "in_sale", auction.reload.aasm_state
+        # but cannot bid anyways
+        assert_not auction.bid!(bid_for(adam, 3_000))
+
+        assert_equal 2_000, auction.reload.current_price
+      end
     end
   end
 end

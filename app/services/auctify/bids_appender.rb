@@ -158,10 +158,10 @@ module Auctify
 
       def check_auction_state
         if auction.in_sale?
-          # comparing time with seconds precision, use `.to_i`
-          if bid.created_at.to_i <= auction.currently_ends_at.to_i
-            return
-          elsif auction.must_be_closed_manually?
+          if auction.must_be_closed_manually?
+            return unless auction.manually_closed_at?
+          elsif bid.created_at.to_i <= auction.currently_ends_at.to_i
+            # comparing time with seconds precision, use `.to_i`
             return
           end
         end
