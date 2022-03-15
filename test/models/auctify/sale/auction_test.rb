@@ -210,13 +210,13 @@ module Auctify
         assert auction.bid!(bid_for(lucifer, 2_000))
 
         perform_enqueued_jobs do
-          assert_not auction.close_manually(by: adam)
+          assert_not auction.close_manually(by: adam, price_check: auction.current_price)
 
           assert_equal "in_sale", auction.aasm_state
 
           auction.reload.update!(must_be_closed_manually: true)
 
-          assert_not auction.close_manually(by: adam)
+          assert_not auction.close_manually(by: adam, price_check: auction.current_price)
 
           auction.reload
           assert_equal "in_sale", auction.aasm_state
@@ -227,8 +227,38 @@ module Auctify
                                            role: "superuser",
                                            password: "Password123.")
 
-          assert auction.close_manually(by: account)
+          assert auction.close_manually(by: account, price_check: auction.current_price)
 
+          auction.reload
+          assert_equal "bidding_ended", auction.aasm_state
+        end
+      end
+
+      test "close_manually price_check" do
+        auction = auctify_sales(:auction_in_progress)
+        lucifer = users(:lucifer)
+
+        account = Folio::Account.create!(email: "close@manually.com",
+                                         first_name: "close",
+                                         last_name: "manually",
+                                         role: "superuser",
+                                         password: "Password123.")
+
+        auction.update!(must_be_closed_manually: true)
+
+        allow_bids_for([lucifer], auction)
+
+        assert auction.bid!(bid_for(lucifer, 2_000))
+
+        perform_enqueued_jobs do
+          assert_equal "in_sale", auction.aasm_state
+
+          assert_not auction.close_manually(by: account, price_check: 1_500)
+          assert_includes auction.errors[:base], "Aukce nebyla uzavřena, protože byla před uzavřením přihozena vyšší částka."
+          auction.reload
+          assert_equal "in_sale", auction.aasm_state
+
+          assert auction.close_manually(by: account, price_check: 2_000)
           auction.reload
           assert_equal "bidding_ended", auction.aasm_state
         end

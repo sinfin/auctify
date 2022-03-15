@@ -34,7 +34,7 @@ module Auctify
         end
 
         def close_manually
-          if @auction.close_manually(by: current_account)
+          if @auction.close_manually(by: current_account, price_check: params[:current_price])
             render_record @auction
           else
             render_record @auction, status: 400

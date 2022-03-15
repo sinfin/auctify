@@ -13,6 +13,7 @@ module Auctify
       }
 
       attr_accessor :winning_bid
+      attr_accessor :manually_closed_price_check
 
       has_many :bidder_registrations, dependent: :destroy
       has_many :bids, through: :bidder_registrations, dependent: :restrict_with_error # destroy them manually first
@@ -258,8 +259,8 @@ module Auctify
         pack&.auction_prolonging_limit_in_seconds || Auctify.configuration.auction_prolonging_limit_in_seconds
       end
 
-      def close_manually(by:)
-        if manually_closed_at.nil? && update(manually_closed_at: Time.current, manually_closed_by: by)
+      def close_manually(by:, price_check:)
+        if manually_closed_at.nil? && update(manually_closed_at: Time.current, manually_closed_by: by, manually_closed_price_check: price_check)
           Auctify::BiddingCloserJob.perform_later(auction_id: id)
           true
         else
@@ -387,6 +388,10 @@ module Auctify
           return unless will_save_change_to_manually_closed_at?
 
           if manually_closed_at
+            if !manually_closed_price_check || manually_closed_price_check.to_i != current_price
+              errors.add(:base, :current_price_doesnt_match_closing)
+            end
+
             unless must_be_closed_manually?
               errors.add(:base, :sales_not_closed_manually)
             end

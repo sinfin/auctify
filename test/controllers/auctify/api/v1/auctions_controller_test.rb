@@ -227,7 +227,7 @@ module Auctify
 
             auction.update!(must_be_closed_manually: false)
 
-            post api_path_for("/auctions/#{auction.id}/close_manually")
+            post api_path_for("/auctions/#{auction.id}/close_manually"), params: { current_price: auction.current_price }
             assert_response 400
 
             error_messages = response_json["errors"].map { |h| h["detail"] }.sort
@@ -245,7 +245,7 @@ module Auctify
 
             @response_json = nil
 
-            post api_path_for("/auctions/#{auction.id}/close_manually")
+            post api_path_for("/auctions/#{auction.id}/close_manually"), params: { current_price: auction.current_price }
             assert_response 400
 
             error_messages = response_json["errors"].map { |h| h["detail"] }.sort
@@ -278,7 +278,7 @@ module Auctify
 
             assert_nil auction.manually_closed_at
 
-            post api_path_for("/auctions/#{auction.id}/close_manually")
+            post api_path_for("/auctions/#{auction.id}/close_manually"), params: { current_price: auction.current_price }
             assert_response 200
 
             auction.reload
