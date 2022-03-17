@@ -13,6 +13,7 @@ module Auctify
       }
 
       attr_accessor :winning_bid
+      attr_accessor :manually_closed_price_check
 
       has_many :bidder_registrations, dependent: :destroy
       has_many :bids, through: :bidder_registrations, dependent: :restrict_with_error # destroy them manually first
@@ -23,11 +24,16 @@ module Auctify
 
       belongs_to :winner, polymorphic: true, optional: true
       belongs_to :current_winner, polymorphic: true, optional: true
+      belongs_to :manually_closed_by, polymorphic: true, optional: true
+      belongs_to :bidding_locked_by, polymorphic: true, optional: true
 
       validates :ends_at,
                 presence: true
 
       scope :where_current_winner_is, ->(bidder) { where(current_winner: bidder) }
+      scope :closable_automatically, -> do
+        where(must_be_closed_manually: false)
+      end
 
       aasm do
         state :offered, initial: true, color: "red"
@@ -115,6 +121,8 @@ module Auctify
 
       validate :buyer_vs_bidding_consistence
       validate :forbidden_changes
+      validate :validate_manually_closed
+      validate :validate_bidding_locked
 
       after_create :autoregister_bidders
       after_save :create_jobs
@@ -225,7 +233,13 @@ module Auctify
       end
 
       def open_for_bids?
-        in_sale? && Time.current <= currently_ends_at
+        return false if bidding_locked_at?
+
+        if must_be_closed_manually?
+          !manually_closed_at && in_sale?
+        else
+          in_sale? && Time.current <= currently_ends_at
+        end
       end
 
       def opening_price
@@ -247,6 +261,23 @@ module Auctify
 
       def auction_prolonging_limit_in_seconds
         pack&.auction_prolonging_limit_in_seconds || Auctify.configuration.auction_prolonging_limit_in_seconds
+      end
+
+      def close_manually(by:, price_check:)
+        if manually_closed_at.nil? && update(manually_closed_at: Time.current, manually_closed_by: by, manually_closed_price_check: price_check)
+          Auctify::BiddingCloserJob.perform_later(auction_id: id)
+          true
+        else
+          false
+        end
+      end
+
+      def lock_bidding(by:)
+        !!update(bidding_locked_at: Time.current, bidding_locked_by: by)
+      end
+
+      def unlock_bidding(by:)
+        !!update(bidding_locked_at: nil, bidding_locked_by: nil)
       end
 
       private
@@ -364,6 +395,38 @@ module Auctify
             end
           end
         end
+
+        def validate_manually_closed
+          return unless will_save_change_to_manually_closed_at?
+
+          if manually_closed_at
+            unless bidding_locked_at?
+              errors.add(:base, :need_to_lock_bidding_first)
+            end
+
+            if !manually_closed_price_check || manually_closed_price_check.to_i != current_price
+              errors.add(:base, :current_price_doesnt_match_closing)
+            end
+
+            unless must_be_closed_manually?
+              errors.add(:base, :sales_not_closed_manually)
+            end
+
+            unless manually_closed_by.is_a?(Folio::Account)
+              errors.add(:manually_closed_by, :not_allowed)
+            end
+          end
+        end
+
+        def validate_bidding_locked
+          return unless will_save_change_to_bidding_locked_at?
+
+          if bidding_locked_at?
+            unless bidding_locked_by.is_a?(Folio::Account)
+              errors.add(:bidding_locked_by, :not_allowed)
+            end
+          end
+        end
     end
   end
 end
@@ -376,16 +439,16 @@ end
 #  seller_type                  :string
 #  seller_id                    :integer
 #  buyer_type                   :string
-#  buyer_id                     :integer
-#  item_id                      :integer          not null
+#  buyer_id                     :bigint(8)
+#  item_id                      :bigint(8)        not null
 #  created_at                   :datetime         not null
 #  updated_at                   :datetime         not null
 #  type                         :string           default("Auctify::Sale::Base")
 #  aasm_state                   :string           default("offered"), not null
-#  offered_price                :decimal(, )
-#  current_price                :decimal(, )
-#  sold_price                   :decimal(, )
-#  bid_steps_ladder             :json
+#  offered_price                :decimal(12, 2)
+#  current_price                :decimal(12, 2)
+#  sold_price                   :decimal(12, 2)
+#  bid_steps_ladder             :jsonb
 #  reserve_price                :decimal(, )
 #  pack_id                      :bigint(8)
 #  ends_at                      :datetime
@@ -404,12 +467,23 @@ end
 #  current_winner_id            :bigint(8)
 #  buyer_commission_in_percent  :integer
 #  featured                     :integer
+#  manually_closed_at           :datetime
+#  manually_closed_by_type      :string
+#  manually_closed_by_id        :bigint(8)
+#  must_be_closed_manually      :boolean          default(FALSE)
+#  bidding_locked_at            :datetime
+#  bidding_locked_by_type       :string
+#  bidding_locked_by_id         :bigint(8)
 #
 # Indexes
 #
+#  index_auctify_sales_on_aasm_state                 (aasm_state)
+#  index_auctify_sales_on_bidding_locked_by          (bidding_locked_by_type,bidding_locked_by_id)
 #  index_auctify_sales_on_buyer_type_and_buyer_id    (buyer_type,buyer_id)
 #  index_auctify_sales_on_currently_ends_at          (currently_ends_at)
 #  index_auctify_sales_on_featured                   (featured)
+#  index_auctify_sales_on_manually_closed_by         (manually_closed_by_type,manually_closed_by_id)
+#  index_auctify_sales_on_must_be_closed_manually    (must_be_closed_manually)
 #  index_auctify_sales_on_pack_id                    (pack_id)
 #  index_auctify_sales_on_position                   (position)
 #  index_auctify_sales_on_published                  (published)

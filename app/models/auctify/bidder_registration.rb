@@ -83,8 +83,8 @@ end
 #
 #  id                :bigint(8)        not null, primary key
 #  bidder_type       :string           not null
-#  bidder_id         :integer          not null
-#  auction_id        :integer          not null
+#  bidder_id         :bigint(8)        not null
+#  auction_id        :bigint(8)        not null
 #  aasm_state        :string           default("pending"), not null
 #  handled_at        :datetime
 #  created_at        :datetime         not null

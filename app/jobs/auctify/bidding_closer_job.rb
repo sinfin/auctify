@@ -12,7 +12,11 @@ module Auctify
         return
       end
 
-      return if Time.current < auction.currently_ends_at
+      if auction.must_be_closed_manually?
+        return unless auction.manually_closed_at?
+      else
+        return if Time.current < auction.currently_ends_at
+      end
 
       Auctify::Sale::Auction.with_advisory_lock("closing_auction_#{auction_id}") do
         # can wait unitl other BCJob release lock and than continue!

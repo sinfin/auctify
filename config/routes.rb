@@ -11,6 +11,9 @@ Auctify::Engine.routes.draw do
         resources :auctions do
           member do
             post :bids
+            post :close_manually
+            post :lock_bidding
+            post :unlock_bidding
           end
         end
 

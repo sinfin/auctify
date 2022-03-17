@@ -14,7 +14,7 @@ module Auctify
       @auction.start_sale!
     end
 
-    test "closes bidding when auction.currently_ends_at passed" do
+    test "closes bidding when auction.currently_ends_at passed when not closing manually" do
       Time.stub(:current, auction.currently_ends_at) do
         assert auction.reload.in_sale?
 

@@ -189,6 +189,150 @@ module Auctify
         adam_auctions = Auctify::Sale::Auction.in_sale.where_current_winner_is(adam)
         assert_equal [auction], adam_auctions.to_a
       end
+
+      test "closable_automatically" do
+        auction = auctify_sales(:auction_in_progress)
+
+        assert Auctify::Sale::Auction.closable_automatically.exists?(id: auction.id)
+
+        auction.update!(must_be_closed_manually: true)
+
+        assert_not Auctify::Sale::Auction.closable_automatically.exists?(id: auction.id)
+      end
+
+      test "close_manually" do
+        auction = auctify_sales(:auction_in_progress)
+        adam = users(:adam)
+        lucifer = users(:lucifer)
+
+        allow_bids_for([lucifer], auction)
+
+        assert auction.bid!(bid_for(lucifer, 2_000))
+
+        perform_enqueued_jobs do
+          assert_not auction.close_manually(by: adam, price_check: auction.current_price)
+
+          assert_equal "in_sale", auction.aasm_state
+
+          auction.reload.update!(must_be_closed_manually: true)
+
+          assert_not auction.close_manually(by: adam, price_check: auction.current_price)
+
+          auction.reload
+          assert_equal "in_sale", auction.aasm_state
+
+          account = Folio::Account.create!(email: "close@manually.com",
+                                           first_name: "close",
+                                           last_name: "manually",
+                                           role: "superuser",
+                                           password: "Password123.")
+
+          assert_not auction.close_manually(by: account, price_check: auction.current_price)
+
+          auction.reload
+          assert_equal "in_sale", auction.aasm_state
+
+          assert auction.lock_bidding(by: account)
+          auction.reload
+
+          assert auction.close_manually(by: account, price_check: auction.current_price)
+
+          auction.reload
+          assert_equal "bidding_ended", auction.aasm_state
+        end
+      end
+
+      test "close_manually price_check" do
+        auction = auctify_sales(:auction_in_progress)
+        lucifer = users(:lucifer)
+
+        account = Folio::Account.create!(email: "close@manually.com",
+                                         first_name: "close",
+                                         last_name: "manually",
+                                         role: "superuser",
+                                         password: "Password123.")
+
+        auction.update!(must_be_closed_manually: true)
+
+        allow_bids_for([lucifer], auction)
+
+        assert auction.bid!(bid_for(lucifer, 2_000))
+
+        perform_enqueued_jobs do
+          assert_equal "in_sale", auction.aasm_state
+
+          assert_not auction.close_manually(by: account, price_check: 1_500)
+          assert_includes auction.errors[:base], "Aukce nebyla uzavřena, protože byla před uzavřením přihozena vyšší částka"
+          assert_includes auction.errors[:base], "U aukce je potřeba nejprve uzamknout příhozy"
+          auction.reload
+          assert_equal "in_sale", auction.aasm_state
+
+          assert_not auction.close_manually(by: account, price_check: 2_000)
+          assert_includes auction.errors[:base], "U aukce je potřeba nejprve uzamknout příhozy"
+          auction.reload
+          assert_equal "in_sale", auction.aasm_state
+
+          assert auction.lock_bidding(by: account)
+          auction.reload
+
+          assert auction.close_manually(by: account, price_check: 2_000)
+          auction.reload
+          assert_equal "bidding_ended", auction.aasm_state
+        end
+      end
+
+      test "disallow bids when manually closed and job is still pending" do
+        auction = auctify_sales(:auction_in_progress)
+        lucifer = users(:lucifer)
+        adam = users(:adam)
+
+        auction.update!(must_be_closed_manually: true)
+
+        allow_bids_for([lucifer, adam], auction)
+
+        assert auction.bid!(bid_for(lucifer, 2_000))
+
+        account = Folio::Account.create!(email: "close@manually.com",
+                                         first_name: "close",
+                                         last_name: "manually",
+                                         role: "superuser",
+                                         password: "Password123.")
+
+        assert auction.lock_bidding(by: account)
+        assert auction.close_manually(by: account, price_check: 2_000)
+        # job didn't run yet
+        assert_equal "in_sale", auction.reload.aasm_state
+        # but cannot bid anyways
+        assert_not auction.bid!(bid_for(adam, 3_000))
+
+        assert_equal 2_000, auction.reload.current_price
+      end
+
+      test "open_for_bids? false when bidding_locked_at?" do
+        auction = auctify_sales(:auction_in_progress)
+        assert auction.open_for_bids?
+
+        adam = users(:adam)
+        lucifer = users(:lucifer)
+
+        allow_bids_for([adam, lucifer], auction)
+
+        bid = bid_for(lucifer, 5_000)
+        assert auction.reload.bid!(bid)
+
+        account = Folio::Account.create!(email: "close@manually.com",
+                                         first_name: "close",
+                                         last_name: "manually",
+                                         role: "superuser",
+                                         password: "Password123.")
+
+        assert auction.lock_bidding(by: account)
+        assert_not auction.open_for_bids?
+
+        bid = bid_for(adam, 6_000)
+        assert_not auction.reload.bid!(bid)
+        assert_equal ["Položka aukce je momentálně uzavřena pro přihazování"], bid.errors.full_messages
+      end
     end
   end
 end

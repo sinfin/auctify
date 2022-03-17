@@ -157,8 +157,14 @@ module Auctify
       end
 
       def check_auction_state
-        # comparing time with seconds precision, use `.to_i`
-        return if auction.in_sale? && bid.created_at.to_i <= auction.currently_ends_at.to_i
+        if auction.in_sale? && !auction.bidding_locked_at?
+          if auction.must_be_closed_manually?
+            return unless auction.manually_closed_at?
+          elsif bid.created_at.to_i <= auction.currently_ends_at.to_i
+            # comparing time with seconds precision, use `.to_i`
+            return
+          end
+        end
 
         bid.errors.add(:auction, :auction_is_not_accepting_bids_now)
       end

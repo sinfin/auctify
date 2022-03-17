@@ -17,3 +17,5 @@ gem "folio", github: "sinfin/folio", branch: "master"
 
 # To use a debugger
 # gem 'byebug', group: [:development, :test]
+
+gem "rails-i18n", "~> 6"
