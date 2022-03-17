@@ -312,6 +312,14 @@ module Auctify
         auction = auctify_sales(:auction_in_progress)
         assert auction.open_for_bids?
 
+        adam = users(:adam)
+        lucifer = users(:lucifer)
+
+        allow_bids_for([adam, lucifer], auction)
+
+        bid = bid_for(lucifer, 5_000)
+        assert auction.reload.bid!(bid)
+
         account = Folio::Account.create!(email: "close@manually.com",
                                          first_name: "close",
                                          last_name: "manually",
@@ -320,6 +328,10 @@ module Auctify
 
         assert auction.lock_bidding(by: account)
         assert_not auction.open_for_bids?
+
+        bid = bid_for(adam, 6_000)
+        assert_not auction.reload.bid!(bid)
+        assert_equal ["Položka aukce je momentálně uzavřena pro přihazování"], bid.errors.full_messages
       end
     end
   end

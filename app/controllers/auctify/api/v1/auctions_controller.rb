@@ -34,10 +34,32 @@ module Auctify
         end
 
         def close_manually
-          if @auction.close_manually(by: current_account, price_check: params[:current_price])
-            render_record @auction
-          else
-            render_record @auction, status: 400
+          with_authorized_account do
+            if @auction.close_manually(by: current_account, price_check: params[:current_price])
+              render_record @auction.reload
+            else
+              render_record @auction.reload, status: 400
+            end
+          end
+        end
+
+        def lock_bidding
+          with_authorized_account do
+            if @auction.lock_bidding(by: current_account)
+              render_record @auction.reload
+            else
+              render_record @auction.reload, status: 400
+            end
+          end
+        end
+
+        def unlock_bidding
+          with_authorized_account do
+            if @auction.unlock_bidding(by: current_account)
+              render_record @auction.reload
+            else
+              render_record @auction.reload, status: 400
+            end
           end
         end
 
@@ -86,6 +108,14 @@ module Auctify
             return false if winning_bid.registration_id == new_bid.registration_id # do not notify bidder about overbidding itself
 
             winning_bid != new_bid
+          end
+
+          def with_authorized_account(&block)
+            if current_account
+              block.call
+            else
+              head 403
+            end
           end
       end
     end

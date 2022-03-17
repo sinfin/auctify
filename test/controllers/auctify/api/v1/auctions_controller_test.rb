@@ -228,37 +228,7 @@ module Auctify
             auction.update!(must_be_closed_manually: false)
 
             post api_path_for("/auctions/#{auction.id}/close_manually"), params: { current_price: auction.current_price }
-            assert_response 400
-
-            error_messages = response_json["errors"].map { |h| h["detail"] }.sort
-            expected_messages = [
-              "Aukci nelze uzavřít ručně",
-              "Uzavíratel není oprávněn uzavřít tuto aukci",
-              "U aukce je potřeba nejprve uzamknout příhozy",
-            ].sort
-
-            assert_equal expected_messages, error_messages
-
-            auction.reload
-            assert_equal "in_sale", auction.aasm_state
-
-            auction.update!(must_be_closed_manually: true)
-
-            @response_json = nil
-
-            post api_path_for("/auctions/#{auction.id}/close_manually"), params: { current_price: auction.current_price }
-            assert_response 400
-
-            error_messages = response_json["errors"].map { |h| h["detail"] }.sort
-            expected_messages = [
-              "Uzavíratel není oprávněn uzavřít tuto aukci",
-              "U aukce je potřeba nejprve uzamknout příhozy",
-            ].sort
-
-            assert_equal expected_messages, error_messages
-
-            auction.reload
-            assert_equal "in_sale", auction.aasm_state
+            assert_response 403
           end
         end
 
@@ -299,6 +269,61 @@ module Auctify
             assert auction.manually_closed_at
             assert_equal "bidding_ended", auction.aasm_state
           end
+        end
+
+        test "POST /api/auctions/:id/lock_bidding" do
+          post api_path_for("/auctions/#{auction.id}/lock_bidding")
+          assert_response 403
+
+          account = Folio::Account.create!(email: "close@manually.com",
+                                           first_name: "close",
+                                           last_name: "manually",
+                                           role: "superuser",
+                                           password: "Password123.")
+
+          sign_in(account)
+
+          post api_path_for("/auctions/#{auction.id}/lock_bidding")
+          assert_response 200
+
+          auction.reload
+          assert auction.bidding_locked_at?
+
+          # idempotent
+          post api_path_for("/auctions/#{auction.id}/lock_bidding")
+          assert_response 200
+
+          auction.reload
+          assert auction.bidding_locked_at?
+        end
+
+        test "POST /api/auctions/:id/unlock_bidding" do
+          post api_path_for("/auctions/#{auction.id}/unlock_bidding")
+          assert_response 403
+
+          account = Folio::Account.create!(email: "close@manually.com",
+                                           first_name: "close",
+                                           last_name: "manually",
+                                           role: "superuser",
+                                           password: "Password123.")
+
+          assert auction.lock_bidding(by: account)
+          assert auction.reload.bidding_locked_at?
+
+          sign_in(account)
+
+          post api_path_for("/auctions/#{auction.id}/unlock_bidding")
+          assert_response 200
+
+          auction.reload
+          assert_not auction.bidding_locked_at?
+
+          # idempotent
+          post api_path_for("/auctions/#{auction.id}/unlock_bidding")
+          assert_response 200
+
+          auction.reload
+          assert_not auction.bidding_locked_at?
         end
 
         private
