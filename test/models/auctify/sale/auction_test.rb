@@ -307,6 +307,20 @@ module Auctify
 
         assert_equal 2_000, auction.reload.current_price
       end
+
+      test "open_for_bids? false when bidding_locked_at?" do
+        auction = auctify_sales(:auction_in_progress)
+        assert auction.open_for_bids?
+
+        account = Folio::Account.create!(email: "close@manually.com",
+                                         first_name: "close",
+                                         last_name: "manually",
+                                         role: "superuser",
+                                         password: "Password123.")
+
+        assert auction.lock_bidding(by: account)
+        assert_not auction.open_for_bids?
+      end
     end
   end
 end

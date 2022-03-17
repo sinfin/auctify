@@ -233,6 +233,8 @@ module Auctify
       end
 
       def open_for_bids?
+        return false if bidding_locked_at?
+
         if must_be_closed_manually?
           !manually_closed_at && in_sale?
         else

@@ -157,7 +157,7 @@ module Auctify
       end
 
       def check_auction_state
-        if auction.in_sale?
+        if auction.in_sale? && !auction.bidding_locked_at?
           if auction.must_be_closed_manually?
             return unless auction.manually_closed_at?
           elsif bid.created_at.to_i <= auction.currently_ends_at.to_i
