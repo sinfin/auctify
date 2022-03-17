@@ -241,10 +241,14 @@ end
 #  manually_closed_by_type      :string
 #  manually_closed_by_id        :bigint(8)
 #  must_be_closed_manually      :boolean          default(FALSE)
+#  bidding_locked_at            :datetime
+#  bidding_locked_by_type       :string
+#  bidding_locked_by_id         :bigint(8)
 #
 # Indexes
 #
 #  index_auctify_sales_on_aasm_state                 (aasm_state)
+#  index_auctify_sales_on_bidding_locked_by          (bidding_locked_by_type,bidding_locked_by_id)
 #  index_auctify_sales_on_buyer_type_and_buyer_id    (buyer_type,buyer_id)
 #  index_auctify_sales_on_currently_ends_at          (currently_ends_at)
 #  index_auctify_sales_on_featured                   (featured)

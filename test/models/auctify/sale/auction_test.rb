@@ -227,6 +227,14 @@ module Auctify
                                            role: "superuser",
                                            password: "Password123.")
 
+          assert_not auction.close_manually(by: account, price_check: auction.current_price)
+
+          auction.reload
+          assert_equal "in_sale", auction.aasm_state
+
+          assert auction.lock_bidding(by: account)
+          auction.reload
+
           assert auction.close_manually(by: account, price_check: auction.current_price)
 
           auction.reload
@@ -254,9 +262,18 @@ module Auctify
           assert_equal "in_sale", auction.aasm_state
 
           assert_not auction.close_manually(by: account, price_check: 1_500)
-          assert_includes auction.errors[:base], "Aukce nebyla uzavřena, protože byla před uzavřením přihozena vyšší částka."
+          assert_includes auction.errors[:base], "Aukce nebyla uzavřena, protože byla před uzavřením přihozena vyšší částka"
+          assert_includes auction.errors[:base], "U aukce je potřeba nejprve uzamknout příhozy"
           auction.reload
           assert_equal "in_sale", auction.aasm_state
+
+          assert_not auction.close_manually(by: account, price_check: 2_000)
+          assert_includes auction.errors[:base], "U aukce je potřeba nejprve uzamknout příhozy"
+          auction.reload
+          assert_equal "in_sale", auction.aasm_state
+
+          assert auction.lock_bidding(by: account)
+          auction.reload
 
           assert auction.close_manually(by: account, price_check: 2_000)
           auction.reload
@@ -281,7 +298,8 @@ module Auctify
                                          role: "superuser",
                                          password: "Password123.")
 
-        auction.close_manually(by: account, price_check: 2_000)
+        assert auction.lock_bidding(by: account)
+        assert auction.close_manually(by: account, price_check: 2_000)
         # job didn't run yet
         assert_equal "in_sale", auction.reload.aasm_state
         # but cannot bid anyways

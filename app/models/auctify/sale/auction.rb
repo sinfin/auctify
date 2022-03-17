@@ -25,6 +25,7 @@ module Auctify
       belongs_to :winner, polymorphic: true, optional: true
       belongs_to :current_winner, polymorphic: true, optional: true
       belongs_to :manually_closed_by, polymorphic: true, optional: true
+      belongs_to :bidding_locked_by, polymorphic: true, optional: true
 
       validates :ends_at,
                 presence: true
@@ -121,6 +122,7 @@ module Auctify
       validate :buyer_vs_bidding_consistence
       validate :forbidden_changes
       validate :validate_manually_closed
+      validate :validate_bidding_locked
 
       after_create :autoregister_bidders
       after_save :create_jobs
@@ -268,6 +270,14 @@ module Auctify
         end
       end
 
+      def lock_bidding(by:)
+        !!update(bidding_locked_at: Time.current, bidding_locked_by: by)
+      end
+
+      def unlock_bidding(by:)
+        !!update(bidding_locked_at: nil, bidding_locked_by: nil)
+      end
+
       private
         def buyer_vs_bidding_consistence
           return true if buyer.blank? && sold_price.blank?
@@ -388,6 +398,10 @@ module Auctify
           return unless will_save_change_to_manually_closed_at?
 
           if manually_closed_at
+            unless bidding_locked_at?
+              errors.add(:base, :need_to_lock_bidding_first)
+            end
+
             if !manually_closed_price_check || manually_closed_price_check.to_i != current_price
               errors.add(:base, :current_price_doesnt_match_closing)
             end
@@ -398,6 +412,16 @@ module Auctify
 
             unless manually_closed_by.is_a?(Folio::Account)
               errors.add(:manually_closed_by, :not_allowed)
+            end
+          end
+        end
+
+        def validate_bidding_locked
+          return unless will_save_change_to_bidding_locked_at?
+
+          if bidding_locked_at?
+            unless bidding_locked_by.is_a?(Folio::Account)
+              errors.add(:bidding_locked_by, :not_allowed)
             end
           end
         end
@@ -445,10 +469,14 @@ end
 #  manually_closed_by_type      :string
 #  manually_closed_by_id        :bigint(8)
 #  must_be_closed_manually      :boolean          default(FALSE)
+#  bidding_locked_at            :datetime
+#  bidding_locked_by_type       :string
+#  bidding_locked_by_id         :bigint(8)
 #
 # Indexes
 #
 #  index_auctify_sales_on_aasm_state                 (aasm_state)
+#  index_auctify_sales_on_bidding_locked_by          (bidding_locked_by_type,bidding_locked_by_id)
 #  index_auctify_sales_on_buyer_type_and_buyer_id    (buyer_type,buyer_id)
 #  index_auctify_sales_on_currently_ends_at          (currently_ends_at)
 #  index_auctify_sales_on_featured                   (featured)

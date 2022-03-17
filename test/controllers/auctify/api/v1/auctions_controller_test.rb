@@ -234,6 +234,7 @@ module Auctify
             expected_messages = [
               "Aukci nelze uzavřít ručně",
               "Uzavíratel není oprávněn uzavřít tuto aukci",
+              "U aukce je potřeba nejprve uzamknout příhozy",
             ].sort
 
             assert_equal expected_messages, error_messages
@@ -251,6 +252,7 @@ module Auctify
             error_messages = response_json["errors"].map { |h| h["detail"] }.sort
             expected_messages = [
               "Uzavíratel není oprávněn uzavřít tuto aukci",
+              "U aukce je potřeba nejprve uzamknout příhozy",
             ].sort
 
             assert_equal expected_messages, error_messages
@@ -277,6 +279,18 @@ module Auctify
             sign_in(account)
 
             assert_nil auction.manually_closed_at
+
+
+            post api_path_for("/auctions/#{auction.id}/close_manually"), params: { current_price: auction.current_price }
+            assert_response 400
+
+            error_messages = response_json["errors"].map { |h| h["detail"] }.sort
+            expected_messages = [
+              "U aukce je potřeba nejprve uzamknout příhozy",
+            ].sort
+            assert_equal expected_messages, error_messages
+
+            auction.lock_bidding(by: account)
 
             post api_path_for("/auctions/#{auction.id}/close_manually"), params: { current_price: auction.current_price }
             assert_response 200

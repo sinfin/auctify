@@ -113,8 +113,11 @@ cs:
             base:
               sales_not_closed_manually: "Aukci nelze uzavřít ručně"
               current_price_doesnt_match_closing: "Aukce nebyla uzavřena, protože byla před uzavřením přihozena vyšší částka"
+              need_to_lock_bidding_first: "U aukce je potřeba nejprve uzamknout příhozy"
             manually_closed_by:
               not_allowed: "není oprávněn uzavřít tuto aukci"
+            bidding_locked_by:
+              not_allowed: "není oprávněn uzamknout přihozy pro tuto aukci"
 
           you_cannot_delete_auction_with_bids: "Není možné mazat aukční položku, která má příhozy"
         auctify/sales_pack:

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_03_08_111330) do
+ActiveRecord::Schema.define(version: 2022_03_17_064149) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -80,7 +80,11 @@ ActiveRecord::Schema.define(version: 2022_03_08_111330) do
     t.string "manually_closed_by_type"
     t.bigint "manually_closed_by_id"
     t.boolean "must_be_closed_manually", default: false
+    t.datetime "bidding_locked_at"
+    t.string "bidding_locked_by_type"
+    t.bigint "bidding_locked_by_id"
     t.index ["aasm_state"], name: "index_auctify_sales_on_aasm_state"
+    t.index ["bidding_locked_by_type", "bidding_locked_by_id"], name: "index_auctify_sales_on_bidding_locked_by"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["currently_ends_at"], name: "index_auctify_sales_on_currently_ends_at"
     t.index ["featured"], name: "index_auctify_sales_on_featured"
