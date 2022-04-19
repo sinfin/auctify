@@ -210,10 +210,7 @@ module Auctify
       end
 
       def increase_price(price)
-        return price + Auctify.configuration.require_bids_to_be_rounded_to if bid_steps_ladder.blank?
-
-        _range, increase_step = bid_steps_ladder.detect { |range, step| range.cover?(price) }
-        price + increase_step
+        price + auction.minimal_bid_increase_amount_at(price)
       end
 
       def increase_price_to(overcome:, ceil:)
@@ -226,10 +223,6 @@ module Auctify
         end
 
         [running_price, ceil].min
-      end
-
-      def bid_steps_ladder
-        @bid_steps_ladder ||= auction.bid_steps_ladder
       end
 
       def changing_own_limit_when_winning?
