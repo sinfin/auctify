@@ -96,7 +96,6 @@ module Auctify
 
       def new_current_minimal_bid
         return current_price if first_bid?
-
         increase_price(current_price)
       end
 
@@ -210,7 +209,7 @@ module Auctify
       end
 
       def increase_price(price)
-        price + auction.minimal_bid_increase_amount_at(price)
+        price + auction.minimal_bid_increase_amount_at(price, respect_first_bid: false)
       end
 
       def increase_price_to(overcome:, ceil:)
