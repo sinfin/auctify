@@ -110,8 +110,21 @@ module Auctify
 
         Auctify.configure { |c| c.default_bid_steps_ladder = ladder }
 
-        assert_equal ladder, Auctify::Sale::Auction.new.bid_steps_ladder
-        assert_equal specific_ladder, Auctify::Sale::Auction.new(bid_steps_ladder: specific_ladder).bid_steps_ladder
+        auction = Auctify::Sale::Auction.new
+        assert_equal ladder, auction.bid_steps_ladder
+        assert_equal 1, auction.minimal_bid_increase_amount_at(1, respect_first_bid: false)
+        assert_equal 1, auction.minimal_bid_increase_amount_at(9, respect_first_bid: false)
+        assert_equal 5, auction.minimal_bid_increase_amount_at(10, respect_first_bid: false)
+        assert_equal 5, auction.minimal_bid_increase_amount_at(99, respect_first_bid: false)
+        assert_equal 10, auction.minimal_bid_increase_amount_at(100, respect_first_bid: false)
+        assert_equal 10, auction.minimal_bid_increase_amount_at(999_888, respect_first_bid: false)
+
+        auction = Auctify::Sale::Auction.new(bid_steps_ladder: specific_ladder)
+        assert_equal specific_ladder, auction.bid_steps_ladder
+        assert_equal 10, auction.minimal_bid_increase_amount_at(1, respect_first_bid: false)
+        assert_equal 10, auction.minimal_bid_increase_amount_at(999, respect_first_bid: false)
+        assert_equal 100, auction.minimal_bid_increase_amount_at(1_000, respect_first_bid: false)
+        assert_equal 100, auction.minimal_bid_increase_amount_at(999_888, respect_first_bid: false)
 
         assert_equal ladder, Auctify::Sale::Auction.create!(item: things(:apple), ends_at: Time.current + 1.hour).reload.bid_steps_ladder
 

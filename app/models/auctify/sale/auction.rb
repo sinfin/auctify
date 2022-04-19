@@ -217,7 +217,7 @@ module Auctify
       end
 
       def minimal_bid_increase_amount_at(price, respect_first_bid: true)
-        return 0 if respect_first_bid && price == opening_price # first bid can equal opening price
+        return 0 if respect_first_bid && ordered_applied_bids.blank? # first bid can equal opening price
         return Auctify.configuration.require_bids_to_be_rounded_to if bid_steps_ladder.blank?
 
         _range, increase_step = bid_steps_ladder.detect { |range, step| range.cover?(price) }

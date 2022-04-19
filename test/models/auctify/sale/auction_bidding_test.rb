@@ -37,23 +37,29 @@ module Auctify
         assert_nil auction.current_winner
         assert_nil auction.current_winning_bid
         assert_nil auction.previous_winning_bid
+        assert auction.bids.blank?
+        assert_equal 0, auction.minimal_bid_increase_amount_at(1_000, respect_first_bid: true)
+        assert_equal 1, auction.minimal_bid_increase_amount_at(1_000, respect_first_bid: false)
 
-        bid1 = bid_for(lucifer, 1_001)
+        bid1 = bid_for(lucifer, 1_000)
 
         assert auction.bid!(bid1)
 
         assert_equal 1, auction.callback_runs[:after_bid_appended]
-        assert_equal 1_001, auction.current_price
+        assert_equal 1_000, auction.current_price
         assert_equal lucifer, auction.current_winner
         assert_equal bid1, auction.current_winning_bid
         assert_nil auction.previous_winning_bid
+        assert_not auction.bids.reload.blank?
+        assert_equal 1, auction.minimal_bid_increase_amount_at(1_000, respect_first_bid: true)
+        assert_equal 1, auction.minimal_bid_increase_amount_at(1_000, respect_first_bid: false)
 
         bid2 = bid_for(lucifer, 1_002)
 
         assert_not auction.bid!(bid2) # You cannot overbid Yourself
 
         assert_equal 1, auction.callback_runs[:after_bid_not_appended]
-        assert_equal 1_001, auction.current_price
+        assert_equal 1_000, auction.current_price
         assert_equal lucifer, auction.current_winner
         assert_equal bid1, auction.current_winning_bid
         assert_nil auction.previous_winning_bid
@@ -67,6 +73,8 @@ module Auctify
         assert_equal adam, auction.current_winner
         assert_equal bid3, auction.current_winning_bid
         assert_equal bid1, auction.previous_winning_bid
+        assert_equal 1, auction.minimal_bid_increase_amount_at(1_002, respect_first_bid: true)
+        assert_equal 1, auction.minimal_bid_increase_amount_at(1_002, respect_first_bid: false)
 
         bid4 = bid_for(lucifer, nil, 5_000)
 
