@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## version 1.1.1
+## version 1.1.2
 ### 2022-04-19
 - exposed `auction.minimal_bid_increase_amount_at(price)`
 
