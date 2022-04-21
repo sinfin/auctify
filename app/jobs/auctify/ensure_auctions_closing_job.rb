@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Auctify
-  class EnsureAuctionsClosingJob < ApplicationJob
+  class EnsureAuctionsClosingJob < Auctify::ApplicationJob
     queue_as :critical
 
     def perform
