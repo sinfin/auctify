@@ -1,0 +1,7 @@
+<h1>Monitoring <%= link_to @connection_config[:url], @connection_config[:url] %></h1>
+<h2>Monitoring records</h2>
+  <ul>
+    <% @records.each do |mrecord| %>
+     <li><%= mrecord.data %></li>
+    <% end %>
+  </ul>

@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   resources :things
   resources :users
+  resources :monitorings, only: :index
+
   mount Auctify::Engine => "/", as: "auctify"
 
   namespace :auctify do

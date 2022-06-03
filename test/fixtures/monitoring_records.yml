@@ -1,0 +1,73 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+ok1:
+  data: |
+    {"status":"ok",
+      "timestamp":"2022-06-02T13:16:05.023Z",
+      "results":{
+        "bids_count":123,
+        "avg_diff_in_closing_time_secs":66,
+        "max_diff_in_closing_time_secs":333,
+        "avg_time_diff_between_bids_secs":33,
+        "queue_sizes":{
+          "in_progress":0,
+          "queued":5,
+          "finished":77,
+          "failed":0,
+          "dead":0,
+          "retries":0,
+          "critical":0,
+          "mailers":0,
+          "default":0,
+          "scheduled":3
+        }
+      }
+    }
+
+ok2:
+  data: |
+    {"status":"ok",
+      "timestamp":"2022-06-02T13:17:05.023Z",
+      "results":{
+        "bids_count":139,
+        "avg_diff_in_closing_time_secs":65,
+        "max_diff_in_closing_time_secs":333,
+        "avg_time_diff_between_bids_secs":39,
+        "queue_sizes":{
+          "in_progress":0,
+          "queued":4,
+          "finished":83,
+          "failed":0,
+          "dead":0,
+          "retries":0,
+          "critical":0,
+          "mailers":0,
+          "default":0,
+          "scheduled":1
+        }
+      }
+    }
+
+bad3:
+  data: |
+    {"status":"bad",
+      "timestamp":"2022-06-02T13:18:05.023Z",
+      "results":{
+        "bids_count":150,
+        "avg_diff_in_closing_time_secs":66,
+        "max_diff_in_closing_time_secs":333,
+        "avg_time_diff_between_bids_secs":83,
+        "queue_sizes":{
+          "in_progress":0,
+          "queued":15,
+          "finished":90,
+          "failed":5,
+          "dead":0,
+          "retries":2,
+          "critical":0,
+          "mailers":0,
+          "default":2,
+          "scheduled":1
+        }
+      }
+    }

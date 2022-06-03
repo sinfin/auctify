@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_03_064934) do
+ActiveRecord::Schema.define(version: 2022_06_02_124526) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,6 +65,7 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.string "number"
     t.datetime "currently_ends_at"
     t.boolean "published", default: false
+    t.boolean "featured", default: false
     t.string "slug"
     t.string "contract_number"
     t.integer "seller_commission_in_percent"
@@ -75,7 +76,6 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.string "current_winner_type"
     t.bigint "current_winner_id"
     t.integer "buyer_commission_in_percent"
-    t.integer "featured"
     t.index ["buyer_type", "buyer_id"], name: "index_auctify_sales_on_buyer_type_and_buyer_id"
     t.index ["currently_ends_at"], name: "index_auctify_sales_on_currently_ends_at"
     t.index ["featured"], name: "index_auctify_sales_on_featured"
@@ -209,6 +209,22 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.jsonb "associations", default: {}
     t.text "data_for_search"
     t.index ["placement_type", "placement_id"], name: "index_folio_atoms_on_placement_type_and_placement_id"
+  end
+
+  create_table "folio_console_notes", force: :cascade do |t|
+    t.text "content"
+    t.string "target_type"
+    t.bigint "target_id"
+    t.bigint "created_by_id"
+    t.bigint "closed_by_id"
+    t.datetime "closed_at"
+    t.datetime "due_at"
+    t.integer "position"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["closed_by_id"], name: "index_folio_console_notes_on_closed_by_id"
+    t.index ["created_by_id"], name: "index_folio_console_notes_on_created_by_id"
+    t.index ["target_type", "target_id"], name: "index_folio_console_notes_on_target"
   end
 
   create_table "folio_content_templates", force: :cascade do |t|
@@ -502,6 +518,12 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id"
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
+  end
+
+  create_table "monitoring_records", force: :cascade do |t|
+    t.text "data"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "pg_search_documents", force: :cascade do |t|
