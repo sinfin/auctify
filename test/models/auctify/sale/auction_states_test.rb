@@ -256,6 +256,20 @@ module Auctify
 
         assert auction.in_sale?
       end
+
+      test "in process of :close_bidding metric is collected" do
+        auction.accept_offer
+        auction.start_sale
+
+        end_time = auction.currently_ends_at
+
+        Time.stub(:current, end_time + 10.seconds) do
+          auction.close_bidding
+        end
+
+        assert auction.bidding_ended?
+        assert_equal 10, Yabeda.auctify.diff_in_closing_time_seconds.get
+      end
     end
   end
 end

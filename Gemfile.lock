@@ -63,7 +63,7 @@ GIT
 PATH
   remote: .
   specs:
-    auctify (1.1.3)
+    auctify (1.1.4)
       aasm (~> 5.1.1)
       fast_jsonapi
       rails (~> 6.1.4)
