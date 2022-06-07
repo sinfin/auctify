@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## version 1.1.4
+### 2022-06-07
+- added Yabeda-prometheus gem for exposing some metrics to scrape from Prometheus. See lib/yabeda_config.rb
+
 
 ## version 1.1.3
 ### 2022-04-19

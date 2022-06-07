@@ -221,7 +221,19 @@ end
 
       To protect accidential deletions, many associations are binded with `dependent: restrict_with_error`. Correct order ofdeletion is `bids` => `sales` => `sales_packs`.
 
-
+## Monitor it
+Auctify should add some metrics for Prometheus (using Yabeda gem). Exposing them on `/metrics` path.
+```
+group :auctify do
+  counter :bids_count, comment: "A counter of applied bids"
+  gauge :diff_in_closing_time_seconds,
+        comment: "Difference between auction.currently_ends_at and actual sale end time by job"
+   gauge :time_between_bids, comment: "Time period between last two bids", tags: [:auction_slug]
+end
+```
+See `lib/yabeda_config.rb` for current setup.
+Note: `diff_in_closing_time_seconds` is fill in `auction.close_bidding!`. At normal setup this is done in background job, so value is maintained in BJ process not rails app.
+      Eg. if You use sidekiq for backgoud jobs, You will need `yabeda-sidekiq` gem and then value vwill be displayed at port 9394 (`your.app:9394/metrics`).
 
 ## Contributing
 Contribution directions go here.

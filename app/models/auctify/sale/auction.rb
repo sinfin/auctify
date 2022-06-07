@@ -69,7 +69,9 @@ module Auctify
 
           after do
             self.winner = current_winner
+
             now = Time.current
+            Yabeda.auctify.diff_in_closing_time_seconds.set({}, (now - self.currently_ends_at))
             self.currently_ends_at = now if now < currently_ends_at
 
             after_close_bidding
@@ -161,7 +163,16 @@ module Auctify
 
           bap = Auctify::BidsAppender.call(auction: self, bid: bid)
 
-          bap.success? ? after_bid_appended(bap) : after_bid_not_appended(bap)
+          if bap.success?
+            after_bid_appended(bap)
+
+            Yabeda.auctify.bids_count.increment({}, by: 1)
+            times = ordered_applied_bids.limit(2).pluck(:created_at)
+            Yabeda.auctify.time_between_bids.set({ auction_slug: slug }, (times.size == 1 ? 0 : times.first - times.second))
+          else
+            after_bid_not_appended(bap)
+          end
+
           bap.success?
         end
       end
