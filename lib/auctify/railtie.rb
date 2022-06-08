@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-require "yabeda/prometheus"
-
 module Auctify
   class Railtie < Rails::Railtie
-    initializer "my_railtie.configure_rails_initialization" do |app|
-      app.middleware.use ::Yabeda::Prometheus::Exporter
+    # I did not found way, how to chec for presence of Yabeda::Prometheus::Exporter in middleware
+    if require "yabeda/prometheus/mmap"
+      initializer "auctify.railtie_initialization" do |main_app|
+        main_app.middleware.use ::Yabeda::Prometheus::Exporter
+      end
     end
   end
 end
+
+require "yabeda_config.rb"
