@@ -8,6 +8,7 @@ module Auctify
     scope :applied, -> { where(cancelled: false) }
     scope :canceled, -> { where(cancelled: true) }
     scope :with_limit, -> { where.not(max_price: nil) }
+    scope :manual, -> { where(autobid: false) }
 
     validate :price_is_not_bigger_then_max_price
     validate :price_is_rounded

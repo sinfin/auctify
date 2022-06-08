@@ -163,15 +163,7 @@ module Auctify
 
           bap = Auctify::BidsAppender.call(auction: self, bid: bid)
 
-          if bap.success?
-            after_bid_appended(bap)
-
-            Yabeda.auctify.bids_count.increment({}, by: 1)
-            times = ordered_applied_bids.limit(2).pluck(:created_at)
-            Yabeda.auctify.time_between_bids.set({ auction_slug: slug }, (times.size == 1 ? 0 : times.first - times.second))
-          else
-            after_bid_not_appended(bap)
-          end
+          bap.success? ? after_bid_appended(bap) : after_bid_not_appended(bap)
 
           bap.success?
         end

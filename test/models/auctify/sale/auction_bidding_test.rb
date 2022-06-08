@@ -244,25 +244,6 @@ module Auctify
           assert_equal 2, auction.bids.count
         end
       end
-
-      test "trigger metric store on successfull bid" do
-        auction.offered_price = 1_000
-        auction.start_sale
-        auction.save! # just for sure
-
-        bid1 = bid_for(lucifer, 1_000)
-        assert_difference("Yabeda.auctify.bids_count.get", +1) do
-          assert auction.bid!(bid1)
-        end
-        assert_equal 0, Yabeda.auctify.time_between_bids.values[{ auction_slug: auction.slug }]
-
-        bid2 = bid_for(adam, nil, 5_000)
-        assert_difference("Yabeda.auctify.bids_count.get", +1) do
-          assert auction.bid!(bid2)
-        end
-        expected_bid_diff = bid2.created_at - bid1.created_at
-        assert_equal expected_bid_diff, Yabeda.auctify.time_between_bids.values[{ auction_slug: auction.slug }]
-      end
     end
   end
 end
