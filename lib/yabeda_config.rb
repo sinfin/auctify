@@ -25,7 +25,11 @@ Yabeda.configure do
     auctify.time_between_last_bids_seconds.set({}, last_bid_times.size == 2 ? last_bid_times.first - last_bid_times.last : 0)
 
     auction = Auctify::Sale::Auction.in_sale.order(currently_ends_at: :asc).first
-    delay = [0, (Time.current - auction.currently_ends_at)].max
-    auctify.current_max_delay_in_closing_auction_seconds.set({ auction_slug: auction.slug }, delay)
+    if auction.blank?
+      auctify.current_max_delay_in_closing_auction_seconds.set({ auction_slug: "no-auction-in-sale" }, -1)
+    else
+      delay = [0, (Time.current - auction.currently_ends_at)].max # only positive number
+      auctify.current_max_delay_in_closing_auction_seconds.set({ auction_slug: auction.slug }, delay)
+    end
   end
 end
