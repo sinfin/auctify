@@ -71,7 +71,7 @@ module Auctify
             self.winner = current_winner
 
             now = Time.current
-            Yabeda.auctify.diff_in_closing_time_seconds.set({}, (now - self.currently_ends_at))
+            Yabeda.auctify.diff_in_closing_time_seconds.set({}, (now - self.currently_ends_at).round)
             self.currently_ends_at = now if now < currently_ends_at
 
             after_close_bidding

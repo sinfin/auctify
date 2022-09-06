@@ -8,10 +8,10 @@ Yabeda.configure do
     gauge :time_between_last_bids_seconds,
           comment: "Time period between last two manual bids"
     gauge :current_max_delay_in_closing_auction_seconds,
-          comment: "Delay from oldest `currently_ends_at` of auction in sale (that should be already closed).",
-          tags: [:auction_slug]
+          comment: "Delay from oldest `currently_ends_at` of auction in sale (that should be already closed)."
 
-    # this is done in job
+
+    # this is done when auction.close_bidding! is run
     gauge :diff_in_closing_time_seconds,
           comment: "Difference between auction.currently_ends_at and actual sale end time by job"
   end
@@ -22,14 +22,14 @@ Yabeda.configure do
     auctify.bids_count.set({}, Auctify::Bid.count)
 
     last_bid_times = Auctify::Bid.applied.manual.order(created_at: :desc).limit(2).pluck(:created_at)
-    auctify.time_between_last_bids_seconds.set({}, last_bid_times.size == 2 ? last_bid_times.first - last_bid_times.last : 0)
+    auctify.time_between_last_bids_seconds.set({}, last_bid_times.size == 2 ? (last_bid_times.first - last_bid_times.last).round : 0)
 
     auction = Auctify::Sale::Auction.in_sale.order(currently_ends_at: :asc).first
     if auction.blank?
-      auctify.current_max_delay_in_closing_auction_seconds.set({ auction_slug: "no-auction-in-sale" }, -1)
+      auctify.current_max_delay_in_closing_auction_seconds.set({}, -1)
     else
       delay = [0, (Time.current - auction.currently_ends_at)].max # only positive number
-      auctify.current_max_delay_in_closing_auction_seconds.set({ auction_slug: auction.slug }, delay)
+      auctify.current_max_delay_in_closing_auction_seconds.set({}, delay.round)
     end
   end
 end
