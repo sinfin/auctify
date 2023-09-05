@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## version 1.1.5
+### 2023-09-05
+- make difference between confirm of "Do not confirm bids for this auction" and "I agree with auction terms"
+
 ## version 1.1.4
 ### 2022-06-07
 - added Yabeda-prometheus gem for exposing some metrics to scrape from Prometheus. See lib/yabeda_config.rb
