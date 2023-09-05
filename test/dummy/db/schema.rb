@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_03_064934) do
+ActiveRecord::Schema.define(version: 2023_09_05_114142) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,20 +20,21 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
 
   create_table "auctify_bidder_registrations", force: :cascade do |t|
     t.string "bidder_type", null: false
-    t.integer "bidder_id", null: false
-    t.integer "auction_id", null: false
+    t.bigint "bidder_id", null: false
+    t.bigint "auction_id", null: false
     t.string "aasm_state", default: "pending", null: false
     t.datetime "handled_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "dont_confirm_bids", default: false
+    t.boolean "confirmed_sales_pack_terms", default: false
     t.index ["aasm_state"], name: "index_auctify_bidder_registrations_on_aasm_state"
     t.index ["auction_id"], name: "index_auctify_bidder_registrations_on_auction_id"
     t.index ["bidder_type", "bidder_id"], name: "index_auctify_bidder_registrations_on_bidder"
   end
 
   create_table "auctify_bids", force: :cascade do |t|
-    t.integer "registration_id", null: false
+    t.bigint "registration_id", null: false
     t.decimal "price", precision: 12, scale: 2, null: false
     t.decimal "max_price", precision: 12, scale: 2
     t.datetime "created_at", precision: 6, null: false
@@ -48,16 +49,16 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.string "seller_type"
     t.integer "seller_id"
     t.string "buyer_type"
-    t.integer "buyer_id"
-    t.integer "item_id", null: false
+    t.bigint "buyer_id"
+    t.bigint "item_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "type", default: "Auctify::Sale::Base"
     t.string "aasm_state", default: "offered", null: false
-    t.decimal "offered_price"
-    t.decimal "current_price"
-    t.decimal "sold_price"
-    t.json "bid_steps_ladder"
+    t.decimal "offered_price", precision: 12, scale: 2
+    t.decimal "current_price", precision: 12, scale: 2
+    t.decimal "sold_price", precision: 12, scale: 2
+    t.jsonb "bid_steps_ladder"
     t.decimal "reserve_price"
     t.bigint "pack_id"
     t.datetime "ends_at"
@@ -211,6 +212,22 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.index ["placement_type", "placement_id"], name: "index_folio_atoms_on_placement_type_and_placement_id"
   end
 
+  create_table "folio_console_notes", force: :cascade do |t|
+    t.text "content"
+    t.string "target_type"
+    t.bigint "target_id"
+    t.bigint "created_by_id"
+    t.bigint "closed_by_id"
+    t.datetime "closed_at"
+    t.datetime "due_at"
+    t.integer "position"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["closed_by_id"], name: "index_folio_console_notes_on_closed_by_id"
+    t.index ["created_by_id"], name: "index_folio_console_notes_on_created_by_id"
+    t.index ["target_type", "target_id"], name: "index_folio_console_notes_on_target"
+  end
+
   create_table "folio_content_templates", force: :cascade do |t|
     t.text "content"
     t.integer "position"
@@ -276,6 +293,7 @@ ActiveRecord::Schema.define(version: 2021_12_03_064934) do
     t.string "file_name_for_search"
     t.boolean "sensitive_content", default: false
     t.index "to_tsvector('simple'::regconfig, folio_unaccent(COALESCE((author)::text, ''::text)))", name: "index_folio_files_on_by_author", using: :gin
+    t.index "to_tsvector('simple'::regconfig, folio_unaccent(COALESCE((file_name)::text, ''::text)))", name: "index_folio_files_on_by_file_name", using: :gin
     t.index "to_tsvector('simple'::regconfig, folio_unaccent(COALESCE((file_name_for_search)::text, ''::text)))", name: "index_folio_files_on_by_file_name_for_search", using: :gin
     t.index ["created_at"], name: "index_folio_files_on_created_at"
     t.index ["file_name"], name: "index_folio_files_on_file_name"

@@ -63,7 +63,7 @@ GIT
 PATH
   remote: .
   specs:
-    auctify (1.1.4)
+    auctify (1.1.5)
       aasm (~> 5.1.1)
       fast_jsonapi
       rails (~> 6.1.4)
@@ -582,4 +582,4 @@ DEPENDENCIES
   webdrivers
 
 BUNDLED WITH
-   2.2.32
+   2.3.26
