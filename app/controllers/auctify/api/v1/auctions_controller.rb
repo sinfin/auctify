@@ -15,15 +15,15 @@ module Auctify
         end
 
         def bids
-          if params[:confirmation] == "1"
+          if params[:terms_confirmation] == "1"
             if @auction.bid!(new_bid)
               @auction.reload
 
-              store_dont_confirm_bids
+              store_confirmations_checkboxes
 
               render_record @auction, success: true, overbid_by_limit: overbid_by_limit?(new_bid)
             else
-              store_dont_confirm_bids
+              store_confirmations_checkboxes
 
               render_record @auction, bid: new_bid, status: 400
             end
@@ -63,11 +63,18 @@ module Auctify
             }, status: status
           end
 
-          def store_dont_confirm_bids
-            if params[:dont_confirm_bids] == "1"
-              # use SQL update in case of some obscure invalid attributes
-              bidder_regs = current_user.bidder_registrations.where(auction: @auction)
-              bidder_regs.update_all(dont_confirm_bids: true) if bidder_regs.present?
+          def store_confirmations_checkboxes
+            bidder_regs = current_user.bidder_registrations.where(auction: @auction)
+            if bidder_regs.present?
+              atts = { dont_confirm_bids: params[:dont_confirm_bids] == "1",
+                       confirmed_sales_pack_terms: params[:terms_confirmation] == "1" }
+              bidder_regs.update_all(atts)
+
+              if atts[:confirmed_sales_pack_terms]
+                current_user.bidder_registrations.for_pack(bidder_regs.last.auction.pack)
+                            .where(confirmed_sales_pack_terms: false)
+                            .update_all(confirmed_sales_pack_terms: true)
+              end
             end
           end
 

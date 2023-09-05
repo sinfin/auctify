@@ -5,13 +5,13 @@ require "test_helper"
 class FixturesConsistencyTest < ActiveSupport::TestCase
   test "counts" do
     assert_equal %w[Lucifer Eve Adam].sort, User.pluck("name").sort
-    assert_equal ["Apple", "Innocence", "Fig leave", "Magic ball", "Naughty fun", "Snake (without apple)", "Flaming sword"].sort,
+    assert_equal ["Apple", "Innocence", "Fig leave", "Magic ball", "Naughty fun", "Snake (without apple)", "Rabbit (without handgranade)", "Flaming sword"].sort,
                  Thing.pluck("name").sort
-    assert_equal 7, Auctify::Sale::Base.count # details bellow
-    assert_equal 8, Auctify::BidderRegistration.count
+    assert_equal 8, Auctify::Sale::Base.count # details bellow
+    assert_equal 9, Auctify::BidderRegistration.count
     assert_equal 3, Auctify::SalesPack.count
     assert_equal 2, auctify_sales_packs(:things_from_eden).sales.count
-    assert_equal 2, auctify_sales_packs(:published_pack).sales.count
+    assert_equal 3, auctify_sales_packs(:published_pack).sales.count
   end
 
   test "all records are valid" do

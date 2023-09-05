@@ -53,6 +53,21 @@ auction_in_progress:
   applied_bids_count: 2
   slug: auction_in_progress
 
+auction_in_motion:
+  seller: eve (User)
+  buyer:
+  item: rabbit
+  type: Auctify::Sale::Auction
+  aasm_state: in_sale
+  published: true
+  pack: published_pack
+  offered_price: 10
+  current_price: 101
+  ends_at: <%= etime = Time.current + 1.day %>
+  currently_ends_at: <%= etime %>
+  applied_bids_count: 3
+  slug: auction_in_motion
+
 future_auction:
   seller: eve (User)
   buyer:

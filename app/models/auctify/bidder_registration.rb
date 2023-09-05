@@ -17,6 +17,8 @@ module Auctify
                                     inverse_of: :registration,
                                     dependent: :restrict_with_error # destroy them manually first
 
+    scope :for_pack, ->(pack) { where(auction: pack.sales) }
+
     aasm do
       state :pending, initial: true, color: "gray"
       state :approved, color: "green"
@@ -81,15 +83,16 @@ end
 #
 # Table name: auctify_bidder_registrations
 #
-#  id                :bigint(8)        not null, primary key
-#  bidder_type       :string           not null
-#  bidder_id         :integer          not null
-#  auction_id        :integer          not null
-#  aasm_state        :string           default("pending"), not null
-#  handled_at        :datetime
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  dont_confirm_bids :boolean          default(FALSE)
+#  id                         :bigint(8)        not null, primary key
+#  bidder_type                :string           not null
+#  bidder_id                  :bigint(8)        not null
+#  auction_id                 :bigint(8)        not null
+#  aasm_state                 :string           default("pending"), not null
+#  handled_at                 :datetime
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
+#  dont_confirm_bids          :boolean          default(FALSE)
+#  confirmed_sales_pack_terms :boolean          default(FALSE)
 #
 # Indexes
 #

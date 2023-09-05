@@ -16,6 +16,10 @@ snake:
   name: Snake (without apple)
   owner: eve
 
+rabbit:
+  name: Rabbit (without handgranade)
+  owner: eve
+
 flaming_sword:
   name: Flaming sword
   owner: eve

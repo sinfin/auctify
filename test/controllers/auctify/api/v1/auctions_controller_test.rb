@@ -73,15 +73,15 @@ module Auctify
             post api_path_for("/auctions/#{auction.id}/bids"), params: { bid: { price: 1_200.0, max_price: 2_000.0 } }
             assert_response 400, "Bid was created, response.body is:\n #{response.body}"
 
-            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "0", bid: { price: 1_200.0, max_price: 2_000.0 } }
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "0", bid: { price: 1_200.0, max_price: 2_000.0 } }
             assert_response 400, "Bid was created, response.body is:\n #{response.body}"
 
-            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "0", dont_confirm_bids: "1",  bid: { price: 1_200.0, max_price: 2_000.0 } }
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "0", dont_confirm_bids: "1",  bid: { price: 1_200.0, max_price: 2_000.0 } }
             assert_response 400, "Bid was created, response.body is:\n #{response.body}"
           end
 
           assert_difference("Auctify::Bid.count", +1) do
-            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_200.0, max_price: 2_000.0 } }
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "1", bid: { price: 1_200.0, max_price: 2_000.0 } }
 
             assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
           end
@@ -98,13 +98,55 @@ module Auctify
           assert_equal lucifer, bid.bidder
         end
 
+        test "POST /api/auctions/:id/bids will store terms confirmation with SalesPack for current_user" do
+          sign_in lucifer
+
+          things_from_heaven_apple_registration = auctify_bidder_registrations(:lucifer_on_apple)
+          published_pack_auction_in_progress_registration = auctify_bidder_registrations(:lucifer_in_progress)
+          published_pack_auction_in_motion_registration = auctify_bidder_registrations(:lucifer_in_motion)
+
+          assert_equal lucifer, things_from_heaven_apple_registration.bidder
+          assert_equal lucifer, published_pack_auction_in_progress_registration.bidder
+          assert_equal lucifer, published_pack_auction_in_motion_registration.bidder
+          assert_equal published_pack_auction_in_progress_registration.auction.pack,
+                       published_pack_auction_in_motion_registration.auction.pack
+          assert_not_equal published_pack_auction_in_progress_registration.auction.pack,
+                           things_from_heaven_apple_registration.auction.pack
+
+          assert_not things_from_heaven_apple_registration.dont_confirm_bids?
+          assert_not things_from_heaven_apple_registration.confirmed_sales_pack_terms?
+          assert_not published_pack_auction_in_motion_registration.confirmed_sales_pack_terms?
+          assert_not published_pack_auction_in_progress_registration.confirmed_sales_pack_terms?
+
+          auction = published_pack_auction_in_motion_registration.auction
+
+          post api_path_for("/auctions/#{auction.id}/bids"), params: { bid: { price: 1_200.0, max_price: 2_000.0 } }
+          assert_response 400, "Bid was created, response.body is:\n #{response.body}"
+
+          post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "0", bid: { price: 1_200.0, max_price: 2_000.0 } }
+          assert_response 400, "Bid was created, response.body is:\n #{response.body}"
+
+          assert_not things_from_heaven_apple_registration.reload.confirmed_sales_pack_terms?
+          assert_not published_pack_auction_in_motion_registration.reload.confirmed_sales_pack_terms?
+          assert_not published_pack_auction_in_progress_registration.reload.confirmed_sales_pack_terms?
+
+          post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "1", bid: { price: 1_200.0, max_price: 2_000.0 } }
+          assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
+
+          assert_not published_pack_auction_in_motion_registration.reload.dont_confirm_bids?
+
+          assert_not things_from_heaven_apple_registration.reload.confirmed_sales_pack_terms? # different pack
+          assert published_pack_auction_in_motion_registration.reload.confirmed_sales_pack_terms?
+          assert published_pack_auction_in_progress_registration.reload.confirmed_sales_pack_terms?
+        end
+
         test "POST /api/auctions/:id/bids will create bid for current_user, warning about not winning due to other bidder's limit" do
           sign_in lucifer
 
           assert auction.bid!(bid_for(adam, nil, 5000))
 
           assert_difference("Auctify::Bid.count", +2) do
-            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_500.0 } }
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "1", bid: { price: 1_500.0 } }
 
             assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
           end
@@ -124,7 +166,7 @@ module Auctify
             assert_difference("Auctify::Bid.count", +2) do
               sign_in lucifer
 
-              post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_500.0 } }
+              post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "1", bid: { price: 1_500.0 } }
 
               assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
             end
@@ -149,7 +191,7 @@ module Auctify
 
           assert_difference("Auctify::Bid.count", +1) do
             assert_difference("Auctify::BidderRegistration.count", +1) do
-              post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", dont_confirm_bids: "1", bid: { max_price: 2_000.0 } }
+              post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "1", dont_confirm_bids: "1", bid: { max_price: 2_000.0 } }
 
               assert_response :ok, "Bid was not created, response.body is:\n #{response.body}"
             end
@@ -171,7 +213,7 @@ module Auctify
           sign_in users(:eve) # not bidder for auction
 
           assert_no_difference("Auctify::Bid.count") do
-            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", bid: { price: 1_200.0, max_price: 2_000.0 } }
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "1", bid: { price: 1_200.0, max_price: 2_000.0 } }
 
             assert_response 400, "Bid should not be created, response.body is:\n #{response.body}"
           end
@@ -187,7 +229,7 @@ module Auctify
           assert_not adam_registration.dont_confirm_bids
 
           assert_no_difference("Auctify::Bid.count") do
-            post api_path_for("/auctions/#{auction.id}/bids"), params: { confirmation: "1", dont_confirm_bids: "1", bid: { price: 1_200.0 } }
+            post api_path_for("/auctions/#{auction.id}/bids"), params: { terms_confirmation: "1", dont_confirm_bids: "1", bid: { price: 1_200.0 } }
 
             assert_response 400, "Bid should not be created, response.body is:\n #{response.body}"
           end

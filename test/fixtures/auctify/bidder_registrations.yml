@@ -36,6 +36,12 @@ lucifer_in_progress:
   aasm_state: approved
   handled_at: 2021-02-23 10:02:40
 
+lucifer_in_motion:
+  bidder: lucifer (User)
+  auction: auction_in_motion
+  aasm_state: approved
+  handled_at: 2021-02-23 10:02:40
+
 adam_in_accepted:
   bidder: adam (User)
   auction: accepted_auction
