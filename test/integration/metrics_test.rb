@@ -47,12 +47,14 @@ module Auctify
       diff = (t2 - t1).round
 
       assert_metric("auctify_bids_count #{initial_bids_count}")
+      assert_metric("auctify_bids_per_minute #{initial_bids_count}")
 
       Time.stub(:current, t1) { assert auction.bid!(l_bid) }
       Time.stub(:current, t2) { assert auction.bid!(a_bid) }
 
       assert_metric("auctify_time_between_last_bids_seconds #{diff}")
       assert_metric("auctify_bids_count #{initial_bids_count + 2}")
+      assert_metric("auctify_bids_per_minute #{initial_bids_count + 2}")
     end
 
     test "auctify_diff_in_closing_time_seconds" do
