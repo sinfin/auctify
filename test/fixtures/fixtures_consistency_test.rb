@@ -65,8 +65,8 @@ class FixturesConsistencyTest < ActiveSupport::TestCase
     assert_equal things(:snake), auction.item
     assert auction.is_a?(Auctify::Sale::Auction)
     assert auction.in_sale?
-    assert_equal 10, auction.offered_price
-    assert_equal 101, auction.current_price
+    assert_equal 1000, auction.offered_price
+    assert_equal 1001, auction.current_price
     assert_equal auction.winning_bid.price, auction.current_price
     assert_not_nil auction.ends_at
     assert_equal auction.ends_at, auction.currently_ends_at

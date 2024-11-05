@@ -133,6 +133,7 @@ end
           config.autofinish_auction_after_bidding = true # after `auction.close_bidding!` immediatelly proces result to `auction.sold_in_auction!` or `auction.not_sold_in_auction!`; default false
           config.when_to_notify_bidders_before_end_of_bidding = 30.minutes # default `nil` => no notifying
           config.restrict_overbidding_yourself_to_max_price_increasing = false # default is `true` so only bids with `max_price` can be applied if You are winner.
+          config.maximal_increase_of_price_proc = Proc.new { |auction| auction.current_price + 5 * auction.offered_price } # default is returning `nil` -> no restrictons
         end
       ```
 

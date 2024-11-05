@@ -40,8 +40,8 @@ module Auctify
       assert_equal [adam, lucifer], auction.bidders
       initial_bids_count = Auctify::Bid.count
 
-      l_bid = bid_for(lucifer, 1_001)
-      a_bid = bid_for(adam, 1_101)
+      l_bid = bid_for(lucifer, auction.current_price + 1)
+      a_bid = bid_for(adam, auction.current_price + 2)
       t1 = Time.current + 1.second
       t2 = Time.current + 43.seconds
       diff = (t2 - t1).round
@@ -49,8 +49,12 @@ module Auctify
       assert_metric("auctify_bids_count #{initial_bids_count}")
       assert_metric("auctify_bids_per_minute #{initial_bids_count}")
 
-      Time.stub(:current, t1) { assert auction.bid!(l_bid) }
-      Time.stub(:current, t2) { assert auction.bid!(a_bid) }
+      Time.stub(:current, t1) do
+        assert auction.bid!(l_bid), l_bid.errors.full_messages
+      end
+      Time.stub(:current, t2) do
+        assert auction.bid!(a_bid), a_bid.errors.full_messages
+      end
 
       assert_metric("auctify_time_between_last_bids_seconds #{diff}")
       assert_metric("auctify_bids_count #{initial_bids_count + 2}")

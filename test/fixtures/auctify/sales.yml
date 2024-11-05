@@ -46,8 +46,8 @@ auction_in_progress:
   aasm_state: in_sale
   published: true
   pack: published_pack
-  offered_price: 10
-  current_price: 101
+  offered_price: 1000
+  current_price: 1001
   ends_at: <%= etime = Time.current + 1.day %>
   currently_ends_at: <%= etime %>
   applied_bids_count: 2

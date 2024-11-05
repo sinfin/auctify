@@ -130,6 +130,7 @@ cs:
               price_is_bellow_minimal_bid: "je nižší než aktuální minimální příhoz %{minimal_bid}"
               must_be_lower_or_equal_max_price: "musí být nižší nebo rovna maximálnímu limitu"
               must_be_rounded_to: "musí být zaokrouhlená na celé %{round_to} Kč"
+              too_high_price_increase: "maximální povolený příhoz v tuto chvíli je %{max_allowed_price}"
             max_price:
               price_is_bellow_minimal_bid: "je nižší než aktuální minimální příhoz %{minimal_bid}"
               must_be_rounded_to: "musí být zaokrouhlená na celé %{round_to} Kč"

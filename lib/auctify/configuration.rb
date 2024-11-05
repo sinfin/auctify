@@ -10,7 +10,8 @@ module Auctify
                   :default_bid_steps_ladder,
                   :restrict_overbidding_yourself_to_max_price_increasing,
                   :require_bids_to_be_rounded_to,
-                  :allow_changes_on_auction_with_bids_for_attributes
+                  :allow_changes_on_auction_with_bids_for_attributes,
+                  :maximal_increase_of_price_proc
 
 
     def initialize
@@ -24,6 +25,7 @@ module Auctify
       @restrict_overbidding_yourself_to_max_price_increasing = true
       @require_bids_to_be_rounded_to = 1
       @allow_changes_on_auction_with_bids_for_attributes = []
+      @maximal_increase_of_price_proc = Proc.new { |auction| nil }
     end
 
     def autoregistering_for?(instance)

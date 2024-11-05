@@ -83,7 +83,7 @@ module Auctify
       b_reg = Auctify::BidderRegistration.create(bidder: bidder, auction: auction)
       assert_includes auction.bidder_registrations, b_reg
 
-      assert auction.bid!(Auctify::Bid.new(registration: b_reg, price: 2000))
+      assert auction.bid!(Auctify::Bid.new(registration: b_reg, price: auction.current_price + 1))
       assert b_reg.bids.count.positive?
 
       assert_not b_reg.destroy
@@ -107,14 +107,16 @@ module Auctify
       b_reg2.bids.destroy_all
       assert_equal 0, auction.bids.reload.size
 
+      assert_equal 1_001, auction.current_price
+
       user_bids = [
         Auctify::Bid.new(max_price: 15_000, registration: b_reg1),
         Auctify::Bid.new(max_price: 17_000, registration: b_reg1),
-        # price is still 10_000
-        Auctify::Bid.new(price: 11_000, registration: b_reg2),
-        # AUTOBID(11_500,17_000) INSERTED! price is now 11_500 (automatic overbidding) for b_reg1
-        Auctify::Bid.new(price: 15_000, registration: b_reg1), # b_reg1 is winning by limit but adds direct bid (under own limit)
-        # AUTOBID(15_000,17_000) INSERTED!
+        # price is still 1_001
+        Auctify::Bid.new(price: 3_000, registration: b_reg2),
+        # AUTOBID(3_500,17_000) INSERTED! price is now 3_500 (automatic overbidding) for b_reg1
+        Auctify::Bid.new(price: 5_000, registration: b_reg1), # b_reg1 is winning by limit but adds direct bid (under own limit)
+        # AUTOBID(5_000,17_000) INSERTED!
         Auctify::Bid.new(max_price: 17_000, registration: b_reg2), # same limit as b_reg1, but different bidder
         # AUTOBID(17_000,17_000) INSERTED!
         # b_reg1 is winning with 17_000 (same price , but bid was older then reg2)
@@ -122,20 +124,22 @@ module Auctify
         # price is now 18_000 for b_reg2
         Auctify::Bid.new(price: 19_000, registration: b_reg1),
         Auctify::Bid.new(max_price: 21_000, registration: b_reg1), # no change in auction.current_price, but setting own limit
-        Auctify::Bid.new(max_price: 23_000, registration: b_reg1), # no change in auction.current_price, but increasing own limit
+        Auctify::Bid.new(max_price: 22_000, registration: b_reg1), # no change in auction.current_price, but increasing own limit
         # price is now 19_000 for b_reg1
-        Auctify::Bid.new(price: 25_000, registration: b_reg1), # b_reg1 is winning by limit, but adds direct bid (over limit)
-        # AUTOBID(23_000,23_000) INSERTED!
-        Auctify::Bid.new(price: 27_000, registration: b_reg1), # b_reg1 is winning, but still adds another direct bid
-        Auctify::Bid.new(price: 28_000, registration: b_reg2),
-        Auctify::Bid.new(max_price: 36_000, registration: b_reg2),
+        Auctify::Bid.new(price: 21_000, registration: b_reg1), # b_reg1 is winning by limit, but adds direct bid (under limit)
+        # AUTOBID(21_000,22_000) INSERTED!
+        Auctify::Bid.new(price: 23_000, registration: b_reg1), # b_reg1 is winning by limit, but adds direct bid (above limit)
+        # AUTOBID(23_000,22_000) INSERTED!
+        Auctify::Bid.new(price: 25_000, registration: b_reg1), # b_reg1 is winning, but still adds another direct bid
+        Auctify::Bid.new(price: 27_000, registration: b_reg2),
+        Auctify::Bid.new(max_price: 34_000, registration: b_reg2),
 
         Auctify::Bid.new(max_price: 31_000, registration: b_reg1),
-        # AUTOBID(32_000,36_000) INSERTED! b_reg2 winning with 32_000
+        # AUTOBID(32_000,34_000) INSERTED! b_reg2 winning with 32_000
         Auctify::Bid.new(price: 33_000, registration: b_reg1),
-        # AUTOBID(34_000,36_000) INSERTED! b_reg2 winning with 34_000
-        Auctify::Bid.new(price: 37_000, registration: b_reg1),
-        # AUTOBID(36_000,36_000) INSERTED! b_reg1 winning with 37_000
+        # AUTOBID(34_000,34_000) INSERTED! b_reg2 winning with 34_000
+        Auctify::Bid.new(price: 35_000, registration: b_reg1),
+        # AUTOBID(35_000,34_000) INSERTED! b_reg1 winning with 35_000
       ]
 
       applied_user_bids = []
@@ -146,11 +150,11 @@ module Auctify
         end
       end
 
-      assert_equal 37_000, auction.current_price
+      assert_equal 35_000, auction.current_price
 
       autobids = auction.ordered_applied_bids.reload - applied_user_bids
 
-      assert_equal 7, autobids.size # 7 autobids, see comments above
+      assert_equal 8, autobids.size # 8 autobids, see comments above
       assert autobids.all? { |b| b.autobid == true }
       assert applied_user_bids.all? { |b| b.autobid == false }
 

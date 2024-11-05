@@ -73,35 +73,35 @@ module Auctify
         assert_equal original_end_time, auction.currently_ends_at
         assert_equal limit.to_i, Auctify.configuration.auction_prolonging_limit_in_seconds
 
-        assert auction.bid!(bid_for(lucifer, 1_001))
+        assert auction.bid!(bid_for(lucifer, 201))
 
         assert_equal original_end_time, auction.currently_ends_at
 
         just_before_limit_time = original_end_time - limit - 1.second
-        Time.stub(:current, just_before_limit_time) { assert auction.bid!(bid_for(adam, 1_002)) }
+        Time.stub(:current, just_before_limit_time) { assert auction.bid!(bid_for(adam, 202)) }
 
         assert_equal original_end_time, auction.currently_ends_at
 
         breaking_limit_time = original_end_time - limit
-        Time.stub(:current, breaking_limit_time) { assert auction.bid!(bid_for(lucifer, 1_003)) }
+        Time.stub(:current, breaking_limit_time) { assert auction.bid!(bid_for(lucifer, 203)) }
 
         assert_equal original_end_time, auction.currently_ends_at
 
         just_after_limit_time = original_end_time - limit + 1.second
-        Time.stub(:current, just_after_limit_time) { assert auction.bid!(bid_for(adam, 1_004)) }
+        Time.stub(:current, just_after_limit_time) { assert auction.bid!(bid_for(adam, 204)) }
         # comparing time with seconds precision, use `.to_i`
         assert_equal (just_after_limit_time + limit).to_i, auction.currently_ends_at.to_i
 
         right_before_end_time = auction.currently_ends_at - 1.second
-        Time.stub(:current, right_before_end_time) { assert auction.bid!(bid_for(lucifer, 1_005)) }
+        Time.stub(:current, right_before_end_time) { assert auction.bid!(bid_for(lucifer, 205)) }
         assert_equal (right_before_end_time + limit).to_i, auction.currently_ends_at.to_i
 
         at_end_time = auction.currently_ends_at
-        Time.stub(:current, at_end_time) { assert auction.bid!(bid_for(adam, 1_006)) }
+        Time.stub(:current, at_end_time) { assert auction.bid!(bid_for(adam, 206)) }
         assert_equal (at_end_time + limit).to_i, auction.currently_ends_at.to_i
 
         end_time = auction.currently_ends_at
-        Time.stub(:current, end_time + 1.second) { assert_not auction.bid!(bid_for(lucifer, 1_007)) }
+        Time.stub(:current, end_time + 1.second) { assert_not auction.bid!(bid_for(lucifer, 207)) }
         assert_equal end_time.to_i, auction.currently_ends_at.to_i
       end
 
@@ -123,13 +123,13 @@ module Auctify
         assert_equal limit.to_i, auction.auction_prolonging_limit_in_seconds
 
         bid_time = original_end_time - limit - 1.second
-        Time.stub(:current, bid_time) { assert auction.bid!(bid_for(lucifer, 1_002)) }
+        Time.stub(:current, bid_time) { assert auction.bid!(bid_for(lucifer, 202)) }
 
         assert_equal original_end_time.to_i, auction.currently_ends_at.to_i
 
         # lets enlarge limit without changing bid_time
         auction.stub(:auction_prolonging_limit_in_seconds, 10.minutes) do
-          Time.stub(:current, bid_time) { assert auction.bid!(bid_for(adam, 1_003)) }
+          Time.stub(:current, bid_time) { assert auction.bid!(bid_for(adam, 303)) }
         end
 
         assert_equal (bid_time + 10.minutes).to_i, auction.currently_ends_at.to_i

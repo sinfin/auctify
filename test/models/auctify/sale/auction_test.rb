@@ -112,7 +112,7 @@ module Auctify
         assert_equal ends_at_new, auction.ends_at
         assert_equal ends_at_new, auction.currently_ends_at
 
-        assert auction.reload.bid!(bid_for(adam, 2_000))
+        assert auction.reload.bid!(bid_for(adam, 200))
 
         assert_equal 1, auction.ordered_applied_bids.reload.size
 

@@ -299,7 +299,7 @@ module Auctify
       bids_and_expectations.each { |hash| place_bid_and_verfify_results(hash) }
     end
 
-    test "bidder can increase you own max_price" do
+    test "bidder can increase his own max_price" do
       bids_and_expectations = [
         { bid: { price: 1_000, max_price: 1_500, bidder: lucifer },
           appender: { success: true, errors: {} },
@@ -500,15 +500,69 @@ module Auctify
       bids_and_expectations.each do |hash|
         place_bid_and_verfify_results(hash)
       end
-
-
-
-      # appender = Auctify::BidsAppender.call(auction: auction, bid: nil)
-
-      # assert_equal auction.current_price, appender.result.current_minimal_bid
-      # assert_equal auction.current_price, appender.result.current_price
-      # assert_nil appender.result.winning_bid
     end
+
+    test "do not allow increase price in one bid more than set up in configuration" do
+      offered_price = auction.offered_price
+      assert_equal 1_000, offered_price
+      assert_equal offered_price, auction.current_price
+
+
+      bids_and_expectations = [
+        { bid: { price: 1_000, max_price: nil, bidder: adam },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_000, current_minimal_bid: 1_001, winner: adam, bids_count: 1 },
+          limits_after: { adam: 0, lucifer: 0 } },
+
+        { bid: { price: nil, max_price: 5_000, bidder: lucifer }, # no restriction here
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 1_001, current_minimal_bid: 1_002, winner: lucifer, bids_count: 2 },
+          limits_after: { adam: 0, lucifer: 5_000 } },
+
+        # exactly 2x offered_price  increase => ok (but overbidden by lucifer)
+        { bid: { price: 3_001, max_price: nil, bidder: adam },
+          appender: { success: true, errors: {} },
+          auction_after: { current_price: 3_002, current_minimal_bid: 3_003, winner: lucifer, bids_count: 4 },
+          limits_after: { adam: 0, lucifer: 5_000 } },
+
+        # lets do it again
+        { bid: { price: 5_002, max_price: nil, bidder: adam },
+        appender: { success: true, errors: {} },
+        auction_after: { current_price: 5_002, current_minimal_bid: 5_003, winner: adam, bids_count: 6 },
+        limits_after: { adam: 0, lucifer: 5_000 } },
+
+        # lucifers tries more than allowed increase (7 002)
+        { bid: { price: 7_003, max_price: nil, bidder: lucifer },
+        appender: { success: false, errors: { price: ["maximální povolený příhoz v tuto chvíli je 7 002 Kč"], max_price: [] } },
+        auction_after: { current_price: 5_002, current_minimal_bid: 5_003, winner: adam, bids_count: 6 },
+        limits_after: { adam: 0, lucifer: 5_000 } },
+
+        # lucifers fix things
+        { bid: { price: 7_002, max_price: nil, bidder: lucifer },
+        appender: { success: true, errors: {} },
+        auction_after: { current_price: 7_002, current_minimal_bid: 7_003, winner: lucifer, bids_count: 7 },
+        limits_after: { adam: 0, lucifer: 5_000 } },
+      ]
+
+      max_proc = Proc.new { |au| au.current_price + 2 * au.offered_price }
+      stub_wrapper = -> { max_proc }
+      Auctify.configuration.stub(:maximal_increase_of_price_proc, stub_wrapper) do
+        bids_and_expectations.each do |hash|
+          place_bid_and_verfify_results(hash)
+        end
+      end
+
+      assert_equal 7_002, auction.reload.current_price
+      assert_nil Auctify.configuration.maximal_increase_of_price_proc.call(auction)
+
+      # no restriction now
+      b_a_ex = { bid: { price: 55_002, max_price: nil, bidder: adam },
+                 appender: { success: true, errors: {} },
+                 auction_after: { current_price: 55_002, current_minimal_bid: 55_003, winner: adam, bids_count: 8 },
+                 limits_after: { adam: 0, lucifer: 5_000 } }
+      place_bid_and_verfify_results(b_a_ex)
+    end
+
 
     private
       def place_bid_and_verfify_results(hash)

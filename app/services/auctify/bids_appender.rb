@@ -61,6 +61,7 @@ module Auctify
           check_bidder
           check_max_price_increasing
           check_price_minimum
+          check_price_maximum
           check_same_bidder
           check_auction_state
 
@@ -144,6 +145,19 @@ module Auctify
           bid.errors.add(att,
                          :price_is_bellow_minimal_bid,
                          minimal_bid: ActionController::Base.helpers.number_to_currency(new_current_minimal_bid, precision: 0))
+        end
+      end
+
+      def check_price_maximum
+        return if bid.with_limit?
+
+        maximum = Auctify.configuration.maximal_increase_of_price_proc.call(auction)
+        return if maximum.blank?
+
+        if maximum < bid.price
+          bid.errors.add(:price,
+                         :too_high_price_increase,
+                         max_allowed_price: ActionController::Base.helpers.number_to_currency(maximum, precision: 0))
         end
       end
 

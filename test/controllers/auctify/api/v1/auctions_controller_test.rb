@@ -19,7 +19,7 @@ module Auctify
           allow_bids_for([@lucifer, @adam], @auction)
           assert_equal [@adam, @lucifer], @auction.bidders
 
-          assert auction.bid!(bid_for(lucifer, 1_001))
+          assert auction.bid!(bid_for(lucifer, 1_002))
           assert auction.bid!(bid_for(adam, 1_100))
           assert_equal 1_100, auction.current_price
         end

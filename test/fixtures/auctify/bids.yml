@@ -2,12 +2,12 @@
 
 lucifer_1:
   registration: lucifer_in_progress
-  price: 100
+  price: 1000
   max_price:
 
 adam_1:
   registration: adam_in_progress
-  price: 101
+  price: 1001
   max_price:
 
 adam_apple_winner:
