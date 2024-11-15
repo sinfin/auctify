@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  mount Yabeda::Prometheus::Exporter, at: "/metrics"
   devise_for :users
 
   resources :things

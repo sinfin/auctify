@@ -17,3 +17,9 @@ gem "folio", github: "sinfin/folio", branch: "master"
 
 # To use a debugger
 # gem 'byebug', group: [:development, :test]
+
+# for dummy app
+gem "yabeda-rails"
+gem "yabeda-prometheus"
+gem "yabeda-sidekiq"
+gem "yabeda-puma-plugin"

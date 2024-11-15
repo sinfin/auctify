@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "yabeda"
+
 Yabeda.configure do
   group :auctify do
     gauge :bids_count,

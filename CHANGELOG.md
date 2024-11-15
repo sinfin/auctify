@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+### 2024-11-15
+- added `sale_counts_by_state` metric to Yabeda
+- removed `yabeda-prometheus` gem dependency (now only `yabeda` is required).Other yabeda gems should be in main app.
 ## version 1.1.5
 ### 2023-09-05
 - make difference between confirm of "Do not confirm bids for this auction" and "I agree with auction terms"
