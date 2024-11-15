@@ -12,6 +12,9 @@ Yabeda.configure do
 
     gauge :current_max_delay_in_closing_auction_seconds,
           comment: "Delay from oldest `currently_ends_at` of auction in sale (that should be already closed)."
+    gauge :sale_counts_by_state,
+          comment: "Number of sales in specific state, for not finished salespacks.",
+          tags: [:state, :pack]
 
 
     # this is done when auction.close_bidding! is run
@@ -39,5 +42,18 @@ Yabeda.configure do
       delay = [0, (Time.current - auction.currently_ends_at)].max # only positive number
       auctify.current_max_delay_in_closing_auction_seconds.set({}, delay.round)
     end
+
+    current_packs = Auctify::SalesPack.where("? <= end_date", Date.today - 1.week) # just to see processing after auction is finished
+    current_packs.each do |pack|
+      state_counts = pack.sales.group(:aasm_state).count
+      state_counts.each do |state, count|
+        auctify.sale_counts_by_state.set({ state: state, pack: pack.slug }, count)
+      end
+    end
+    state_counts = Auctify::Sale::Base.where(pack_id: nil).group(:aasm_state).count
+    state_counts.each do |state, count|
+      auctify.sale_counts_by_state.set({ state: state, pack: "-no-pack-" }, count)
+    end
+
   end
 end
